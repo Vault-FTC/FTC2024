@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode.opmodes.tele;
+package org.firstinspires.ftc.teamcode.opmodes.debug;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -7,10 +8,9 @@ import org.firstinspires.ftc.teamcode.drive.Odometry;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 
-import java.io.IOException;
-
+@Disabled
 @TeleOp(name = "odo test")
-public class OdoTest extends OpMode {
+public class OdometryTest extends OpMode {
 
     Odometry odometry;
 

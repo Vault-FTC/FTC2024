@@ -52,6 +52,7 @@ public class Auton extends OpMode {
 
     @Override
     public void init() {
+        WebdashboardServer.getInstance(); // Initialize the dashboard server
         Robot.robotState = Robot.State.INITIALIZING;
         WebdashboardServer.getInstance();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());

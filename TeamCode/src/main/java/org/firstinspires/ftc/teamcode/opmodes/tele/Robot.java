@@ -12,12 +12,12 @@ import org.firstinspires.ftc.teamcode.commands.SlideDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
-import org.firstinspires.ftc.teamcode.drive.Odometry;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
 import org.firstinspires.ftc.teamcode.utils.GamepadTriggers;
+import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 
 @TeleOp(name = "Robot")
 public class Robot extends OpMode {
@@ -41,6 +41,7 @@ public class Robot extends OpMode {
 
     @Override
     public void init() {
+        WebdashboardServer.getInstance(); // Initialize the dashboard server
         driveControllerTriggers = new GamepadTriggers(gamepad1);
         payloadControllerTriggers = new GamepadTriggers(gamepad2);
         drive = new Drive(hardwareMap);
