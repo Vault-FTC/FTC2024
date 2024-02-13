@@ -47,6 +47,10 @@ public class Odometry {
         perpendicular.reset();
     }
 
+    public void setPosition(Pose2d pose) {
+        this.pose = pose;
+    }
+
     private Pose2d delta() {
         int currentPar0 = parallel0.getPosition();
         int currentPar1 = parallel1.getPosition();

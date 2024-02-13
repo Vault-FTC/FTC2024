@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.vision;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -15,15 +12,22 @@ import java.util.ArrayList;
 
 public class Pipeline extends OpenCvPipeline {
 
-    private Mat toDisplay = new Mat();
+    private final Mat toDisplay = new Mat();
 
     private PropLocation propLocation = PropLocation.CENTER;
+
+    private final Alliance alliance;
+
+    public Pipeline(Alliance alliance) {
+        this.alliance = alliance;
+    }
+
     @Override
     public Mat processFrame(Mat frame) {
         frame.copyTo(toDisplay);
 
         Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.medianBlur(frame, frame,7);
+        Imgproc.medianBlur(frame, frame, 7);
         CLAHE clahe = Imgproc.createCLAHE(5);
         clahe.apply(frame, frame); // Increase contrast
         ArrayList<MatOfPoint> contours = new ArrayList<>();
@@ -46,6 +50,9 @@ public class Pipeline extends OpenCvPipeline {
                 ySum += circles.get(0, i)[1];
             }
             propX = xSum / circles.cols(); // Divide by the number of circles detected
+            if (alliance == Alliance.BLUE) {
+                propX = frame.cols() - propX;
+            }
             propY = ySum / circles.cols();
         }
 

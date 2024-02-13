@@ -21,7 +21,6 @@ public class MecanumBase {
     private Path followPath;
     private final ElapsedTime timer = new ElapsedTime();
     private double followStartTimestamp;
-    private Waypoint lastWaypoint = null;
     private Waypoint[][] segments;
 
     public enum DriveState {
@@ -45,10 +44,6 @@ public class MecanumBase {
         rb = rightBack;
         this.poseSupplier = poseSupplier;
         timer.startTime();
-    }
-
-    public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack) {
-        this(leftFront, rightFront, leftBack, rightBack, () -> new Pose2d());
     }
 
     private void drive(double drive, double strafe, double turn, double botHeading, boolean squareInputs) {
@@ -203,12 +198,13 @@ public class MecanumBase {
                     Waypoint[] segment = bestFollowSegment();
                     targetPoint = intersection(botPose, segment, segment[1].followRadius);
                 }
-                lastWaypoint = targetPoint;
                 driveToPosition(targetPoint, endOfPath);
         }
     }
 
     public boolean finishedFollowing() {
-        return false;
+        Pose2d botPose = poseSupplier.get();
+        double distance = new Vector2d(segments[segments.length - 1][1].x - botPose.x, segments[segments.length - 1][1].y - botPose.y).magnitude;
+        return distance < 1.0 && Math.abs(Rotation2d.getAngleDifferenceRadians(botPose.rotation.getAngleRadians(), segments[segments.length - 1][1].targetEndRotation.getAngleRadians())) < 5 || timer.milliseconds() > followStartTimestamp + followPath.timeout;
     }
 }
