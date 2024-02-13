@@ -1,0 +1,51 @@
+package org.firstinspires.ftc.teamcode.subsystems;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
+import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
+import org.firstinspires.ftc.teamcode.drive.MecanumBase;
+import org.firstinspires.ftc.teamcode.drive.Odometry;
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+
+public class Drive extends Subsystem {
+
+    public final MecanumBase base;
+    public final Odometry odometry;
+
+    public enum State {
+        DRIVE,
+        FOLLOWING
+    }
+
+    private State state = State.DRIVE;
+
+    public Drive(HardwareMap hardwareMap) {
+        odometry = new Odometry(hardwareMap);
+        base = new MecanumBase(
+                hardwareMap.get(DcMotor.class, "lf"),
+                hardwareMap.get(DcMotor.class, "rf"),
+                hardwareMap.get(DcMotor.class, "lb"),
+                hardwareMap.get(DcMotor.class, "rb"), odometry::getPose);
+        base.lf.setDirection(DcMotorSimple.Direction.REVERSE);
+        base.lb.setDirection(DcMotorSimple.Direction.REVERSE);
+    }
+
+    public void drive(double drive, double strafe, double turn, double heading) {
+        base.drive(drive, strafe, turn, heading);
+    }
+
+    public void drive(double drive, double strafe, double turn) {
+        drive(drive, strafe, turn, -odometry.getPose().rotation.getAngleRadians());
+    }
+
+    @Override
+    public void periodic() {
+        odometry.update();
+        if (Constants.debugMode)
+            DashboardLayout.setNodeValue("pose", odometry.getPose().toString());
+    }
+
+}
