@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.drive.Odometry;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 
-@Disabled
+//@Disabled
 @TeleOp(name = "odo test")
 public class OdometryTest extends OpMode {
 
@@ -16,7 +16,7 @@ public class OdometryTest extends OpMode {
 
     @Override
     public void init() {
-        WebdashboardServer server = WebdashboardServer.getInstance();
+        WebdashboardServer.getInstance();
         odometry = new Odometry(hardwareMap);
     }
 

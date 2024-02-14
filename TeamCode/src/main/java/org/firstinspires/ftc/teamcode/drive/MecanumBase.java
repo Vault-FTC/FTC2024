@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 import java.util.ArrayList;
 import java.util.function.Supplier;
@@ -32,21 +33,21 @@ public class MecanumBase {
 
     public DriveState driveState = DriveState.DRIVE;
 
-    private final Supplier<Pose2d> poseSupplier;
-    public PIDController driveController = new PIDController(0.1, 0, 0);
+    private final Odometry odometry;
+    public PIDController driveController = new PIDController(1, 0, 0);
 
     public PIDController rotController = new PIDController(0.1, 0, 0);
 
-    public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Supplier<Pose2d> poseSupplier) {
+    public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Odometry odometry) {
         lf = leftFront;
         rf = rightFront;
         lb = leftBack;
         rb = rightBack;
-        this.poseSupplier = poseSupplier;
+        this.odometry = odometry;
         timer.startTime();
     }
 
-    private void drive(double drive, double strafe, double turn, double botHeading, boolean squareInputs) {
+    public void drive(double drive, double strafe, double turn, double botHeading, boolean squareInputs) {
         if (squareInputs) {
             drive = Math.copySign(Math.pow(drive, 2), drive);
             strafe = Math.copySign(Math.pow(strafe, 2), strafe);
@@ -137,9 +138,11 @@ public class MecanumBase {
     }
 
     public void driveToPosition(Waypoint targetPoint, boolean useEndpointHeading) {
-        Pose2d botPose = poseSupplier.get();
+        Pose2d botPose = odometry.update();
         Vector2d relativeTargetVector = (new Vector2d(targetPoint.x - botPose.x, targetPoint.y - botPose.y));
-        Vector2d movementSpeed = new Vector2d(driveController.calculate(0, relativeTargetVector.magnitude), relativeTargetVector.angle, false).rotate(-botPose.angle);
+        Vector2d movementSpeed = (new Vector2d(driveController.calculate(0, relativeTargetVector.magnitude), relativeTargetVector.angle, false)).rotate(-botPose.angle);
+
+        DashboardLayout.setNodeValue("error", relativeTargetVector.magnitude);
 
         double rotSpeed;
         double targetAngle;
@@ -153,11 +156,11 @@ public class MecanumBase {
         }
 
         rotSpeed = rotController.calculate(0, Rotation2d.getAngleDifferenceRadians(targetAngle, botPose.rotation.getAngleRadians() + Math.PI / 2));
-        drive(movementSpeed.y, movementSpeed.x, rotSpeed);
+        drive(movementSpeed.y, -movementSpeed.x, rotSpeed);
     }
 
     private Waypoint[] bestFollowSegment() {
-        Pose2d botPose = poseSupplier.get();
+        Pose2d botPose = odometry.getPose();
         Pair<Waypoint[], Double> shortestDistance = new Pair<>(new Waypoint[]{new Waypoint(Vector2d.undefined, 0), new Waypoint(Vector2d.undefined, 0)}, Double.POSITIVE_INFINITY);
         for (int i = waypointIndex; i < segments.length; i++) {
             double distance = new Vector2d(segments[i][1].x - botPose.x, segments[i][1].y - botPose.y).magnitude;
@@ -170,7 +173,7 @@ public class MecanumBase {
     }
 
     public void followPath() {
-        Pose2d botPose = poseSupplier.get();
+        Pose2d botPose = odometry.getPose();
         Waypoint targetPoint;
         boolean endOfPath = false;
 
@@ -203,7 +206,7 @@ public class MecanumBase {
     }
 
     public boolean finishedFollowing() {
-        Pose2d botPose = poseSupplier.get();
+        Pose2d botPose = odometry.getPose();
         double distance = new Vector2d(segments[segments.length - 1][1].x - botPose.x, segments[segments.length - 1][1].y - botPose.y).magnitude;
         return distance < 1.0 && Math.abs(Rotation2d.getAngleDifferenceRadians(botPose.rotation.getAngleRadians(), segments[segments.length - 1][1].targetEndRotation.getAngleRadians())) < 5 || timer.milliseconds() > followStartTimestamp + followPath.timeout;
     }

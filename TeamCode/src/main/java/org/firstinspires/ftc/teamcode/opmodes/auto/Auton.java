@@ -1,52 +1,54 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
-import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.opmodes.tele.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
+import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Placer;
+import org.firstinspires.ftc.teamcode.subsystems.Slide;
 import org.firstinspires.ftc.teamcode.vision.Pipeline;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
-import org.firstinspires.ftc.teamcode.opmodes.auto.AutonLoader.AutonType;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 @Disabled
-@Autonomous(name = "Autonomous")
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Autonomous")
 
-public class Auton extends OpMode {
+public abstract class Auton extends OpMode {
 
     OpenCvWebcam webcam;
 
     public final int STREAM_WIDTH = 1280;
     public final int STREAM_HEIGHT = 720;
 
-    Pipeline pipeline;
-
+    Pipeline visionPipeline;
     Drive drive;
+    Intake intake;
+    Slide slide;
+    Placer placer;
 
-    SequentialCommandGroup blueLeft;
-    SequentialCommandGroup blueRight;
-    SequentialCommandGroup redLeft;
-    SequentialCommandGroup redRight;
+    Command autonomousCommand;
+
+    public enum AutonType {
+        BLUE_LEFT,
+        BLUE_RIGHT,
+        RED_LEFT,
+        RED_RIGHT
+    }
 
     final AutonType type;
 
-    public Auton(AutonType type, HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
-        this.hardwareMap = hardwareMap;
-        this.telemetry = telemetry;
-        this.gamepad1 = gamepad1;
-        this.gamepad2 = gamepad2;
+    public Auton(AutonType type) {
         this.type = type;
     }
 
@@ -58,8 +60,8 @@ public class Auton extends OpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "cam1"), cameraMonitorViewId);
-        pipeline = new Pipeline(type == AutonType.BLUE_RIGHT || type == AutonType.BLUE_LEFT ? Pipeline.Alliance.BLUE : Pipeline.Alliance.RED);
-        webcam.setPipeline(pipeline);
+        visionPipeline = new Pipeline(type == AutonType.BLUE_RIGHT || type == AutonType.BLUE_LEFT ? Pipeline.Alliance.BLUE : Pipeline.Alliance.RED);
+        webcam.setPipeline(visionPipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
@@ -75,20 +77,26 @@ public class Auton extends OpMode {
 
         // Instantiate subsystems
         drive = new Drive(hardwareMap);
+        intake = new Intake(hardwareMap.get(DcMotor.class, "intakeMotor"));
+        slide = new Slide(hardwareMap.get(DcMotor.class, "slideMotor"), hardwareMap.get(TouchSensor.class, "limit"));
+        placer = new Placer(hardwareMap);
+
+
     }
 
     @Override
     public void init_loop() {
-        telemetry.addData("prop location: ", pipeline.getPropLocation().toString());
-        DashboardLayout.setNodeValue("prop location", pipeline.getPropLocation().toString());
+        telemetry.addData("prop location: ", visionPipeline.getPropLocation().toString());
+        DashboardLayout.setNodeValue("prop location", visionPipeline.getPropLocation().toString());
     }
 
 
     @Override
     public void start() {
+        Robot.robotState = Robot.State.AUTO;
         webcam.stopStreaming();
         webcam.closeCameraDevice();
-        Robot.robotState = Robot.State.AUTO;
+        autonomousCommand.schedule();
     }
 
 

@@ -81,7 +81,7 @@ public class Pipeline extends OpenCvPipeline {
         CENTER(1),
         RIGHT(2);
 
-        final Integer location;
+        public final Integer location;
 
         PropLocation(int location) {
             this.location = location;

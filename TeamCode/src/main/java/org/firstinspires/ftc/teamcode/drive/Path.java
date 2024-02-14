@@ -16,6 +16,8 @@ public class Path {
 
         private final ArrayList<Waypoint> waypoints;
 
+        private double defaultRadiusIn = 12;
+
         private double timeout = Double.POSITIVE_INFINITY;
 
         private Builder() {
@@ -24,6 +26,16 @@ public class Path {
 
         public Builder addWaypoint(Waypoint waypoint) {
             waypoints.add(waypoint);
+            return this;
+        }
+
+        public Builder setDefaultRadius(double defaultRadiusIn) {
+            this.defaultRadiusIn = defaultRadiusIn;
+            return this;
+        }
+
+        public Builder addWaypoint(double x, double y) {
+            waypoints.add(new Waypoint(x, y, defaultRadiusIn));
             return this;
         }
 

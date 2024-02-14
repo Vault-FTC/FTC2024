@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.commandsystem;
 
+import java.util.ArrayList;
+
 public class SequentialCommandGroup extends Command {
     private final Command[] commands;
 
@@ -26,5 +28,26 @@ public class SequentialCommandGroup extends Command {
     @Override
     public boolean isFinished() {
         return index == commands.length - 1;
+    }
+
+    public static class Builder {
+
+        ArrayList<Command> commands = new ArrayList<>();
+
+        private Builder() {
+        }
+
+        public Builder add(Command command) {
+            commands.add(command);
+            return this;
+        }
+
+        public SequentialCommandGroup build() {
+            return new SequentialCommandGroup(commands.toArray(new Command[]{}));
+        }
+    }
+
+    public static Builder getBuilder() {
+        return new Builder();
     }
 }

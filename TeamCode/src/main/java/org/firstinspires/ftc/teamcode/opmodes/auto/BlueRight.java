@@ -3,9 +3,8 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "blue right", group = "blue")
-public class BlueRight extends AutonLoader {
-    @Override
-    public void init() {
-        loadAuton(AutonType.BLUE_RIGHT);
+public class BlueRight extends Auton {
+    public BlueRight() {
+        super(AutonType.BLUE_RIGHT);
     }
 }

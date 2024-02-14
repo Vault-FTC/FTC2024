@@ -15,26 +15,22 @@ public class Drive extends Subsystem {
     public final MecanumBase base;
     public final Odometry odometry;
 
-    public enum State {
-        DRIVE,
-        FOLLOWING
-    }
-
-    private State state = State.DRIVE;
-
     public Drive(HardwareMap hardwareMap) {
         odometry = new Odometry(hardwareMap);
         base = new MecanumBase(
                 hardwareMap.get(DcMotor.class, "lf"),
                 hardwareMap.get(DcMotor.class, "rf"),
                 hardwareMap.get(DcMotor.class, "lb"),
-                hardwareMap.get(DcMotor.class, "rb"), odometry::getPose);
+                hardwareMap.get(DcMotor.class, "rb"), odometry);
         base.lf.setDirection(DcMotorSimple.Direction.REVERSE);
         base.lb.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void drive(double drive, double strafe, double turn, double heading) {
-        base.drive(drive, strafe, turn, heading);
+        base.drive(drive, strafe, turn, heading, false);
+        if (Constants.debugMode) {
+            DashboardLayout.setNodeValue("input", "drive: " + drive + " strafe: " + strafe + " turn: " + turn);
+        }
     }
 
     public void drive(double drive, double strafe, double turn) {
@@ -44,8 +40,9 @@ public class Drive extends Subsystem {
     @Override
     public void periodic() {
         odometry.update();
-        if (Constants.debugMode)
+        if (Constants.debugMode) {
             DashboardLayout.setNodeValue("pose", odometry.getPose().toString());
+        }
     }
 
 }
