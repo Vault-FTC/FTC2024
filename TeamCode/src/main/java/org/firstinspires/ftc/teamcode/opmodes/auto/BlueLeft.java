@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commands.TimedIntake;
+import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.commandsystem.ParallelCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
@@ -44,5 +45,10 @@ public class BlueLeft extends Auton {
                 .add(new ParallelCommandGroup(new InstantCommand(() -> placer.close()), new SlideToPosition(slide, gamepad2, 0)))
                 .build();
         super.start();
+    }
+
+    @Override
+    public void loop() {
+        super.loop();
     }
 }

@@ -24,6 +24,8 @@ public class MecanumBase {
     private double followStartTimestamp;
     private Waypoint[][] segments;
 
+    private double lastTargetAngle = 0;
+
     public enum DriveState {
         DRIVE,
         FOLLOWING,
@@ -33,17 +35,17 @@ public class MecanumBase {
 
     public DriveState driveState = DriveState.DRIVE;
 
-    private final Odometry odometry;
-    public PIDController driveController = new PIDController(1, 0, 0);
+    private final Supplier<Pose2d> poseSupplier;
+    public PIDController driveController = new PIDController(0.1, 0.0, 0.2);
 
-    public PIDController rotController = new PIDController(0.1, 0, 0);
+    public PIDController rotController = new PIDController(5.5, 0.0, 0);
 
-    public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Odometry odometry) {
+    public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Supplier<Pose2d> poseSupplier) {
         lf = leftFront;
         rf = rightFront;
         lb = leftBack;
         rb = rightBack;
-        this.odometry = odometry;
+        this.poseSupplier = poseSupplier;
         timer.startTime();
     }
 
@@ -138,9 +140,11 @@ public class MecanumBase {
     }
 
     public void driveToPosition(Waypoint targetPoint, boolean useEndpointHeading) {
-        Pose2d botPose = odometry.update();
+        Pose2d botPose = poseSupplier.get();
         Vector2d relativeTargetVector = (new Vector2d(targetPoint.x - botPose.x, targetPoint.y - botPose.y));
-        Vector2d movementSpeed = (new Vector2d(driveController.calculate(0, relativeTargetVector.magnitude), relativeTargetVector.angle, false)).rotate(-botPose.angle);
+        Vector2d movementSpeed = (new Vector2d(driveController.calculate(0, relativeTargetVector.magnitude), relativeTargetVector.angle, false)).rotate(-botPose.rotation.getAngleRadians());
+        DashboardLayout.setNodeValue("target", botPose.rotation.getAngleRadians());
+
 
         DashboardLayout.setNodeValue("error", relativeTargetVector.magnitude);
 
@@ -151,16 +155,19 @@ public class MecanumBase {
             targetAngle = targetPoint.targetEndRotation.getAngleRadians();
         } else if (targetPoint.targetFollowRotation != null) {
             targetAngle = targetPoint.targetFollowRotation.getAngleRadians();
-        } else {
+        } else if (relativeTargetVector.magnitude < 2.0) {
             targetAngle = relativeTargetVector.angle;
+        } else {
+            targetAngle = lastTargetAngle;
         }
+        lastTargetAngle = targetAngle;
 
         rotSpeed = rotController.calculate(0, Rotation2d.getAngleDifferenceRadians(targetAngle, botPose.rotation.getAngleRadians() + Math.PI / 2));
-        drive(movementSpeed.y, -movementSpeed.x, rotSpeed);
+        drive(movementSpeed.y, movementSpeed.x, rotSpeed);
     }
 
     private Waypoint[] bestFollowSegment() {
-        Pose2d botPose = odometry.getPose();
+        Pose2d botPose = poseSupplier.get();
         Pair<Waypoint[], Double> shortestDistance = new Pair<>(new Waypoint[]{new Waypoint(Vector2d.undefined, 0), new Waypoint(Vector2d.undefined, 0)}, Double.POSITIVE_INFINITY);
         for (int i = waypointIndex; i < segments.length; i++) {
             double distance = new Vector2d(segments[i][1].x - botPose.x, segments[i][1].y - botPose.y).magnitude;
@@ -173,7 +180,7 @@ public class MecanumBase {
     }
 
     public void followPath() {
-        Pose2d botPose = odometry.getPose();
+        Pose2d botPose = poseSupplier.get();
         Waypoint targetPoint;
         boolean endOfPath = false;
 
@@ -206,7 +213,7 @@ public class MecanumBase {
     }
 
     public boolean finishedFollowing() {
-        Pose2d botPose = odometry.getPose();
+        Pose2d botPose = poseSupplier.get();
         double distance = new Vector2d(segments[segments.length - 1][1].x - botPose.x, segments[segments.length - 1][1].y - botPose.y).magnitude;
         return distance < 1.0 && Math.abs(Rotation2d.getAngleDifferenceRadians(botPose.rotation.getAngleRadians(), segments[segments.length - 1][1].targetEndRotation.getAngleRadians())) < 5 || timer.milliseconds() > followStartTimestamp + followPath.timeout;
     }

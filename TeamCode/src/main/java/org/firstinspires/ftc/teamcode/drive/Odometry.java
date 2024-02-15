@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.drive;
 
-import android.util.Pair;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -12,7 +10,7 @@ public class Odometry {
     public static final class Params {
         public static final double trackWidth = 13.5433071;
 
-        public static final double horizontalDist = -5.5;
+        public static final double horizontalDist = 5.75;
         public static double inPerTick = 0.002968431495;
     }
 
@@ -26,25 +24,12 @@ public class Odometry {
 
     private Pose2d pose;
 
-    public Odometry(Encoder parallel0, Encoder parallel1, Encoder perpendicular) {
-        pose = new Pose2d();
-        this.parallel0 = parallel0;
-        this.parallel1 = parallel1;
-        this.perpendicular = perpendicular;
-    }
-
     public Odometry(HardwareMap hardwareMap) {
         pose = new Pose2d();
-        parallel0 = new PairedEncoder(hardwareMap.get(DcMotor.class, "rf"), true); //lf
-        parallel1 = new PairedEncoder(hardwareMap.get(DcMotor.class, "lf"), true); //lb
-        perpendicular = new PairedEncoder(hardwareMap.get(DcMotor.class, "lb"), true); //rf
+        parallel0 = new PairedEncoder(hardwareMap.get(DcMotor.class, "lf"), false); //lf
+        parallel1 = new PairedEncoder(hardwareMap.get(DcMotor.class, "rf"), false); //lb
+        perpendicular = new PairedEncoder(hardwareMap.get(DcMotor.class, "lb"), false); //rf
         resetEncoders();
-    }
-
-    public void init() {
-        parallel0.reset();
-        parallel1.reset();
-        perpendicular.reset();
     }
 
     public void setPosition(Pose2d pose) {

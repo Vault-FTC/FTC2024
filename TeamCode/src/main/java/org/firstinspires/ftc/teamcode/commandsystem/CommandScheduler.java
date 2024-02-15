@@ -52,4 +52,9 @@ public final class CommandScheduler implements Runnable {
         }
         return instance;
     }
+
+    public void clearRegistry() {
+        subsystems = new ArrayList<>();
+        commands = new ArrayList<>();
+    }
 }

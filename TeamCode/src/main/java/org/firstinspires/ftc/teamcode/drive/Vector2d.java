@@ -71,4 +71,9 @@ public class Vector2d {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "x: " + x + ", y: " + y;
+    }
+
 }

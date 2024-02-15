@@ -19,7 +19,7 @@ public class Waypoint extends Vector2d {
     }
 
     public Waypoint(double x, double y, double followRadius, Rotation2d targetFollowRotation, Rotation2d targetEndRotation) {
-
+        this(new Vector2d(x, y), followRadius, targetFollowRotation, targetEndRotation);
     }
 
     public Waypoint(double x, double y, double followRadius) {

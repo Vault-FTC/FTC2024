@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.commandsystem;
 
 import java.util.ArrayList;
 
-public class Subsystem {
+public abstract class Subsystem implements Periodic {
 
     ArrayList<Command> requirements = new ArrayList<>();
 
@@ -39,6 +39,4 @@ public class Subsystem {
         defaultCommand = command;
     }
 
-    public void periodic() {
-    }
 }

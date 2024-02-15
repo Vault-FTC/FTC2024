@@ -15,6 +15,8 @@ public class PairedEncoder implements Encoder {
 
     public PairedEncoder(DcMotor pairedMotor, boolean reversed) {
         this.pairedMotor = pairedMotor;
+        pairedMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        pairedMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         polarity = reversed ? -1 : 1;
     }
 
