@@ -36,15 +36,20 @@ public class MecanumBase {
     public DriveState driveState = DriveState.DRIVE;
 
     private final Supplier<Pose2d> poseSupplier;
-    public PIDController driveController = new PIDController(0.1, 0.0, 0.2);
+    public PIDController driveController = new PIDController(0.25, 0.0, 0.9);
 
-    public PIDController rotController = new PIDController(5.5, 0.0, 0);
+    public PIDController rotController = new PIDController(3.0, 0.0002, 1);
 
     public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Supplier<Pose2d> poseSupplier) {
         lf = leftFront;
         rf = rightFront;
         lb = leftBack;
         rb = rightBack;
+        lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         this.poseSupplier = poseSupplier;
         timer.startTime();
     }
@@ -94,27 +99,44 @@ public class MecanumBase {
 
     private static double getTValue(Vector2d point1, Vector2d point2, Vector2d interpolationPoint) {
         if (point1.x == point2.x) {
-            return (interpolationPoint.y - point1.y) - (point2.y - point1.y);
+            return (interpolationPoint.y - point1.y) / (point2.y - point1.y);
         }
-        return (interpolationPoint.x - point1.x) - (point2.x - point1.x);
+        return (interpolationPoint.x - point1.x) / (point2.x - point1.x);
     }
 
     private static Waypoint intersection(Pose2d botPose, Waypoint[] lineSegment, double radius) {
         ArrayList<Pair<Waypoint, Double>> intersections = new ArrayList<>();
 
+        double x1;
+        double y1;
+
+        double x2;
+        double y2;
+
         double m = (lineSegment[0].y - lineSegment[1].y) / (lineSegment[0].x - lineSegment[1].x);
+
         double b = lineSegment[0].y - m * lineSegment[0].x;
 
         double h = botPose.x;
         double k = botPose.y;
 
-        double commonTerm = Math.sqrt(Math.pow(m, 2) * (Math.pow(radius, 2) - Math.pow(h, 2)) + (2 * m * h) * (k - b) + 2 * b * k + Math.pow(radius, 2) - Math.pow(b, 2) - Math.pow(k, 2));
+        double commonTerm;
 
-        double x1 = (m * (k - b) + h + commonTerm) / (Math.pow(m, 2) + 1);
-        double x2 = (m * (k - b) + h - commonTerm) / (Math.pow(m, 2) + 1);
+        if (!Double.isFinite(m)) {
+            x1 = lineSegment[0].x;
+            commonTerm = Math.sqrt(Math.pow(radius, 2) - Math.pow((x1 - h), 2));
+            y1 = botPose.y + commonTerm;
+            x2 = x1;
+            y2 = botPose.y - commonTerm;
+        } else {
+            commonTerm = Math.sqrt(Math.pow(m, 2) * (Math.pow(radius, 2) - Math.pow(h, 2)) + (2 * m * h) * (k - b) + 2 * b * k + Math.pow(radius, 2) - Math.pow(b, 2) - Math.pow(k, 2));
 
-        double y1 = Math.sqrt(Math.pow(radius, 2) - Math.pow((x1 - h), 2)) + k;
-        double y2 = Math.sqrt(Math.pow(radius, 2) - Math.pow((x2 - h), 2)) + k;
+            x1 = (m * (k - b) + h + commonTerm) / (Math.pow(m, 2) + 1);
+            x2 = (m * (k - b) + h - commonTerm) / (Math.pow(m, 2) + 1);
+
+            y1 = Math.sqrt(Math.pow(radius, 2) - Math.pow((x1 - h), 2)) + k;
+            y2 = Math.sqrt(Math.pow(radius, 2) - Math.pow((x2 - h), 2)) + k;
+        }
 
         Waypoint point0 = new Waypoint(x1, y1, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation);
         Waypoint point1 = new Waypoint(x2, y2, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation);
@@ -155,18 +177,26 @@ public class MecanumBase {
             targetAngle = targetPoint.targetEndRotation.getAngleRadians();
         } else if (targetPoint.targetFollowRotation != null) {
             targetAngle = targetPoint.targetFollowRotation.getAngleRadians();
-        } else if (relativeTargetVector.magnitude < 2.0) {
-            targetAngle = relativeTargetVector.angle;
+        } else if (relativeTargetVector.magnitude > 15.0) {
+            targetAngle = relativeTargetVector.angle - Math.PI / 2;
         } else {
             targetAngle = lastTargetAngle;
         }
         lastTargetAngle = targetAngle;
 
-        rotSpeed = rotController.calculate(0, Rotation2d.getAngleDifferenceRadians(targetAngle, botPose.rotation.getAngleRadians() + Math.PI / 2));
+        double rotError = AngleHelpers.getError(targetAngle, botPose.rotation.getAngleRadians());
+
+        double divisor;
+
+        //movementSpeed = new Vector2d(movementSpeed.magnitude / (10 * Math.abs(rotError) + 1), movementSpeed.angle, false);
+
+        rotSpeed = rotController.calculate(0, rotError);
+
+
         drive(movementSpeed.y, movementSpeed.x, rotSpeed);
     }
 
-    private Waypoint[] bestFollowSegment() {
+    private Waypoint[] closestSegment() {
         Pose2d botPose = poseSupplier.get();
         Pair<Waypoint[], Double> shortestDistance = new Pair<>(new Waypoint[]{new Waypoint(Vector2d.undefined, 0), new Waypoint(Vector2d.undefined, 0)}, Double.POSITIVE_INFINITY);
         for (int i = waypointIndex; i < segments.length; i++) {
@@ -204,9 +234,13 @@ public class MecanumBase {
                 if (targetPoint == null) { // If null is returned, the t value of the target point is greater than 1 or less than 0
                     waypointIndex++;
                     followPath();
-                } else if (targetPoint.equals(Vector2d.undefined)) { // If there is no valid intersection, follow the last target point
-                    Waypoint[] segment = bestFollowSegment();
+                    return;
+                } else if (targetPoint.equals(Vector2d.undefined)) { // If there is no valid intersection, follow the closest segment
+                    Waypoint[] segment = closestSegment();
                     targetPoint = intersection(botPose, segment, segment[1].followRadius);
+                    if (targetPoint.equals(Vector2d.undefined)) {
+                        targetPoint = segments[waypointIndex][1];
+                    }
                 }
                 driveToPosition(targetPoint, endOfPath);
         }

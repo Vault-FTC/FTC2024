@@ -9,6 +9,9 @@ public class PIDController {
 
     private double i;
 
+    private double minIntegralErr = 0;
+    private double maxIntegralErr = Double.POSITIVE_INFINITY;
+
     private final ElapsedTime timer;
     private double lastTimestamp = 0;
 
@@ -20,9 +23,14 @@ public class PIDController {
         timer.reset();
     }
 
+    public void setIntegralAccumulationRange(double minErr, double maxErr) {
+        minIntegralErr = minErr;
+        maxIntegralErr = maxErr;
+    }
+
     private double elapsedTime() {
         double currentTime = timer.milliseconds();
-        double elapsedTime = currentTime  - lastTimestamp;
+        double elapsedTime = currentTime - lastTimestamp;
         lastTimestamp = currentTime;
         return elapsedTime > 200 ? 50 : elapsedTime;
     }
@@ -31,8 +39,12 @@ public class PIDController {
         double error = setpoint - measurement;
         double dt = elapsedTime();
         double p = kP * error;
-        i += kI * error * dt;
         double d = -kD * error / dt;
-        return p + i + d;
+        if (Math.abs(error) > Math.abs(minIntegralErr) && Math.abs(error) < Math.abs(maxIntegralErr)) {
+            i += kI * error * dt;
+            return p + i + d;
+        } else {
+            return p + d;
+        }
     }
 }

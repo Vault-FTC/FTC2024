@@ -11,6 +11,8 @@ public class Waypoint extends Vector2d {
 
     public Waypoint(Vector2d vector, double followRadius, Rotation2d targetFollowRotation, Rotation2d targetEndRotation) {
         super(vector.x, vector.y);
+        this.targetFollowRotation = targetFollowRotation;
+        this.targetEndRotation = targetEndRotation;
         this.followRadius = followRadius;
     }
 
