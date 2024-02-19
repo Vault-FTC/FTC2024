@@ -4,11 +4,10 @@ import android.util.Pair;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.utils.PIDController;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
-import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class MecanumBase {
@@ -27,13 +26,12 @@ public class MecanumBase {
     private double lastTargetAngle = 0;
 
     public enum DriveState {
-        DRIVE,
+        IDLE,
         FOLLOWING,
-        END_PATH
 
     }
 
-    public DriveState driveState = DriveState.DRIVE;
+    public DriveState driveState = DriveState.IDLE;
 
     private final Supplier<Pose2d> poseSupplier;
     public PIDController driveController = new PIDController(0.25, 0.0, 0.9);
@@ -104,56 +102,6 @@ public class MecanumBase {
         return (interpolationPoint.x - point1.x) / (point2.x - point1.x);
     }
 
-    private static Waypoint intersection(Pose2d botPose, Waypoint[] lineSegment, double radius) {
-        ArrayList<Pair<Waypoint, Double>> intersections = new ArrayList<>();
-
-        double x1;
-        double y1;
-
-        double x2;
-        double y2;
-
-        double m = (lineSegment[0].y - lineSegment[1].y) / (lineSegment[0].x - lineSegment[1].x);
-
-        double b = lineSegment[0].y - m * lineSegment[0].x;
-
-        double h = botPose.x;
-        double k = botPose.y;
-
-        double commonTerm;
-
-        if (!Double.isFinite(m)) {
-            x1 = lineSegment[0].x;
-            commonTerm = Math.sqrt(Math.pow(radius, 2) - Math.pow((x1 - h), 2));
-            y1 = botPose.y + commonTerm;
-            x2 = x1;
-            y2 = botPose.y - commonTerm;
-        } else {
-            commonTerm = Math.sqrt(Math.pow(m, 2) * (Math.pow(radius, 2) - Math.pow(h, 2)) + (2 * m * h) * (k - b) + 2 * b * k + Math.pow(radius, 2) - Math.pow(b, 2) - Math.pow(k, 2));
-
-            x1 = (m * (k - b) + h + commonTerm) / (Math.pow(m, 2) + 1);
-            x2 = (m * (k - b) + h - commonTerm) / (Math.pow(m, 2) + 1);
-
-            y1 = Math.sqrt(Math.pow(radius, 2) - Math.pow((x1 - h), 2)) + k;
-            y2 = Math.sqrt(Math.pow(radius, 2) - Math.pow((x2 - h), 2)) + k;
-        }
-
-        Waypoint point0 = new Waypoint(x1, y1, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation);
-        Waypoint point1 = new Waypoint(x2, y2, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation);
-
-        intersections.add(new Pair<>(point0, getTValue(lineSegment[0], lineSegment[1], point0)));
-        intersections.add(new Pair<>(point1, getTValue(lineSegment[0], lineSegment[1], point1)));
-
-        Pair<Waypoint, Double> bestIntersection;
-
-        bestIntersection = intersections.get(0).second > intersections.get(1).second ? intersections.get(0) : intersections.get(1);
-
-        if (bestIntersection.second > 1 || bestIntersection.second < 0) {
-            return null;
-        }
-
-        return bestIntersection.first;
-    }
 
     public void setFollowPath(Path path) {
         followPath = path;
@@ -165,10 +113,6 @@ public class MecanumBase {
         Pose2d botPose = poseSupplier.get();
         Vector2d relativeTargetVector = (new Vector2d(targetPoint.x - botPose.x, targetPoint.y - botPose.y));
         Vector2d movementSpeed = (new Vector2d(driveController.calculate(0, relativeTargetVector.magnitude), relativeTargetVector.angle, false)).rotate(-botPose.rotation.getAngleRadians());
-        DashboardLayout.setNodeValue("target", botPose.rotation.getAngleRadians());
-
-
-        DashboardLayout.setNodeValue("error", relativeTargetVector.magnitude);
 
         double rotSpeed;
         double targetAngle;
@@ -185,15 +129,60 @@ public class MecanumBase {
         lastTargetAngle = targetAngle;
 
         double rotError = AngleHelpers.getError(targetAngle, botPose.rotation.getAngleRadians());
-
-        double divisor;
-
-        //movementSpeed = new Vector2d(movementSpeed.magnitude / (10 * Math.abs(rotError) + 1), movementSpeed.angle, false);
-
+        double magnitude = movementSpeed.magnitude / (5 * Math.pow(rotError, 2) + 1);
+        magnitude = Range.clip(magnitude, -targetPoint.maxVelocity, targetPoint.maxVelocity);
+        movementSpeed = new Vector2d(magnitude, movementSpeed.angle, false);
         rotSpeed = rotController.calculate(0, rotError);
 
-
         drive(movementSpeed.y, movementSpeed.x, rotSpeed);
+    }
+
+    private static Waypoint intersection(Pose2d botPose, Waypoint[] lineSegment, double radius) {
+        double x1;
+        double y1;
+
+        double x2;
+        double y2;
+
+        double m = (lineSegment[0].y - lineSegment[1].y) / (lineSegment[0].x - lineSegment[1].x);
+        double b = lineSegment[0].y - m * lineSegment[0].x;
+
+        double h = botPose.x;
+        double k = botPose.y;
+
+        double commonTerm;
+
+        if (Double.isFinite(m)) {
+            commonTerm = Math.sqrt(Math.pow(m, 2) * (Math.pow(radius, 2) - Math.pow(h, 2)) + (2 * m * h) * (k - b) + 2 * b * k + Math.pow(radius, 2) - Math.pow(b, 2) - Math.pow(k, 2));
+
+            x1 = (m * (k - b) + h + commonTerm) / (Math.pow(m, 2) + 1);
+            x2 = (m * (k - b) + h - commonTerm) / (Math.pow(m, 2) + 1);
+
+            y1 = Math.sqrt(Math.pow(radius, 2) - Math.pow((x1 - h), 2)) + k;
+            y2 = Math.sqrt(Math.pow(radius, 2) - Math.pow((x2 - h), 2)) + k;
+        } else { // Vertical line
+            x1 = lineSegment[0].x;
+            commonTerm = Math.sqrt(Math.pow(radius, 2) - Math.pow((x1 - h), 2));
+            y1 = botPose.y + commonTerm;
+            x2 = x1;
+            y2 = botPose.y - commonTerm;
+        }
+
+        Waypoint point0 = new Waypoint(x1, y1, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation);
+        Waypoint point1 = new Waypoint(x2, y2, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation);
+
+        Pair<Waypoint, Double> intersection0 = new Pair<>(point0, getTValue(lineSegment[0], lineSegment[1], point0));
+        Pair<Waypoint, Double> intersection1 = new Pair<>(point1, getTValue(lineSegment[0], lineSegment[1], point1));
+
+        Pair<Waypoint, Double> bestIntersection;
+
+        bestIntersection = intersection0.second > intersection1.second ? intersection0 : intersection1;
+
+        if (bestIntersection.second > 1 || bestIntersection.second < 0) {
+            return null;
+        }
+
+        return bestIntersection.first;
     }
 
     private Waypoint[] closestSegment() {
@@ -215,33 +204,30 @@ public class MecanumBase {
         boolean endOfPath = false;
 
         switch (driveState) {
-            case DRIVE:
+            case IDLE:
                 if (waypointIndex != 0) return;
                 followStartTimestamp = timer.milliseconds();
                 driveState = DriveState.FOLLOWING;
             case FOLLOWING:
                 if (timer.milliseconds() > followStartTimestamp + followPath.timeout) {
-                    driveState = DriveState.DRIVE;
+                    driveState = DriveState.IDLE;
                 }
 
-                if (waypointIndex < segments.length - 1) {
-                    targetPoint = intersection(botPose, segments[waypointIndex], segments[waypointIndex][1].followRadius);
-                } else {
-                    targetPoint = segments[segments.length - 1][1];
-                    endOfPath = true;
-                }
+                targetPoint = intersection(botPose, segments[waypointIndex], segments[waypointIndex][1].followRadius);
 
                 if (targetPoint == null) { // If null is returned, the t value of the target point is greater than 1 or less than 0
-                    waypointIndex++;
-                    followPath();
-                    return;
-                } else if (targetPoint.equals(Vector2d.undefined)) { // If there is no valid intersection, follow the closest segment
-                    Waypoint[] segment = closestSegment();
-                    targetPoint = intersection(botPose, segment, segment[1].followRadius);
-                    if (targetPoint.equals(Vector2d.undefined)) {
-                        targetPoint = segments[waypointIndex][1];
+                    if (waypointIndex == segments.length - 1) {
+                        targetPoint = segments[segments.length - 1][1];
+                        endOfPath = true;
+                    } else {
+                        waypointIndex++;
+                        followPath();
+                        return;
                     }
+                } else if (targetPoint.equals(Vector2d.undefined)) { // If there is no valid intersection, follow the endpoint of the current segment
+                    targetPoint = segments[waypointIndex][1];
                 }
+
                 driveToPosition(targetPoint, endOfPath);
         }
     }

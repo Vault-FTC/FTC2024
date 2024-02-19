@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.drive;
 
 public class Rotation2d {
 
-    /** Constructs a new rotation2d with the provided radian value **/
+    /**
+     * Constructs a new rotation2d with the provided radian value
+     **/
     private final double angle;
+
     public Rotation2d(double angle) {
         this.angle = angle;
     }
@@ -11,6 +14,11 @@ public class Rotation2d {
     public Rotation2d() {
         this(0);
     }
+
+    public static Rotation2d fromDegrees(double angleDegrees) {
+        return new Rotation2d(angleDegrees / 180 * Math.PI);
+    }
+
     public double getAngleRadians() {
         return angle;
     }
@@ -36,8 +44,9 @@ public class Rotation2d {
     }
 
     public static double getAngleDifferenceRadians(double angle1, double angle2) {
-        return (angle1 - angle2 ) % (2 * Math.PI);
+        return (angle1 - angle2) % (2 * Math.PI);
     }
+
     public static double getAngleDifferenceRadians(Rotation2d rotation1, Rotation2d rotation2) {
         return getAngleDifferenceRadians(rotation1.angle, rotation2.angle);
     }

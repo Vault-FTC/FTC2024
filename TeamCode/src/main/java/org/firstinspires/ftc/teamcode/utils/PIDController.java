@@ -23,9 +23,15 @@ public class PIDController {
         timer.reset();
     }
 
+    /**
+     * Defines the range in which the integral term will accumulate.  If the magnitude of the error is outside of this range, the integral will neither accumulate nor be added to the controller output.
+     *
+     * @param minErr The minimum magnitude the error needs to be for the integral to accumulate.
+     * @param maxErr The maximum magnitude the error needs to be for the integral to accumulate.
+     */
     public void setIntegralAccumulationRange(double minErr, double maxErr) {
-        minIntegralErr = minErr;
-        maxIntegralErr = maxErr;
+        minIntegralErr = Math.abs(minErr);
+        maxIntegralErr = Math.abs(maxErr);
     }
 
     private double elapsedTime() {

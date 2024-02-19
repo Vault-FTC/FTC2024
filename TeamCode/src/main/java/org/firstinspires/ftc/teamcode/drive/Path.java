@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.drive;
 import java.util.ArrayList;
 
 public class Path {
-    private final ArrayList<Waypoint> waypoints;
+    private final ArrayList<WaypointGenerator> waypoints;
 
-    public final double timeout; // In milliseconds
+    final double timeout; // In milliseconds
 
     private Path(Builder builder) {
         waypoints = builder.waypoints;
@@ -14,9 +14,11 @@ public class Path {
 
     public static class Builder {
 
-        private final ArrayList<Waypoint> waypoints;
+        private final ArrayList<WaypointGenerator> waypoints;
 
         private double defaultRadiusIn = 12;
+
+        private double defaultMaxVelocity = Double.POSITIVE_INFINITY;
 
         private double timeout = Double.POSITIVE_INFINITY;
 
@@ -24,7 +26,7 @@ public class Path {
             waypoints = new ArrayList<>();
         }
 
-        public Builder addWaypoint(Waypoint waypoint) {
+        public Builder addWaypoint(WaypointGenerator waypoint) {
             waypoints.add(waypoint);
             return this;
         }
@@ -34,8 +36,18 @@ public class Path {
             return this;
         }
 
+        public Builder setDefaultMaxVelocity(double defaultMaxVelocity) {
+            this.defaultMaxVelocity = defaultMaxVelocity;
+            return this;
+        }
+
         public Builder addWaypoint(double x, double y) {
-            waypoints.add(new Waypoint(x, y, defaultRadiusIn));
+            waypoints.add(new Waypoint(x, y, defaultRadiusIn, defaultMaxVelocity));
+            return this;
+        }
+
+        public Builder join(Path path) {
+            path.waypoints.forEach((WaypointGenerator waypoint) -> waypoints.add(waypoint));
             return this;
         }
 
@@ -49,10 +61,16 @@ public class Path {
         }
     }
 
+    public Waypoint[] generateWaypoints() {
+        ArrayList<Waypoint> generatedWaypoints = new ArrayList<>();
+        waypoints.forEach((WaypointGenerator waypoint) -> generatedWaypoints.add(waypoint.getWaypoint()));
+        return generatedWaypoints.toArray(new Waypoint[]{});
+    }
+
     public Waypoint[][] getLineSegments() {
         ArrayList<Waypoint[]> segments = new ArrayList<>();
         for (int i = 0; i < waypoints.size() - 1; i++) {
-            segments.add(new Waypoint[]{waypoints.get(i), waypoints.get(i + 1)});
+            segments.add(new Waypoint[]{waypoints.get(i).getWaypoint(), waypoints.get(i + 1).getWaypoint()});
         }
         return segments.toArray(new Waypoint[][]{});
     }

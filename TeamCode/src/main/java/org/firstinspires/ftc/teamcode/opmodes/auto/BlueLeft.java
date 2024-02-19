@@ -2,15 +2,17 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commands.TimedIntake;
-import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.commandsystem.ParallelCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
+import org.firstinspires.ftc.teamcode.drive.FutureWaypoint;
 import org.firstinspires.ftc.teamcode.drive.Path;
+import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.PropLocation;
 
@@ -18,20 +20,59 @@ import java.util.ArrayList;
 
 @Autonomous(name = "blue left", group = "blue")
 public class BlueLeft extends Auton {
-    ArrayList<FollowPath> placePurplePixel = new ArrayList<>();
+    ArrayList<Path> paths = new ArrayList<>();
+
+
+    private Waypoint getPurplePlaceWaypoint() {
+        double x = 0;
+        double y = 26;
+        Rotation2d heading = new Rotation2d();
+        switch (visionPipeline.getPropLocation()) {
+            case LEFT:
+                x = -6;
+                y = 28;
+                heading = Rotation2d.fromDegrees(45);
+                break;
+            case CENTER:
+                x = 26;
+                y = 26;
+                break;
+            case RIGHT:
+                x = 6;
+                y = 28;
+                heading = Rotation2d.fromDegrees(-45);
+        }
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, heading, heading);
+    }
+
+    private Waypoint getYellowPlaceWaypoint() {
+        double x = -36;
+        double y = 26;
+        switch (visionPipeline.getPropLocation()) {
+            case LEFT:
+                y = 18;
+                break;
+            case CENTER:
+                y = 26;
+                break;
+            case RIGHT:
+                y = 34;
+        }
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius);
+    }
 
     public BlueLeft() {
         super(AutonType.BLUE_LEFT);
-        placePurplePixel.add(new FollowPath(Path.getBuilder().setDefaultRadius(8).addWaypoint(0, 0).addWaypoint(-15, 15).build(), drive));
-        placePurplePixel.add(new FollowPath(Path.getBuilder().setDefaultRadius(8).addWaypoint(0, 0).addWaypoint(0, 15).build(), drive));
-        placePurplePixel.add(new FollowPath(Path.getBuilder().setDefaultRadius(8).addWaypoint(0, 0).addWaypoint(15, 15).build(), drive));
+
+        paths.add(Path.getBuilder().setDefaultRadius(8).addWaypoint(0, 0).addWaypoint(new FutureWaypoint(this::getPurplePlaceWaypoint)).build());
+        paths.add(Path.getBuilder().addWaypoint(new FutureWaypoint(this::getYellowPlaceWaypoint)).build());
+
     }
 
     @Override
     public void start() {
-        PropLocation propLocation = visionPipeline.getPropLocation();
         autonomousCommand = SequentialCommandGroup.getBuilder()
-                .add(placePurplePixel.get(propLocation.location))
+                .add(new FollowPath(paths.get(0), drive))
                 .add(new TimedIntake(intake, -1, 2000))
                 .add(new FollowPath(Path.getBuilder().setDefaultRadius(8)
                         .addWaypoint(0, 15)

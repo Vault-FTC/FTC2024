@@ -41,7 +41,6 @@ public class DriveToPositionTest extends OpMode {
             start = true;//!start;
         }
         if (start) {
-            //drive.base.driveToPosition(new Waypoint(0, 15, 0, null, null), false);
             drive.base.followPath();
         } else {
             drive.drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, -gamepad1.right_stick_x);

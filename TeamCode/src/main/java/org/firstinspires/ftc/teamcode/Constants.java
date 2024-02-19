@@ -27,4 +27,8 @@ public class Constants {
 
         public static final double closePosition = 0;
     }
+
+    public static final class Drive {
+        public static final double defaultFollowRadius = 8.0;
+    }
 }
