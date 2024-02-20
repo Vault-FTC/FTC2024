@@ -31,4 +31,8 @@ public class Constants {
     public static final class Drive {
         public static final double defaultFollowRadius = 8.0;
     }
+
+    public static final class Vision {
+        public static final int lookBehindFrames = 30;
+    }
 }

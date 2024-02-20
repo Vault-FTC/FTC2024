@@ -21,9 +21,6 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Disabled
-@com.qualcomm.robotcore.eventloop.opmode.Autonomous(name = "Autonomous")
-
 public abstract class Auton extends OpMode {
 
     OpenCvWebcam webcam;
@@ -54,6 +51,7 @@ public abstract class Auton extends OpMode {
 
     @Override
     public void init() {
+        CommandScheduler.getInstance().clearRegistry();
         WebdashboardServer.getInstance(); // Initialize the dashboard server
         Robot.robotState = Robot.State.INITIALIZING;
         WebdashboardServer.getInstance();
@@ -94,6 +92,7 @@ public abstract class Auton extends OpMode {
     @Override
     public void start() {
         Robot.robotState = Robot.State.AUTO;
+        visionPipeline.close();
         webcam.stopStreaming();
         webcam.closeCameraDevice();
         autonomousCommand.schedule();

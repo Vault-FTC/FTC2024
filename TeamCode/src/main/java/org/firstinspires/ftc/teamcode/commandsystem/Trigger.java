@@ -32,7 +32,6 @@ public class Trigger implements BooleanSupplier {
     }
 
     public Trigger and(Trigger trigger) {
-        Trigger intermediateTrigger = new Trigger(this.condition);
         return new Trigger(() -> getAsBoolean() && trigger.getAsBoolean());
     }
 
@@ -49,5 +48,5 @@ public class Trigger implements BooleanSupplier {
         lastState = condition.getAsBoolean();
         return lastState;
     }
-    
+
 }

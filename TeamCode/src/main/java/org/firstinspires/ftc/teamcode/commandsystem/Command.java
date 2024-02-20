@@ -76,12 +76,5 @@ public abstract class Command {
             subsystem.requirements.add(this);
         }
     }
-
-    State getState() {
-        return state;
-    }
-
-    Type getType() {
-        return type;
-    }
+    
 }
