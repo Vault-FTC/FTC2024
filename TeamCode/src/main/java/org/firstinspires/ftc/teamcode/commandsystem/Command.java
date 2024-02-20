@@ -48,7 +48,7 @@ public abstract class Command {
         return initializedTimestamp;
     }
 
-    public double getTimeSinceInitialized() {
+    public double timeSinceInitialized() {
         return timer.milliseconds() - initializedTimestamp;
     }
 
@@ -76,5 +76,5 @@ public abstract class Command {
             subsystem.requirements.add(this);
         }
     }
-    
+
 }

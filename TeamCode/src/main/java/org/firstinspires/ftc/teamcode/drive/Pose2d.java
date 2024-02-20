@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.drive;
 
 import androidx.annotation.NonNull;
 
+import org.firstinspires.ftc.teamcode.Constants;
+
 public class Pose2d extends Vector2d {
     public final Rotation2d rotation;
 
@@ -28,6 +30,14 @@ public class Pose2d extends Vector2d {
 
     public Pose2d add(Pose2d toAdd) {
         return new Pose2d(x + toAdd.x, y + toAdd.y, new Rotation2d(rotation.getAngleRadians() + toAdd.rotation.getAngleRadians()));
+    }
+
+    public Waypoint toWaypoint(double followRadius) {
+        return new Waypoint(x, y, followRadius, null, rotation);
+    }
+
+    public Waypoint toWaypoint() {
+        return toWaypoint(Constants.Drive.defaultFollowRadius);
     }
 
     @NonNull

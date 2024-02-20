@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
 
 import java.util.function.Supplier;
@@ -117,11 +118,11 @@ public class MecanumBase {
         double rotSpeed;
         double targetAngle;
 
-        if (useEndpointHeading && targetPoint.targetEndRotation != null) {
+        if (useEndpointHeading && targetPoint.targetEndRotation != null && botPose.distanceTo(targetPoint) < Constants.Drive.trackEndpointHeadingMaxDistance) {
             targetAngle = targetPoint.targetEndRotation.getAngleRadians();
         } else if (targetPoint.targetFollowRotation != null) {
             targetAngle = targetPoint.targetFollowRotation.getAngleRadians();
-        } else if (relativeTargetVector.magnitude > 15.0) {
+        } else if (relativeTargetVector.magnitude > Constants.Drive.calculateTargetHeadingMinDistance) {
             targetAngle = relativeTargetVector.angle - Math.PI / 2;
         } else {
             targetAngle = lastTargetAngle;

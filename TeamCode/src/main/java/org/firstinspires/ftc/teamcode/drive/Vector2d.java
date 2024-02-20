@@ -57,6 +57,10 @@ public class Vector2d {
         return new Vector2d(this.magnitude, this.angle + angle, false);
     }
 
+    public double distanceTo(Vector2d vector) {
+        return Math.sqrt(Math.pow((vector.x - x), 2) + Math.pow((vector.y - y), 2));
+    }
+
     @Override
     public boolean equals(Object vector) {
         if (vector == null) {

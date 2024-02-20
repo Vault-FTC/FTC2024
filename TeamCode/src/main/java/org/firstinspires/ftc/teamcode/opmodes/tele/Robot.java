@@ -7,11 +7,13 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.DriveDefault;
+import org.firstinspires.ftc.teamcode.commands.DriveToBackboard;
 import org.firstinspires.ftc.teamcode.commands.IntakeDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
+import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
@@ -39,6 +41,11 @@ public class Robot extends OpMode {
 
     public static State robotState = State.DISABLED;
 
+    public static Pose2d blueBackdropPose = new Pose2d();
+    public static Pose2d redBackdropPose = new Pose2d();
+
+    public static Pose2d backdropPose = redBackdropPose;
+
     @Override
     public void init() {
         WebdashboardServer.getInstance(); // Initialize the dashboard server
@@ -57,6 +64,7 @@ public class Robot extends OpMode {
         placer = new Placer(hardwareMap);
         payloadControllerTriggers.a.onTrue(new InstantCommand(() -> placer.open()));
         payloadControllerTriggers.b.onTrue(new InstantCommand(() -> placer.close()));
+        driveControllerTriggers.rightBumper.onTrue(new DriveToBackboard(drive, gamepad1));
         robotState = State.INITIALIZED;
     }
 
