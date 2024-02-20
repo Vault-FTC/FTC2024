@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.commandsystem;
 
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+
 import java.util.ArrayList;
 
 public final class CommandScheduler implements Runnable {
@@ -32,10 +34,13 @@ public final class CommandScheduler implements Runnable {
             switch (command.state) {
                 case QUEUED:
                     command.state = Command.State.SCHEDULED;
+                    command.initializedTimestamp = command.timer.milliseconds();
                     command.initialize();
                     break;
                 case SCHEDULED:
-                    if (command.isFinished()) command.state = Command.State.ENDING;
+                    if (command.isFinished()) {
+                        command.state = Command.State.ENDING;
+                    }
                     command.execute();
                     break;
                 case ENDING:

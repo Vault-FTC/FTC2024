@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.commandsystem;
 
-import org.checkerframework.checker.units.qual.A;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.ArrayList;
 
 public abstract class Command {
     ArrayList<Trigger> triggers = new ArrayList<>();
+
+    ElapsedTime timer = new ElapsedTime();
+    double initializedTimestamp = 0;
 
     public Command() {
         CommandScheduler.getInstance().commands.add(this);
@@ -27,18 +30,26 @@ public abstract class Command {
 
     final boolean triggered() {
         if (type == Type.DEFAULT_COMMAND) return true;
-        for (Trigger trigger : triggers) {
-            if (trigger.getAsBoolean()) {
-                return true;
-            }
+        boolean triggered = false;
+        for (Trigger trigger : triggers) { // The getAsBoolean method must be called for every trigger, because it will set the prior state of each trigger.
+            if (trigger.getAsBoolean())
+                triggered = true;
         }
-        return false;
+        return triggered;
     }
 
     protected State state = State.UNSCHEDULED;
 
     public void initialize() {
 
+    }
+
+    public double getInitializedTimestamp() {
+        return initializedTimestamp;
+    }
+
+    public double getTimeSinceInitialized() {
+        return timer.milliseconds() - initializedTimestamp;
     }
 
     public abstract void execute();
@@ -55,7 +66,7 @@ public abstract class Command {
         state = State.QUEUED;
     }
 
-    public void cancel() {
+    public final void cancel() {
         state = State.UNSCHEDULED;
         end(true);
     }
@@ -64,5 +75,13 @@ public abstract class Command {
         for (Subsystem subsystem : subsystems) {
             subsystem.requirements.add(this);
         }
+    }
+
+    State getState() {
+        return state;
+    }
+
+    Type getType() {
+        return type;
     }
 }

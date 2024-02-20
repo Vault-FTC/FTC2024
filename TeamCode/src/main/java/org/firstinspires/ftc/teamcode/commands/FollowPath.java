@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.commands;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
+
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
@@ -9,9 +11,17 @@ public class FollowPath extends Command {
     private final Path path;
     private final Drive subsystem;
 
-    public FollowPath(Path path, Drive drive) {
+    Gamepad gamepad;
+
+    public FollowPath(Path path, Drive drive, Gamepad gamepad) {
         this.path = path;
         subsystem = drive;
+        this.gamepad = gamepad;
+    }
+
+    public FollowPath(Path path, Drive drive) {
+        this(path, drive, null);
+        addRequirements(subsystem);
     }
 
     @Override
@@ -22,6 +32,9 @@ public class FollowPath extends Command {
     @Override
     public void execute() {
         subsystem.base.followPath();
+        if (gamepad != null && getTimeSinceInitialized() > 250 && !gamepad.atRest()) {
+            cancel();
+        }
     }
 
     @Override

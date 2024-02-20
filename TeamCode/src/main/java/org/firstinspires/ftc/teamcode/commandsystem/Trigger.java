@@ -20,16 +20,19 @@ public class Trigger implements BooleanSupplier {
     }
 
     public Trigger onTrue(Command command) {
-        command.triggers.add(new Trigger(() -> !lastState && getAsBoolean()));
+        Trigger intermediateTrigger = new Trigger(this.condition);
+        command.triggers.add(new Trigger(() -> !intermediateTrigger.lastState && intermediateTrigger.getAsBoolean()));
         return this;
     }
 
     public Trigger onFalse(Command command) {
-        command.triggers.add(new Trigger(() -> lastState && !getAsBoolean()));
+        Trigger intermediateTrigger = new Trigger(this.condition);
+        command.triggers.add(new Trigger(() -> intermediateTrigger.lastState && !intermediateTrigger.getAsBoolean()));
         return this;
     }
 
     public Trigger and(Trigger trigger) {
+        Trigger intermediateTrigger = new Trigger(this.condition);
         return new Trigger(() -> getAsBoolean() && trigger.getAsBoolean());
     }
 
@@ -46,4 +49,5 @@ public class Trigger implements BooleanSupplier {
         lastState = condition.getAsBoolean();
         return lastState;
     }
+    
 }

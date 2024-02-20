@@ -16,13 +16,13 @@ public class Subsystem {
         Command toRun = null;
         int priority;
         for (Command requirement : requirements) {
-            if (requirement.state == Command.State.QUEUED || requirement.state == Command.State.SCHEDULED) {
+            if (requirement.getState() == Command.State.QUEUED || requirement.getState() == Command.State.SCHEDULED) {
                 if (toRun == null)
                     priority = -1;
                 else
-                    priority = toRun.type.ordinal();
+                    priority = toRun.getType().ordinal();
 
-                if (requirement.type.ordinal() > priority) {
+                if (requirement.getType().ordinal() > priority) {
                     if (toRun != null) toRun.cancel();
                     toRun = requirement;
                 } else {

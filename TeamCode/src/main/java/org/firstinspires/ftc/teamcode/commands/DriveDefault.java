@@ -7,19 +7,20 @@ import java.util.function.DoubleSupplier;
 
 public class DriveDefault extends Command {
     private final DoubleSupplier drive;
-    private final DoubleSupplier turn;
     private final DoubleSupplier strafe;
+    private final DoubleSupplier turn;
     private final Drive subsystem;
 
-    public DriveDefault(Drive subsystem, DoubleSupplier drive, DoubleSupplier turn, DoubleSupplier strafe) {
+    public DriveDefault(Drive subsystem, DoubleSupplier drive, DoubleSupplier strafe, DoubleSupplier turn) {
         this.subsystem = subsystem;
         this.drive = drive;
-        this.turn = turn;
         this.strafe = strafe;
+        this.turn = turn;
+        addRequirements(subsystem);
     }
 
     @Override
     public void execute() {
-        subsystem.drive(drive.getAsDouble(), turn.getAsDouble(), strafe.getAsDouble());
+        subsystem.drive(drive.getAsDouble(), strafe.getAsDouble(), turn.getAsDouble());
     }
 }
