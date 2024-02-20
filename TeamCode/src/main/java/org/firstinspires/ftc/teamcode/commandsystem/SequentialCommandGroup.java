@@ -27,7 +27,7 @@ public class SequentialCommandGroup extends Command {
 
     @Override
     public boolean isFinished() {
-        return index == commands.length - 1;
+        return index == commands.length - 1 && commands[index].isFinished();
     }
 
     public static class Builder {

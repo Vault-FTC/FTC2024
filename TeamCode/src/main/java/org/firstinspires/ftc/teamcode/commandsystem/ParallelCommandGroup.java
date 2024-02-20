@@ -19,11 +19,11 @@ public class ParallelCommandGroup extends Command {
     @Override
     public boolean isFinished() {
         for (Command command : commands) {
-            if (command.isFinished()) {
-                return true;
+            if (!command.isFinished()) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     public static class Builder {
