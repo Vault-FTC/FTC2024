@@ -28,14 +28,6 @@ public class Rotation2d {
     }
 
     public static double unsigned_0_to_2PI(double angle) {
-        angle = angle % 360;
-        if (angle < 0) {
-            angle += 360;
-        }
-        return angle;
-    }
-
-    public static double unsigned_0_to_360(double angle) {
         angle = angle % (2 * Math.PI);
         if (angle < 0) {
             angle += 2 * Math.PI;
@@ -43,12 +35,26 @@ public class Rotation2d {
         return angle;
     }
 
-    public static double getAngleDifferenceRadians(double angle1, double angle2) {
-        return (angle1 - angle2) % (2 * Math.PI);
+    public static double unsigned_0_to_360(double angle) {
+        angle = angle % 360;
+        if (angle < 0) {
+            angle += 360;
+        }
+        return angle;
     }
 
-    public static double getAngleDifferenceRadians(Rotation2d rotation1, Rotation2d rotation2) {
-        return getAngleDifferenceRadians(rotation1.angle, rotation2.angle);
+    public static double minimumMagnitude(double... values) {
+        double min = Double.POSITIVE_INFINITY;
+        for (double value : values) {
+            if (Math.abs(value) < Math.abs(min)) min = value;
+        }
+        return min;
+    }
+
+    public static double getError(double targetAngle, double currentAngle) {
+        targetAngle = unsigned_0_to_2PI(targetAngle);
+        currentAngle = unsigned_0_to_2PI(currentAngle);
+        return minimumMagnitude(targetAngle - currentAngle, targetAngle + 2 * Math.PI - currentAngle, targetAngle - 2 * Math.PI - currentAngle);
     }
 
 }

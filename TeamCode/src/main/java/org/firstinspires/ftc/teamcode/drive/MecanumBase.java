@@ -128,7 +128,7 @@ public class MecanumBase {
         }
         lastTargetAngle = targetAngle;
 
-        double rotError = AngleHelpers.getError(targetAngle, botPose.rotation.getAngleRadians());
+        double rotError = Rotation2d.getError(targetAngle, botPose.rotation.getAngleRadians());
         double magnitude = movementSpeed.magnitude / (0.9 * Math.pow(Math.abs(rotError), 2) + 1);
         magnitude = Range.clip(magnitude, -targetPoint.maxVelocity, targetPoint.maxVelocity);
         movementSpeed = new Vector2d(magnitude, movementSpeed.angle, false);
@@ -241,7 +241,7 @@ public class MecanumBase {
         if (segments[segments.length - 1][1].targetEndRotation == null) {
             return distance < 1.0;
         }
-        return distance < 1.0 && Math.abs(Rotation2d.getAngleDifferenceRadians(botPose.rotation.getAngleRadians(), segments[segments.length - 1][1].targetEndRotation.getAngleRadians())) < 5;
+        return distance < 1.0 && Math.abs(Rotation2d.getError(botPose.rotation.getAngleRadians(), segments[segments.length - 1][1].targetEndRotation.getAngleRadians())) < 5;
     }
 
     public static double distance(Waypoint targetPoint, Pose2d botPose) {
