@@ -6,9 +6,8 @@ public class PIDController {
     private final double kP;
     private final double kI;
     private final double kD;
-
     private double i;
-
+    private double lastError = 0;
     private double minIntegralErr = 0;
     private double maxIntegralErr = Double.POSITIVE_INFINITY;
 
@@ -45,7 +44,8 @@ public class PIDController {
         double error = setpoint - measurement;
         double dt = elapsedTime();
         double p = kP * error;
-        double d = -kD * error / dt;
+        double d = -kD * (error - lastError) / dt;
+        lastError = error;
         if (Math.abs(error) > Math.abs(minIntegralErr) && Math.abs(error) < Math.abs(maxIntegralErr)) {
             i += kI * error * dt;
             return p + i + d;

@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes.debug;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.DriveDefault;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
 import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
@@ -35,23 +35,24 @@ public class DriveToPositionTest extends OpMode {
         drive.setDefaultCommand(new DriveDefault(drive, () -> -gamepad1.left_stick_y, () -> gamepad1.left_stick_x, () -> -gamepad1.right_stick_x));
 
         command = SequentialCommandGroup.getBuilder()
-                .add(new FollowPath(Path.getBuilder().setDefaultRadius(10)
+                .add(new FollowPath(Path.getBuilder().setDefaultRadius(10).setTimeout(3000)
                         .addWaypoint(0, 0)
                         .addWaypoint(0, 26).build(), drive))
                 .add(new WaitCommand(1000))
-                .add(new FollowPath(Path.getBuilder().setDefaultRadius(10)
+                .add(new FollowPath(Path.getBuilder().setDefaultRadius(10).setTimeout(20000)
                         .addWaypoint(0, 22)
                         .addWaypoint(new Waypoint(-36, 26, 8, Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(90)))
                         .addWaypoint(new Waypoint(0, 26, 8, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
                         .addWaypoint(30, 50)
                         .addWaypoint(40, 80)
-                        .addWaypoint(50, 50)
+                        .addWaypoint(new Waypoint(60, 50, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-90)))
                         .build(), drive))
                 .build();
+
+        gamepadTriggers.a.onTrue(command);
     }
 
     public void start() {
-        CommandScheduler.getInstance().schedule(command);
     }
 
     @Override

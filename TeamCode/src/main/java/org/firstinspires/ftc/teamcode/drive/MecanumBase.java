@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 import java.util.function.Supplier;
 
@@ -35,9 +36,9 @@ public class MecanumBase {
     public DriveState driveState = DriveState.IDLE;
 
     private final Supplier<Pose2d> poseSupplier;
-    public PIDController driveController = new PIDController(0.25, 0.0, 0.5);
+    public PIDController driveController = new PIDController(0.2, 0.0, 2.3);
 
-    public PIDController rotController = new PIDController(3.0, 0.0002, 0.5);
+    public PIDController rotController = new PIDController(2.0, 0.0002, 0.6);
 
     public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Supplier<Pose2d> poseSupplier) {
         lf = leftFront;
@@ -80,6 +81,15 @@ public class MecanumBase {
         }
         for (int i = 0; i < wheelSpeeds.length; i++) {
             wheelSpeeds[i] /= largest;
+        }
+
+        for (int i = 0; i < wheelSpeeds.length; i++) { // Adjustment for if wheels lock and prevent robot from moving
+            if (Math.abs(wheelSpeeds[i]) < 0.05 && wheelSpeeds[i] != 0.0) {
+                double add = Math.copySign(0.05, wheelSpeeds[i]);
+                for (int ii = 0; i < wheelSpeeds.length; i++) {
+                    wheelSpeeds[ii] += add;
+                }
+            }
         }
 
         lf.setPower(wheelSpeeds[0]);
@@ -216,7 +226,7 @@ public class MecanumBase {
 
                 targetPoint = intersection(botPose, segments[waypointIndex], segments[waypointIndex][1].followRadius);
 
-                if (targetPoint == null || distance(targetPoint, botPose) < 2) { // If null is returned, the t value of the target point is greater than 1 or less than 0
+                if (targetPoint == null) { // If null is returned, the t value of the target point is greater than 1 or less than 0
                     if (waypointIndex == segments.length - 1) {
                         targetPoint = segments[segments.length - 1][1];
                         endOfPath = true;

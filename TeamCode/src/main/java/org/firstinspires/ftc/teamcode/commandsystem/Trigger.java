@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.commandsystem;
 
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+
 import java.util.function.BooleanSupplier;
 
 public class Trigger implements BooleanSupplier {
@@ -21,7 +23,11 @@ public class Trigger implements BooleanSupplier {
 
     public Trigger onTrue(Command command) {
         Trigger intermediateTrigger = new Trigger(this.condition);
-        command.triggers.add(new Trigger(() -> !intermediateTrigger.lastState && intermediateTrigger.getAsBoolean()));
+        command.triggers.add(new Trigger(() -> {
+            boolean notLast = !intermediateTrigger.lastState;
+            DashboardLayout.setNodeValue("follow", intermediateTrigger.lastState);
+            return notLast && intermediateTrigger.getAsBoolean();
+        }));
         return this;
     }
 
