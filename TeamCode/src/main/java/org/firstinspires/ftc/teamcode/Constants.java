@@ -32,7 +32,7 @@ public class Constants {
         public static final double defaultFollowRadius = 8.0;
         public static final double trackEndpointHeadingMaxDistance = 12.0;
 
-        public static final double calculateTargetHeadingMinDistance = 12.0;
+        public static final double calculateTargetHeadingMinDistance = 15.0;
     }
 
     public static final class Vision {

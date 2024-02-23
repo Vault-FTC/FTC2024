@@ -35,19 +35,32 @@ public class DriveToPositionTest extends OpMode {
         drive.setDefaultCommand(new DriveDefault(drive, () -> -gamepad1.left_stick_y, () -> gamepad1.left_stick_x, () -> -gamepad1.right_stick_x));
 
         command = SequentialCommandGroup.getBuilder()
-                .add(new FollowPath(Path.getBuilder().setDefaultRadius(10).setTimeout(3000)
+                .add(new FollowPath(Path.getBuilder().setDefaultRadius(10).setTimeout(7000)
                         .addWaypoint(0, 0)
                         .addWaypoint(0, 26).build(), drive))
-                .add(new WaitCommand(1000))
-                .add(new FollowPath(Path.getBuilder().setDefaultRadius(10).setTimeout(20000)
+                //.add(new WaitCommand(1000))
+                /*.add(new FollowPath(Path.getBuilder().setDefaultRadius(10).setTimeout(20000)
                         .addWaypoint(0, 22)
-                        .addWaypoint(new Waypoint(-36, 26, 8, Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(90)))
-                        .addWaypoint(new Waypoint(0, 26, 8, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
-                        .addWaypoint(30, 50)
-                        .addWaypoint(40, 80)
-                        .addWaypoint(new Waypoint(60, 50, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-90)))
-                        .build(), drive))
+                        .addWaypoint(new Waypoint(-36, 22, 8, Rotation2d.fromDegrees(90), Rotation2d.fromDegrees(90)))
+                        .addWaypoint(0, 10)
+                        .addWaypoint(10, 25)
+                        .addWaypoint(20, 45)
+                        //.addWaypoint(30, 60)
+                        //.addWaypoint(40, 50)
+                        //.addWaypoint(50, 50)
+                        //.addWaypoint(new Waypoint(60, 50, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-90)))
+                        .build(), drive))*/
                 .build();
+        command = new FollowPath(Path.getBuilder().setDefaultRadius(10).setTimeout(8000)
+                .addWaypoint(0, 0)
+                .addWaypoint(0, 26)
+                .addWaypoint(10, 40)
+                .addWaypoint(20, 45)
+                .addWaypoint(30, 45)
+                .addWaypoint(40, 40)
+                .addWaypoint(50, 30)
+                .addWaypoint(60, 20)
+                .build(), drive);
 
         gamepadTriggers.a.onTrue(command);
     }

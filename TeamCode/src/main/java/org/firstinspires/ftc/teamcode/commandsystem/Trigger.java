@@ -6,7 +6,7 @@ import java.util.function.BooleanSupplier;
 
 public class Trigger implements BooleanSupplier {
     private final BooleanSupplier condition;
-    private boolean lastState = false;
+    boolean lastState = false;
 
     public Trigger(BooleanSupplier condition) {
         this.condition = condition;
@@ -22,18 +22,15 @@ public class Trigger implements BooleanSupplier {
     }
 
     public Trigger onTrue(Command command) {
-        Trigger intermediateTrigger = new Trigger(this.condition);
-        command.triggers.add(new Trigger(() -> {
-            boolean notLast = !intermediateTrigger.lastState;
-            DashboardLayout.setNodeValue("follow", intermediateTrigger.lastState);
-            return notLast && intermediateTrigger.getAsBoolean();
-        }));
+        Trigger intermediateTrigger = new Trigger(condition);
+        command.triggers.add(new Trigger(() -> !intermediateTrigger.lastState & intermediateTrigger.getAsBoolean() // & instead of && is needed, because if && is used intermediateTrigger.getAsBoolean() will never be called, and therefore the state will never update
+        ));
         return this;
     }
 
     public Trigger onFalse(Command command) {
-        Trigger intermediateTrigger = new Trigger(this.condition);
-        command.triggers.add(new Trigger(() -> intermediateTrigger.lastState && !intermediateTrigger.getAsBoolean()));
+        Trigger intermediateTrigger = new Trigger(condition);
+        command.triggers.add(new Trigger(() -> intermediateTrigger.lastState & !intermediateTrigger.getAsBoolean()));
         return this;
     }
 

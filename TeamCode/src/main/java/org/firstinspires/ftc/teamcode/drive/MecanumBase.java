@@ -22,6 +22,9 @@ public class MecanumBase {
 
     private Path followPath;
     private final ElapsedTime timer = new ElapsedTime();
+
+    private Pose2d lastPose = new Pose2d();
+    private double lastTimestamp = 0;
     private double followStartTimestamp;
     private Waypoint[][] segments;
 
@@ -36,7 +39,7 @@ public class MecanumBase {
     public DriveState driveState = DriveState.IDLE;
 
     private final Supplier<Pose2d> poseSupplier;
-    public PIDController driveController = new PIDController(0.2, 0.0, 2.3);
+    public PIDController driveController = new PIDController(0.25, 0.0, 2);
 
     public PIDController rotController = new PIDController(2.0, 0.0002, 0.6);
 
@@ -81,15 +84,6 @@ public class MecanumBase {
         }
         for (int i = 0; i < wheelSpeeds.length; i++) {
             wheelSpeeds[i] /= largest;
-        }
-
-        for (int i = 0; i < wheelSpeeds.length; i++) { // Adjustment for if wheels lock and prevent robot from moving
-            if (Math.abs(wheelSpeeds[i]) < 0.05 && wheelSpeeds[i] != 0.0) {
-                double add = Math.copySign(0.05, wheelSpeeds[i]);
-                for (int ii = 0; i < wheelSpeeds.length; i++) {
-                    wheelSpeeds[ii] += add;
-                }
-            }
         }
 
         lf.setPower(wheelSpeeds[0]);
@@ -140,7 +134,7 @@ public class MecanumBase {
         lastTargetAngle = targetAngle;
 
         double rotError = Rotation2d.getError(targetAngle, botPose.rotation.getAngleRadians());
-        double magnitude = movementSpeed.magnitude / (0.9 * Math.pow(Math.abs(rotError), 2) + 1);
+        double magnitude = movementSpeed.magnitude / (1.5 * Math.pow(Math.abs(rotError), 2) + 1); // originally 0.9 * rotError ^ 2
         magnitude = Range.clip(magnitude, -targetPoint.maxVelocity, targetPoint.maxVelocity);
         movementSpeed = new Vector2d(magnitude, movementSpeed.angle, false);
         rotSpeed = rotController.calculate(0, rotError);
@@ -189,7 +183,7 @@ public class MecanumBase {
 
         bestIntersection = intersection0.second > intersection1.second ? intersection0 : intersection1;
 
-        if (bestIntersection.second > 1) {
+        if (bestIntersection.second > 1 || bestIntersection.second < 0) {
             return null;
         }
 
@@ -247,15 +241,29 @@ public class MecanumBase {
         if (timer.milliseconds() > followStartTimestamp + followPath.timeout) {
             return true;
         }
+
+        boolean atEndpoint;
+        boolean atTargetHeading;
+
         Pose2d botPose = poseSupplier.get();
-        double distance = new Vector2d(segments[segments.length - 1][1].x - botPose.x, segments[segments.length - 1][1].y - botPose.y).magnitude;
+        double currentTimestamp = timer.milliseconds();
+        double speed = botPose.distanceTo(lastPose) / (currentTimestamp - lastTimestamp) * 1000;
+
+        lastTimestamp = currentTimestamp;
+
+        double distanceToEndpoint = new Vector2d(segments[segments.length - 1][1].x - botPose.x, segments[segments.length - 1][1].y - botPose.y).magnitude;
+
+        atEndpoint = speed < 2.0 && distanceToEndpoint < 2.0 && waypointIndex == segments.length - 1;
         if (segments[segments.length - 1][1].targetEndRotation == null) {
-            return distance < 1.0;
+            atTargetHeading = true;
+        } else {
+            atTargetHeading = Math.abs(Rotation2d.getError(botPose.rotation.getAngleRadians(), segments[segments.length - 1][1].targetEndRotation.getAngleRadians())) < Math.toRadians(5);
         }
-        return distance < 1.0 && Math.abs(Rotation2d.getError(botPose.rotation.getAngleRadians(), segments[segments.length - 1][1].targetEndRotation.getAngleRadians())) < 5;
+
+        DashboardLayout.setNodeValue("follow", speed);
+
+        lastPose = botPose;
+        return atEndpoint && atTargetHeading;
     }
 
-    public static double distance(Waypoint targetPoint, Pose2d botPose) {
-        return new Vector2d(targetPoint.x - botPose.x, targetPoint.y - botPose.y).magnitude;
-    }
 }

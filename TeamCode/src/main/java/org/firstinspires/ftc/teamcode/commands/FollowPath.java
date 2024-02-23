@@ -41,4 +41,9 @@ public class FollowPath extends Command {
     public boolean isFinished() {
         return subsystem.base.finishedFollowing();
     }
+
+    @Override
+    public void end(boolean interrupted) {
+        if (!interrupted) subsystem.drive(0, 0, 0);
+    }
 }
