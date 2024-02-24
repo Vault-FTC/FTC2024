@@ -44,6 +44,7 @@ public class FollowPath extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        subsystem.base.setToBrakeMode();
         if (!interrupted) subsystem.drive(0, 0, 0);
     }
 }

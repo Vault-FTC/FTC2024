@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive;
 
 public class Waypoint extends Vector2d implements WaypointGenerator {
-
-    Vector2d vector;
     double followRadius;
 
     Rotation2d targetFollowRotation;

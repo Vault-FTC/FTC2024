@@ -10,7 +10,7 @@ public class Odometry {
     public static final class Params {
         public static final double trackWidth = 13.5433071;
 
-        public static final double horizontalDist = 5.75;
+        public static final double horizontalDist = 7.38;
         public static double inPerTick = 0.002968431495;
     }
 

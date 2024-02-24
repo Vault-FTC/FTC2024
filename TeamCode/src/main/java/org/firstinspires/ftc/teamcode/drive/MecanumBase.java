@@ -39,22 +39,32 @@ public class MecanumBase {
     public DriveState driveState = DriveState.IDLE;
 
     private final Supplier<Pose2d> poseSupplier;
-    public PIDController driveController = new PIDController(0.25, 0.0, 2);
+    public PIDController driveController = new PIDController(0.2, 0.0, 3.5);
 
-    public PIDController rotController = new PIDController(2.0, 0.0002, 0.6);
+    public PIDController rotController = new PIDController(2.0, 0.0001, 0.6);
 
     public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Supplier<Pose2d> poseSupplier) {
         lf = leftFront;
         rf = rightFront;
         lb = leftBack;
         rb = rightBack;
+        setToCoastMode();
+        this.poseSupplier = poseSupplier;
+        timer.startTime();
+    }
+
+    public void setToBrakeMode() {
         lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
 
-        this.poseSupplier = poseSupplier;
-        timer.startTime();
+    public void setToCoastMode() {
+        lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
     }
 
     public void drive(double drive, double strafe, double turn, double botHeading, boolean squareInputs) {
@@ -109,8 +119,9 @@ public class MecanumBase {
 
 
     public void setFollowPath(Path path) {
-        followPath = path;
         waypointIndex = 0;
+        driveState = DriveState.IDLE;
+        followPath = path;
         segments = followPath.getLineSegments();
     }
 
@@ -134,6 +145,9 @@ public class MecanumBase {
         lastTargetAngle = targetAngle;
 
         double rotError = Rotation2d.getError(targetAngle, botPose.rotation.getAngleRadians());
+        if (rotError > Math.PI) {
+            rotError = Rotation2d.getError(targetAngle + Math.PI, botPose.rotation.getAngleRadians());
+        }
         double magnitude = movementSpeed.magnitude / (1.5 * Math.pow(Math.abs(rotError), 2) + 1); // originally 0.9 * rotError ^ 2
         magnitude = Range.clip(magnitude, -targetPoint.maxVelocity, targetPoint.maxVelocity);
         movementSpeed = new Vector2d(magnitude, movementSpeed.angle, false);
@@ -183,7 +197,7 @@ public class MecanumBase {
 
         bestIntersection = intersection0.second > intersection1.second ? intersection0 : intersection1;
 
-        if (bestIntersection.second > 1 || bestIntersection.second < 0) {
+        if (bestIntersection.second > 1) {
             return null;
         }
 
@@ -213,6 +227,7 @@ public class MecanumBase {
                 if (waypointIndex != 0) return;
                 followStartTimestamp = timer.milliseconds();
                 driveState = DriveState.FOLLOWING;
+                setToCoastMode();
             case FOLLOWING:
                 if (timer.milliseconds() > followStartTimestamp + followPath.timeout) {
                     driveState = DriveState.IDLE;
@@ -232,6 +247,7 @@ public class MecanumBase {
                 } else if (targetPoint.equals(Vector2d.undefined)) { // If there is no valid intersection, follow the endpoint of the current segment
                     targetPoint = segments[waypointIndex][1];
                 }
+                DashboardLayout.setNodeValue("follow", targetPoint.toString());
 
                 driveToPosition(targetPoint, endOfPath);
         }
@@ -259,8 +275,6 @@ public class MecanumBase {
         } else {
             atTargetHeading = Math.abs(Rotation2d.getError(botPose.rotation.getAngleRadians(), segments[segments.length - 1][1].targetEndRotation.getAngleRadians())) < Math.toRadians(5);
         }
-
-        DashboardLayout.setNodeValue("follow", speed);
 
         lastPose = botPose;
         return atEndpoint && atTargetHeading;

@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
+import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
@@ -22,24 +23,10 @@ import org.firstinspires.ftc.teamcode.utils.GamepadTriggers;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 
 @TeleOp(name = "Robot")
-public class Robot extends OpMode {
+public class Tele extends Robot {
 
     GamepadTriggers driveControllerTriggers;
     GamepadTriggers payloadControllerTriggers;
-    Drive drive;
-    Intake intake;
-    Slide slide;
-    Placer placer;
-
-    public enum State {
-        INITIALIZING,
-        INITIALIZED,
-        AUTO,
-        TELE,
-        DISABLED
-    }
-
-    public static State robotState = State.DISABLED;
 
     public static Pose2d blueBackdropPose = new Pose2d();
     public static Pose2d redBackdropPose = new Pose2d();
@@ -48,6 +35,7 @@ public class Robot extends OpMode {
 
     @Override
     public void init() {
+        super.init();
         WebdashboardServer.getInstance(); // Initialize the dashboard server
         driveControllerTriggers = new GamepadTriggers(gamepad1);
         payloadControllerTriggers = new GamepadTriggers(gamepad2);
@@ -65,21 +53,11 @@ public class Robot extends OpMode {
         payloadControllerTriggers.a.onTrue(new InstantCommand(() -> placer.open()));
         payloadControllerTriggers.b.onTrue(new InstantCommand(() -> placer.close()));
         driveControllerTriggers.rightBumper.onTrue(new DriveToBackboard(drive, gamepad1));
-        robotState = State.INITIALIZED;
     }
 
-    @Override
-    public void start() {
-        robotState = State.TELE;
-    }
 
     @Override
     public void loop() {
         CommandScheduler.getInstance().run();
-    }
-
-    @Override
-    public void stop() {
-        robotState = State.DISABLED;
     }
 }

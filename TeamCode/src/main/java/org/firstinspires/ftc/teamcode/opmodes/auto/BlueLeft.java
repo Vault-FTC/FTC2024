@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.FutureWaypoint;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
-import org.firstinspires.ftc.teamcode.vision.Pipeline.PropLocation;
+import org.firstinspires.ftc.teamcode.vision.Pipeline;
 
 import java.util.ArrayList;
 
@@ -62,8 +62,7 @@ public class BlueLeft extends Auton {
     }
 
     public BlueLeft() {
-        super(AutonType.BLUE_LEFT);
-
+        super(Pipeline.Alliance.BLUE);
         paths.add(Path.getBuilder().setDefaultRadius(8).addWaypoint(0, 0).addWaypoint(new FutureWaypoint(this::getPurplePlaceWaypoint)).build());
         paths.add(Path.getBuilder().addWaypoint(new FutureWaypoint(this::getYellowPlaceWaypoint)).build());
 

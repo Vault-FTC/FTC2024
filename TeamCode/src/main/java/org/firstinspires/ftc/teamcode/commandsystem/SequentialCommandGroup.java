@@ -13,6 +13,12 @@ public class SequentialCommandGroup extends Command {
     }
 
     @Override
+    public void initialize() {
+        hasStarted = false;
+        index = 0;
+    }
+
+    @Override
     public void execute() {
         if (commands[index].state == State.UNSCHEDULED) {
             if (hasStarted) {
