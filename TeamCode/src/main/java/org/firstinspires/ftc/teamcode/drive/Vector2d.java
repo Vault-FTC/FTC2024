@@ -61,6 +61,14 @@ public class Vector2d {
         return Math.sqrt(Math.pow((vector.x - x), 2) + Math.pow((vector.y - y), 2));
     }
 
+    public Vector2d add(Vector2d translation) {
+        return new Vector2d(translation.x + x, translation.y + y);
+    }
+
+    public Vector2d multiply(double scalar) {
+        return new Vector2d(x * scalar, y * scalar);
+    }
+
     @Override
     public boolean equals(Object vector) {
         if (vector == null) {

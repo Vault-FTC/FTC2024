@@ -6,9 +6,13 @@ public class Rotation2d {
      * Constructs a new rotation2d with the provided radian value
      **/
     private final double angle;
+    private final double cos;
+    private final double sin;
 
     public Rotation2d(double angle) {
         this.angle = angle;
+        cos = Math.cos(angle);
+        sin = Math.sin(angle);
     }
 
     public Rotation2d() {
@@ -35,10 +39,26 @@ public class Rotation2d {
         return angle;
     }
 
+    public static double signed_minusPI_to_PI(double angle) {
+        angle = angle % (2 * Math.PI);
+        if (Math.abs(angle) > Math.PI) {
+            angle += (2 * Math.PI) * -1 * angle / Math.abs(angle);
+        }
+        return angle;
+    }
+
     public static double unsigned_0_to_360(double angle) {
         angle = angle % 360;
         if (angle < 0) {
             angle += 360;
+        }
+        return angle;
+    }
+
+    public static double signed_minus180_to_180(double angle) {
+        angle = angle % 360;
+        if (Math.abs(angle) > 180) {
+            angle += 360 * -1 * angle / Math.abs(angle);
         }
         return angle;
     }
@@ -57,4 +77,16 @@ public class Rotation2d {
         return minimumMagnitude(targetAngle - currentAngle, targetAngle + 2 * Math.PI - currentAngle, targetAngle - 2 * Math.PI - currentAngle);
     }
 
+    public static Rotation2d averageRotations(Rotation2d[] rotations) {
+        if (rotations.length < 1) {
+            throw new IllegalArgumentException("Rotation2d array must have at least one item!");
+        }
+        double x = 0;
+        double y = 0;
+        for (Rotation2d rotation : rotations) {
+            x += rotation.cos;
+            y += rotation.sin;
+        }
+        return new Rotation2d(Math.atan2(y, x));
+    }
 }

@@ -70,6 +70,7 @@ public class BlueLeft extends Auton {
 
     @Override
     public void start() {
+        super.start();
         autonomousCommand = SequentialCommandGroup.getBuilder()
                 .add(new FollowPath(paths.get(0), drive))
                 .add(new TimedIntake(intake, -1, 2000))

@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
+import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.vision.Pipeline;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
-import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -25,6 +25,9 @@ public abstract class Auton extends Robot {
 
     public Auton(Alliance alliance) {
         this.alliance = alliance;
+        if (this.alliance == Alliance.RED) {
+            drive.setFieldCentricOffset(new Rotation2d(Math.PI));
+        }
     }
 
     @Override
@@ -62,6 +65,11 @@ public abstract class Auton extends Robot {
         webcam.stopStreaming();
         webcam.closeCameraDevice();
         autonomousCommand.schedule();
+    }
+
+    @Override
+    public void stop() {
+        pose = drive.odometry.getPose();
     }
 
 }

@@ -8,13 +8,15 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.drive.MecanumBase;
 import org.firstinspires.ftc.teamcode.drive.Odometry;
-import org.firstinspires.ftc.teamcode.drive.Pose2d;
+import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 public class Drive extends Subsystem {
 
     public final MecanumBase base;
     public final Odometry odometry;
+
+    private Rotation2d fieldCentricOffset = new Rotation2d();
 
     public Drive(HardwareMap hardwareMap) {
         odometry = new Odometry(hardwareMap);
@@ -35,7 +37,11 @@ public class Drive extends Subsystem {
     }
 
     public void drive(double drive, double strafe, double turn) {
-        drive(drive, strafe, turn, odometry.getPose().rotation.getAngleRadians());
+        drive(drive, strafe, turn, odometry.getPose().rotation.getAngleRadians() - fieldCentricOffset.getAngleRadians());
+    }
+
+    public void setFieldCentricOffset(Rotation2d fieldCentricOffset) {
+        this.fieldCentricOffset = fieldCentricOffset;
     }
 
     @Override

@@ -32,6 +32,10 @@ public class Pose2d extends Vector2d {
         return new Pose2d(x + toAdd.x, y + toAdd.y, new Rotation2d(rotation.getAngleRadians() + toAdd.rotation.getAngleRadians()));
     }
 
+    public Pose2d multiply(double factor) {
+        return new Pose2d(x * factor, y * factor, new Rotation2d(rotation.getAngleRadians() * factor));
+    }
+
     public Waypoint toWaypoint(double followRadius) {
         return new Waypoint(x, y, followRadius, null, rotation);
     }
