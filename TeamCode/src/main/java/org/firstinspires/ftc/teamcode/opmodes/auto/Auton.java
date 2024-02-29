@@ -23,10 +23,10 @@ public abstract class Auton extends Robot {
 
     Alliance alliance;
 
-    public Auton(Alliance alliance) {
+    public Auton(Alliance alliance, Rotation2d rotationOffset) {
         this.alliance = alliance;
         if (this.alliance == Alliance.RED) {
-            drive.setFieldCentricOffset(new Rotation2d(Math.PI));
+            drive.setFieldCentricOffset(rotationOffset);
         }
     }
 

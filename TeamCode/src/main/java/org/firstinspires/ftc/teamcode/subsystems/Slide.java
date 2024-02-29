@@ -12,15 +12,17 @@ import org.firstinspires.ftc.teamcode.utils.PIDController;
 
 public class Slide extends Subsystem {
 
-    public final DcMotor motor;
+    public final DcMotor motor1;
+    public final DcMotor motor2;
     private final Encoder encoder;
     private final PIDController controller;
     private final TouchSensor limit;
     private int targetPosition;
 
-    public Slide(DcMotor motor, TouchSensor limit) {
-        this.motor = motor;
-        encoder = new PairedEncoder(motor);
+    public Slide(DcMotor motor1, DcMotor motor2, TouchSensor limit) {
+        this.motor1 = motor1;
+        this.motor2 = motor2;
+        encoder = new PairedEncoder(motor1);
         encoder.reset();
         this.limit = limit;
         controller = new PIDController(0.001, 0, 0);
@@ -32,7 +34,8 @@ public class Slide extends Subsystem {
         } else if (speed < 0 && encoder.getPosition() < 0) {
             speed = -0.3;
         }
-        motor.setPower(speed);
+        motor1.setPower(speed);
+        motor2.setPower(-speed);
     }
 
 

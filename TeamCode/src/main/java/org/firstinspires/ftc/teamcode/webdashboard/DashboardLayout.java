@@ -2,12 +2,18 @@ package org.firstinspires.ftc.teamcode.webdashboard;
 
 import com.qualcomm.robotcore.util.ThreadPool;
 
+import org.firstinspires.ftc.teamcode.Constants;
 import org.java_websocket.WebSocket;
 
-import javax.json.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 
 public class DashboardLayout {
 
@@ -31,12 +37,14 @@ public class DashboardLayout {
     }
 
     public static void setNodeValue(String id, String value) {
-        JsonObject jsonObject = Json.createObjectBuilder()
-                .add("messageType", "update")
-                .add("nodeID", id)
-                .add("state", value)
-                .build();
-        ThreadPool.getDefaultScheduler().submit(() -> WebdashboardServer.getInstance().broadcast(jsonObject.toString()));
+        if (Constants.debugMode) {
+            JsonObject jsonObject = Json.createObjectBuilder()
+                    .add("messageType", "update")
+                    .add("nodeID", id)
+                    .add("state", value)
+                    .build();
+            ThreadPool.getDefaultScheduler().submit(() -> WebdashboardServer.getInstance().broadcast(jsonObject.toString()));
+        }
     }
 
     public static void setNodeValue(String id, Object value) {

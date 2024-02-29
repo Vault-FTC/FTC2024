@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.webdashboard;
 
 import com.qualcomm.robotcore.util.RobotLog;
 
+import org.firstinspires.ftc.teamcode.Constants;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -82,6 +83,13 @@ public class WebdashboardServer extends WebSocketServer {
     @Override
     public void onError(WebSocket conn, Exception e) {
         e.printStackTrace();
+    }
+
+    @Override
+    public void start() {
+        if (Constants.debugMode) {
+            super.start();
+        }
     }
 
     @Override

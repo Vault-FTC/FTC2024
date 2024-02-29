@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import org.firstinspires.ftc.teamcode.Constants;
+
 import java.util.ArrayList;
 
 public class Path {
@@ -16,7 +18,7 @@ public class Path {
 
         private final ArrayList<WaypointGenerator> waypoints;
 
-        private double defaultRadiusIn = 12;
+        private double defaultRadiusIn = Constants.Drive.defaultFollowRadius;
 
         private double defaultMaxVelocity = Double.POSITIVE_INFINITY;
 

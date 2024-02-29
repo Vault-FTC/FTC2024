@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.Constants.Vision;
 import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
@@ -34,9 +34,11 @@ public abstract class Robot extends OpMode {
 
     public static Pose2d pose = null;
 
+    private static Rotation2d startOffset = new Rotation2d();
+
     VisionPortal visionPortal;
 
-    private boolean cameraEnabled = false;
+    private boolean cameraEnabled = true;
 
     AprilTagProcessor aprilTagProcessor;
 
@@ -51,7 +53,10 @@ public abstract class Robot extends OpMode {
         // Instantiate subsystems
         drive = new Drive(hardwareMap);
         intake = new Intake(hardwareMap.get(DcMotor.class, "intakeMotor"));
-        slide = new Slide(hardwareMap.get(DcMotor.class, "slideMotor"), hardwareMap.get(TouchSensor.class, "limit"));
+        slide = new Slide(
+                hardwareMap.get(DcMotor.class, "slideMotor1"),
+                hardwareMap.get(DcMotor.class, "slideMotor2"),
+                hardwareMap.get(TouchSensor.class, "limit"));
         placer = new Placer(hardwareMap);
 
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
@@ -71,7 +76,7 @@ public abstract class Robot extends OpMode {
     }
 
     public void enableCamera() {
-        if (Math.abs(Rotation2d.signed_minusPI_to_PI(pose.rotation.getAngleRadians())) > Math.toRadians(Constants.Vision.turnCamOnThresholdDegrees) && cameraEnabled) {
+        if (Math.abs(Rotation2d.signed_minusPI_to_PI(pose.rotation.getAngleRadians())) > Math.toRadians(Vision.turnCamOnThresholdDegrees) && cameraEnabled) {
             cameraEnabled = false;
             visionPortal.stopStreaming();
         } else {
@@ -81,9 +86,12 @@ public abstract class Robot extends OpMode {
     }
 
     private static Pose2d calculateBotPose(AprilTagDetection detection) { // The provided angles are in degrees, and intrinsic
-        Vector2d tagPose = Constants.Vision.backdropTagPoses[detection.id - 1];
-        Pose2d camPose = new Pose2d(tagPose.x - detection.ftcPose.x, tagPose.y - detection.ftcPose.y, Constants.Vision.useAprilTagHeading && Math.abs(detection.ftcPose.yaw) < Constants.Vision.aprilTagHeadingThresholdDegrees ? Rotation2d.fromDegrees(-detection.ftcPose.yaw) : pose.rotation);
-        Vector2d relativeBotCoordinates = Constants.Vision.camToRobot.rotate(camPose.rotation.getAngleRadians());
+        Pose2d tagPose = Vision.backdropTagPoses[detection.id - 1];
+        Pose2d camPose = new Pose2d(
+                tagPose.x - detection.ftcPose.x,
+                tagPose.y - detection.ftcPose.y,
+                Vision.useAprilTagHeading && Math.abs(detection.ftcPose.yaw) < Vision.aprilTagHeadingThresholdDegrees ? Rotation2d.fromDegrees(tagPose.rotation.getAngleDegrees() - detection.ftcPose.yaw) : pose.rotation);
+        Vector2d relativeBotCoordinates = Vision.camToRobot.rotate(camPose.rotation.getAngleRadians());
         return new Pose2d(camPose.x + relativeBotCoordinates.x, camPose.y + relativeBotCoordinates.y, camPose.rotation);
     }
 
@@ -94,7 +102,7 @@ public abstract class Robot extends OpMode {
             List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
             int i = 0;
             for (AprilTagDetection detection : detections) {
-                if (detection.metadata != null && detection.ftcPose.range < Constants.Vision.useAprilTagMaxDistIn && detection.id >= 1 && detection.id <= 6) {
+                if (detection.metadata != null && detection.ftcPose.range < Vision.useAprilTagMaxDistIn && detection.id >= 1 && detection.id <= 6) {
                     Pose2d calculatedPose = calculateBotPose(detection);
                     position.add(calculatedPose);
                     rotations.add(calculatedPose.rotation);
@@ -105,7 +113,7 @@ public abstract class Robot extends OpMode {
                 return;
             }
 
-            drive.odometry.setPosition(new Pose2d(position.multiply(1 / i), Rotation2d.averageRotations(rotations.toArray(new Rotation2d[]{}))));
+            drive.odometry.setPosition(new Pose2d(position.multiply((double) 1 / i), Rotation2d.averageRotations(rotations.toArray(new Rotation2d[]{}))));
         }
     }
 
@@ -117,7 +125,6 @@ public abstract class Robot extends OpMode {
         exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
         GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
         gainControl.setGain(gain);
-        cameraEnabled = true;
     }
 
 }

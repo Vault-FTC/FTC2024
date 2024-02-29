@@ -40,23 +40,22 @@ public class Constants {
         public static final class StartPositions {
             public static final Pose2d blueLeft = new Pose2d(58.944, 7.894, new Rotation2d());
             public static final Pose2d blueRight = new Pose2d(106.0685, 7.894, new Rotation2d());
-            public static final Pose2d redLeft = new Pose2d(58.944, 7.894, new Rotation2d(Math.PI));
-            public static final Pose2d redRight = new Pose2d(106.0685, 7.894, new Rotation2d(Math.PI));
+            public static final Pose2d redLeft = new Pose2d(106.0685, 133.451, new Rotation2d(Math.PI));
+            public static final Pose2d redRight = new Pose2d(58.944, 133.451, new Rotation2d(Math.PI));
         }
     }
 
     public static final class Vision {
         public static final int lookBehindFrames = 30;
         public static final double useAprilTagMaxDistIn = 15;
-        public static Vector2d camToRobot = new Vector2d(); // This assumes that the camera's euler angles are always the same as the robot, because I don't want to write a bunch of code for rotation matrices...
-
-        public static final Vector2d[] backdropTagPoses = {
-                new Vector2d(29.381, 132.348),
-                new Vector2d(35.381, 132.348),
-                new Vector2d(41.381, 132.348),
-                new Vector2d(99.964, 132.348),
-                new Vector2d(105.964, 132.348),
-                new Vector2d(111.964, 132.348)
+        public static Vector2d camToRobot = new Vector2d(5.12, 6.61); // This assumes that the camera's euler angles are always the same as the robot, because I don't want to write a bunch of code for rotation matrices...
+        public static final Pose2d[] backdropTagPoses = {
+                new Pose2d(9.0, 29.381, new Rotation2d(Math.PI / 2)),
+                new Pose2d(9.0, 35.381, new Rotation2d(Math.PI / 2)),
+                new Pose2d(9.0, 41.381, new Rotation2d(Math.PI / 2)),
+                new Pose2d(9.0, 99.964, new Rotation2d(Math.PI / 2)),
+                new Pose2d(9.0, 105.964, new Rotation2d(Math.PI / 2)),
+                new Pose2d(9.0, 111.964, new Rotation2d(Math.PI / 2)),
         };
         public static boolean useAprilTagHeading = true;
         public static double aprilTagHeadingThresholdDegrees = 10;
