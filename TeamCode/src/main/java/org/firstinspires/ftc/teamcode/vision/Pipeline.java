@@ -14,18 +14,9 @@ import java.util.ArrayList;
 public class Pipeline extends OpenCvPipeline {
 
     private final Mat toDisplay = new Mat();
-
     private PropLocation propLocation = PropLocation.CENTER;
-
     private ArrayList<Integer> locationHistory = new ArrayList<>();
-
     private boolean processing = true;
-
-    private final Alliance alliance;
-
-    public Pipeline(Alliance alliance) {
-        this.alliance = alliance;
-    }
 
     @Override
     public Mat processFrame(Mat frame) {
@@ -55,28 +46,24 @@ public class Pipeline extends OpenCvPipeline {
                 ySum += circles.get(0, i)[1];
             }
             propX = xSum / circles.cols(); // Divide by the number of circles detected
-            if (alliance == Alliance.BLUE) {
-                propX = frame.cols() - propX;
-            }
             propY = ySum / circles.cols();
         }
 
         Point rectSize = new Point(200, 200);
 
         if (processing) {
-            if (propX < 25 || circles.empty()) {
-                propLocation = PropLocation.LEFT;
-            } else if (propX < 640) {
-                propLocation = PropLocation.CENTER;
-            } else {
+            if (circles.empty() || propX > 1240) {
                 propLocation = PropLocation.RIGHT;
+            } else if (propX < 640) {
+                propLocation = PropLocation.LEFT;
+            } else {
+                propLocation = PropLocation.CENTER;
             }
 
             locationHistory.add(propLocation.location);
         }
 
         Imgproc.rectangle(toDisplay, new Point(propX - rectSize.x / 2, propY - rectSize.y / 2), new Point(propX + rectSize.x / 2, propY + rectSize.y / 2), new Scalar(0, 255, 0), 3);
-
 
         return toDisplay;
     }

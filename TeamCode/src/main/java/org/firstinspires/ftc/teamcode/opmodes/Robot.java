@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -14,8 +15,10 @@ import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Vector2d;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
+import org.firstinspires.ftc.teamcode.subsystems.Lights;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
+import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -31,16 +34,15 @@ public abstract class Robot extends OpMode {
     public Intake intake;
     public Slide slide;
     public Placer placer;
+    public Lights lights;
 
     public static Pose2d pose = null;
-
-    private static Rotation2d startOffset = new Rotation2d();
-
     VisionPortal visionPortal;
-
-    private boolean cameraEnabled = true;
-
+    private boolean cameraEnabled = false;
+    private boolean usingCamera = false;
     AprilTagProcessor aprilTagProcessor;
+
+    public static Alliance alliance = Alliance.BLUE;
 
     @Override
     public void init() {
@@ -58,6 +60,7 @@ public abstract class Robot extends OpMode {
                 hardwareMap.get(DcMotor.class, "slideMotor2"),
                 hardwareMap.get(TouchSensor.class, "limit"));
         placer = new Placer(hardwareMap);
+        lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
 
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
         aprilTagProcessor.setDecimation(2);
@@ -71,17 +74,28 @@ public abstract class Robot extends OpMode {
     @Override
     public void loop() {
         CommandScheduler.getInstance().run();
-        enableCamera();
-        adjustBotPose();
+        useCamera();
     }
 
-    public void enableCamera() {
-        if (Math.abs(Rotation2d.signed_minusPI_to_PI(pose.rotation.getAngleRadians())) > Math.toRadians(Vision.turnCamOnThresholdDegrees) && cameraEnabled) {
-            cameraEnabled = false;
+    public void enableAprilTagCamera() {
+        cameraEnabled = true;
+    }
+
+    public void disableAprilTagCamera() {
+        cameraEnabled = false;
+    }
+
+    public void useCamera() {
+        boolean withinRange = Math.abs(Rotation2d.signed_minusPI_to_PI(pose.rotation.getAngleRadians())) < Math.toRadians(Vision.turnCamOnThresholdDegrees) && drive.odometry.getPose().x < Vision.useAprilTagMaxDistIn;
+        if (withinRange && cameraEnabled) {
+            if (!usingCamera) {
+                usingCamera = true;
+                visionPortal.resumeStreaming();
+            }
+            adjustBotPose();
+        } else if (usingCamera) {
+            usingCamera = false;
             visionPortal.stopStreaming();
-        } else {
-            cameraEnabled = true;
-            visionPortal.resumeStreaming();
         }
     }
 
@@ -96,25 +110,23 @@ public abstract class Robot extends OpMode {
     }
 
     public void adjustBotPose() {
-        if (cameraEnabled) {
-            Vector2d position = new Vector2d();
-            ArrayList<Rotation2d> rotations = new ArrayList<>();
-            List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
-            int i = 0;
-            for (AprilTagDetection detection : detections) {
-                if (detection.metadata != null && detection.ftcPose.range < Vision.useAprilTagMaxDistIn && detection.id >= 1 && detection.id <= 6) {
-                    Pose2d calculatedPose = calculateBotPose(detection);
-                    position.add(calculatedPose);
-                    rotations.add(calculatedPose.rotation);
-                    i++;
-                }
+        Vector2d position = new Vector2d();
+        ArrayList<Rotation2d> rotations = new ArrayList<>();
+        List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
+        int i = 0;
+        for (AprilTagDetection detection : detections) {
+            if (detection.metadata != null && detection.ftcPose.range < Vision.useAprilTagMaxDistIn && detection.id >= 1 && detection.id <= 6) {
+                Pose2d calculatedPose = calculateBotPose(detection);
+                position.add(calculatedPose);
+                rotations.add(calculatedPose.rotation);
+                i++;
             }
-            if (i == 0) { // If none of the desired tags are detected, do nothing
-                return;
-            }
-
-            drive.odometry.setPosition(new Pose2d(position.multiply((double) 1 / i), Rotation2d.averageRotations(rotations.toArray(new Rotation2d[]{}))));
         }
+        if (i == 0) { // If none of the desired tags are detected, do nothing
+            return;
+        }
+
+        drive.odometry.setPosition(new Pose2d(position.multiply((double) 1 / i), Rotation2d.averageRotations(rotations.toArray(new Rotation2d[]{}))));
     }
 
     private void setCameraExposure(int exposureMS, int gain) {

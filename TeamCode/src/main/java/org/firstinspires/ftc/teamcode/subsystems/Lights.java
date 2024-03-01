@@ -12,4 +12,8 @@ public class Lights {
     public void drivingToBackdropPattern() {
         ledDriver.setPattern(RevBlinkinLedDriver.BlinkinPattern.BEATS_PER_MINUTE_RAINBOW_PALETTE);
     }
+
+    public void setPattern(RevBlinkinLedDriver.BlinkinPattern pattern) {
+        ledDriver.setPattern(pattern);
+    }
 }

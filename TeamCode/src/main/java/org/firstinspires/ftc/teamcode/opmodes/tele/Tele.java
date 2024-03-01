@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.utils.GamepadTriggers;
+import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 
 @TeleOp(name = "Robot")
@@ -23,11 +24,14 @@ public class Tele extends Robot {
     public static Pose2d blueBackdropPose = new Pose2d();
     public static Pose2d redBackdropPose = new Pose2d();
 
-    public static Pose2d backdropPose = redBackdropPose;
+    public static Pose2d backdropPose = blueBackdropPose;
 
     @Override
     public void init() {
         super.init();
+        if (alliance == Alliance.RED) {
+            backdropPose = redBackdropPose;
+        }
         WebdashboardServer.getInstance(); // Initialize the dashboard server
         driveControllerTriggers = new GamepadTriggers(gamepad1);
         payloadControllerTriggers = new GamepadTriggers(gamepad2);
@@ -41,7 +45,7 @@ public class Tele extends Robot {
         payloadControllerTriggers.leftBumper.onTrue(new SlideToPosition(slide, gamepad2, 0));
         payloadControllerTriggers.a.onTrue(new InstantCommand(() -> placer.open()));
         payloadControllerTriggers.b.onTrue(new InstantCommand(() -> placer.close()));
-        driveControllerTriggers.rightBumper.onTrue(new DriveToBackboard(drive, gamepad1));
+        driveControllerTriggers.rightBumper.onTrue(new DriveToBackboard(drive, lights, gamepad1));
     }
 
 }

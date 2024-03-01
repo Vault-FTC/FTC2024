@@ -14,20 +14,16 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 public abstract class Auton extends Robot {
 
-    OpenCvWebcam webcam;
+    OpenCvWebcam propCam;
     public final int STREAM_WIDTH = 1280;
     public final int STREAM_HEIGHT = 720;
 
     Pipeline visionPipeline;
     Command autonomousCommand;
 
-    Alliance alliance;
-
     public Auton(Alliance alliance, Rotation2d rotationOffset) {
-        this.alliance = alliance;
-        if (this.alliance == Alliance.RED) {
-            drive.setFieldCentricOffset(rotationOffset);
-        }
+        Robot.alliance = alliance;
+        drive.setFieldCentricOffset(rotationOffset);
     }
 
     @Override
@@ -35,13 +31,13 @@ public abstract class Auton extends Robot {
         super.init();
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "cam1"), cameraMonitorViewId);
-        visionPipeline = new Pipeline(alliance);
-        webcam.setPipeline(visionPipeline);
-        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+        propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "PropCam"), cameraMonitorViewId);
+        visionPipeline = new Pipeline();
+        propCam.setPipeline(visionPipeline);
+        propCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                webcam.startStreaming(STREAM_WIDTH, STREAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
+                propCam.startStreaming(STREAM_WIDTH, STREAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -62,9 +58,8 @@ public abstract class Auton extends Robot {
     @Override
     public void start() {
         visionPipeline.close();
-        webcam.stopStreaming();
-        webcam.closeCameraDevice();
-        autonomousCommand.schedule();
+        propCam.stopStreaming();
+        propCam.closeCameraDevice();
     }
 
     @Override
