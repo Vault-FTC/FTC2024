@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.robotcore.hardware.Gamepad;
+
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 
-import com.qualcomm.robotcore.hardware.Gamepad;
+import java.util.function.DoubleSupplier;
 
-public class GamepadTriggers {
+public class GamepadHelper {
     public Trigger a;
 
     public Trigger b;
@@ -29,8 +31,12 @@ public class GamepadTriggers {
     public final Trigger cross;
 
     public final Trigger options;
+    public final DoubleSupplier leftStickX;
+    public final DoubleSupplier leftStickY;
+    public final DoubleSupplier rightStickX;
+    public final DoubleSupplier rightStickY;
 
-    public GamepadTriggers(Gamepad gamepad) {
+    public GamepadHelper(Gamepad gamepad) {
         a = new Trigger(() -> gamepad.a);
         b = new Trigger(() -> gamepad.b);
         x = new Trigger(() -> gamepad.x);
@@ -46,6 +52,11 @@ public class GamepadTriggers {
         circle = new Trigger(() -> gamepad.circle);
         cross = new Trigger(() -> gamepad.cross);
         options = new Trigger(() -> gamepad.options);
+        leftStickX = () -> Math.abs(gamepad.left_stick_x > Constants.joystickDeadZone ? gamepad.left_stick_x : 0);
+        leftStickY = () -> Math.abs(gamepad.left_stick_y > Constants.joystickDeadZone ? gamepad.left_stick_y : 0);
+        rightStickX = () -> Math.abs(gamepad.right_stick_x > Constants.joystickDeadZone ? gamepad.right_stick_x : 0);
+        rightStickY = () -> Math.abs(gamepad.right_stick_y > Constants.joystickDeadZone ? gamepad.right_stick_y : 0);
+
     }
 
 }

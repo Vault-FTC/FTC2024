@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
-import org.firstinspires.ftc.teamcode.utils.GamepadTriggers;
+import org.firstinspires.ftc.teamcode.utils.GamepadHelper;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 
 //@Disabled
@@ -23,13 +23,13 @@ public class DriveToPositionTest extends OpMode {
 
     Drive drive;
     Command command;
-    GamepadTriggers gamepadTriggers;
+    GamepadHelper gamepadTriggers;
 
     @Override
     public void init() {
         WebdashboardServer.getInstance();
 
-        gamepadTriggers = new GamepadTriggers(gamepad1);
+        gamepadTriggers = new GamepadHelper(gamepad1);
 
         drive = new Drive(hardwareMap);
         drive.setDefaultCommand(new DriveDefault(drive, () -> -gamepad1.left_stick_y, () -> gamepad1.left_stick_x, () -> -gamepad1.right_stick_x));

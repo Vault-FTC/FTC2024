@@ -4,11 +4,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 
-public class Climb extends Subsystem {
+public class Climber extends Subsystem {
 
     public final DcMotor motor;
 
-    public Climb(DcMotor motor) {
+    public Climber(DcMotor motor) {
         this.motor = motor;
     }
 

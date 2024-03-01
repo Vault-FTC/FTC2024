@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
+import org.firstinspires.ftc.teamcode.vision.Pipeline;
 
 import java.util.ArrayList;
 
@@ -55,7 +56,7 @@ public class RedLeft extends Auton {
     }
 
     public RedLeft() {
-        super(StartPositions.redLeft.rotation);
+        super(Pipeline.Alliance.RED, StartPositions.redLeft.rotation);
         paths.add(Path.getBuilder().setDefaultRadius(8).setTimeout(3000) // Drive to spike mark path
                 .addWaypoint(StartPositions.redLeft.toWaypoint())
                 .addWaypoint(new FutureWaypoint(this::getPurplePlaceWaypoint)).build());

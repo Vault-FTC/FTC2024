@@ -13,14 +13,11 @@ import org.firstinspires.ftc.teamcode.subsystems.Lights;
 public class DriveToBackboard extends Command {
 
     private final Drive drive;
-    private final Lights lights;
-
     private final FlashLights flashLights;
     private final Gamepad gamepad;
 
     public DriveToBackboard(Drive drive, Lights lights, Gamepad gamepad) {
         this.drive = drive;
-        this.lights = lights;
         flashLights = new FlashLights(lights, 500);
         this.gamepad = gamepad;
         addRequirements(drive);

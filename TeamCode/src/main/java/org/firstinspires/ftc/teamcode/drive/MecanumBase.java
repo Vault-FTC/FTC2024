@@ -187,8 +187,8 @@ public class MecanumBase {
             y2 = botPose.y - commonTerm;
         }
 
-        Waypoint point0 = new Waypoint(x1, y1, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation);
-        Waypoint point1 = new Waypoint(x2, y2, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation);
+        Waypoint point0 = new Waypoint(x1, y1, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation, lineSegment[1].maxVelocity);
+        Waypoint point1 = new Waypoint(x2, y2, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation, lineSegment[1].maxVelocity);
 
         Pair<Waypoint, Double> intersection0 = new Pair<>(point0, getTValue(lineSegment[0], lineSegment[1], point0));
         Pair<Waypoint, Double> intersection1 = new Pair<>(point1, getTValue(lineSegment[0], lineSegment[1], point1));

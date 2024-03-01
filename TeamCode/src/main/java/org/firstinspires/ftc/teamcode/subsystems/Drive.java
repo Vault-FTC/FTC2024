@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 public class Drive extends Subsystem {
-
     public final MecanumBase base;
     public final Odometry odometry;
 
@@ -30,18 +29,39 @@ public class Drive extends Subsystem {
     }
 
     public void drive(double drive, double strafe, double turn, double heading) {
-        base.drive(drive, strafe, turn, heading, false);
+        base.drive(drive * multiplier, strafe * multiplier, turn * multiplier, heading - fieldCentricOffset.getAngleRadians(), false);
         if (Constants.debugMode) {
             DashboardLayout.setNodeValue("input", "drive: " + drive + " strafe: " + strafe + " turn: " + turn);
         }
     }
 
     public void drive(double drive, double strafe, double turn) {
-        drive(drive, strafe, turn, odometry.getPose().rotation.getAngleRadians() - fieldCentricOffset.getAngleRadians());
+        drive(drive, strafe, turn, odometry.getPose().rotation.getAngleRadians());
     }
 
     public void setFieldCentricOffset(Rotation2d fieldCentricOffset) {
         this.fieldCentricOffset = fieldCentricOffset;
+    }
+
+    public enum Mode {
+        FAST(1.0),
+        SLOW(0.5);
+
+        final double multiplier;
+
+        Mode(double multiplier) {
+            this.multiplier = multiplier;
+        }
+    }
+
+    private double multiplier = Mode.FAST.multiplier;
+
+    public void enableFastMode() {
+        multiplier = Mode.FAST.multiplier;
+    }
+
+    public void enableSlowMode() {
+        multiplier = Mode.SLOW.multiplier;
     }
 
     @Override

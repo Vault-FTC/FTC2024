@@ -53,7 +53,7 @@ public class RedRight extends Auton {
             case RIGHT:
                 y += 6.0;
         }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius);
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, null, new Rotation2d(Math.PI / 2));
     }
 
     public RedRight() {

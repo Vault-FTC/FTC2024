@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Vector2d;
+import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lights;
@@ -34,6 +35,7 @@ public abstract class Robot extends OpMode {
     public Intake intake;
     public Slide slide;
     public Placer placer;
+    public Climber climber;
     public Lights lights;
 
     public static Pose2d pose = null;
@@ -60,6 +62,7 @@ public abstract class Robot extends OpMode {
                 hardwareMap.get(DcMotor.class, "slideMotor2"),
                 hardwareMap.get(TouchSensor.class, "limit"));
         placer = new Placer(hardwareMap);
+        climber = new Climber(hardwareMap.get(DcMotor.class, "climbMotor"));
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
 
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
