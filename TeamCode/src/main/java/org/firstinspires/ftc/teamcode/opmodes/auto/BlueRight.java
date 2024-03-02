@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.vision.Pipeline;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "Blue Left", group = "blue")
+@Autonomous(name = "Blue Right", group = "blue")
 public class BlueRight extends Auton {
     ArrayList<Path> paths = new ArrayList<>();
 

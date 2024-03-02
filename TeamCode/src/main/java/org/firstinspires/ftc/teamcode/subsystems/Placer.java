@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 public class Placer extends Subsystem {
     private final Servo servo;
 
-    private final ColorRangeSensor distanceSensor;
+    public final ColorRangeSensor distanceSensor;
 
     public Placer(HardwareMap hardwareMap) {
         servo = hardwareMap.get(Servo.class, "placerServo");
