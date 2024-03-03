@@ -23,9 +23,9 @@ public class Drive extends Subsystem {
                 hardwareMap.get(DcMotor.class, "lf"),
                 hardwareMap.get(DcMotor.class, "rf"),
                 hardwareMap.get(DcMotor.class, "lb"),
-                hardwareMap.get(DcMotor.class, "rb"), () -> odometry.getPose());
-        base.lf.setDirection(DcMotorSimple.Direction.REVERSE);
-        base.lb.setDirection(DcMotorSimple.Direction.REVERSE);
+                hardwareMap.get(DcMotor.class, "rb"), odometry::getPose);
+        base.rf.setDirection(DcMotorSimple.Direction.REVERSE);
+        base.rb.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void drive(double drive, double strafe, double turn, double heading) {

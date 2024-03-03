@@ -80,9 +80,9 @@ public class BlueRight extends Auton {
                 .add(new FollowPath(paths.get(0), drive)) // Drive to place the purple pixel
                 .add(new TimedIntake(intake, -0.5, 2000)) // Run the intake in reverse to spit out the purple pixel
                 .add(new FollowPath(paths.get(1), drive))
-                .add(new InstantCommand(() -> enableAprilTagCamera()))
+                .add(new InstantCommand(() -> aprilTagCamera.enable()))
                 .add(new FollowPath(paths.get(2), drive)) // Drive to the backdrop
-                .add(new InstantCommand(() -> disableAprilTagCamera())) // Camera is no longer necessary
+                .add(new InstantCommand(() -> aprilTagCamera.disable())) // Camera is no longer necessary
                 .add(new InstantCommand(() -> placer.open())) // Place the pixel
                 .add(new WaitCommand(500))
                 .add(new ParallelCommandGroup( // Close the placer, stow the slide, and park

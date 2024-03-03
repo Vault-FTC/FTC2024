@@ -7,6 +7,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.commands.CameraCalibrate;
+import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
@@ -21,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 public class AprilTagCamera extends Subsystem {
 
-    VisionPortal visionPortal;
+    public final VisionPortal visionPortal;
     private boolean cameraEnabled = false;
     private boolean usingCamera = false;
     AprilTagProcessor aprilTagProcessor;
@@ -39,7 +41,7 @@ public class AprilTagCamera extends Subsystem {
                 .setCamera(hardwareMap.get(WebcamName.class, "AprilCam"))
                 .addProcessor(aprilTagProcessor)
                 .build();
-        setCameraExposure(6, 250);
+        CommandScheduler.getInstance().schedule(new CameraCalibrate(this));
     }
 
     private Pose2d calculateBotPose(AprilTagDetection detection) { // The provided angles are in degrees, and intrinsic
@@ -52,7 +54,7 @@ public class AprilTagCamera extends Subsystem {
         return new Pose2d(camPose.x + relativeBotCoordinates.x, camPose.y + relativeBotCoordinates.y, camPose.rotation);
     }
 
-    public void adjustBotPose() {
+    private void adjustBotPose() {
         Vector2d position = new Vector2d();
         ArrayList<Rotation2d> rotations = new ArrayList<>();
         List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
@@ -72,7 +74,7 @@ public class AprilTagCamera extends Subsystem {
         onDetect.run();
     }
 
-    private void setCameraExposure(int exposureMS, int gain) {
+    public void setExposure(int exposureMS, int gain) {
         ExposureControl exposureControl = visionPortal.getCameraControl(ExposureControl.class);
         if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
             exposureControl.setMode(ExposureControl.Mode.Manual);
@@ -82,11 +84,11 @@ public class AprilTagCamera extends Subsystem {
         gainControl.setGain(gain);
     }
 
-    public void enableCamera() {
+    public void enable() {
         cameraEnabled = true;
     }
 
-    public void disableCamera() {
+    public void disable() {
         cameraEnabled = false;
     }
 

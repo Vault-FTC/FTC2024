@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
+import org.firstinspires.ftc.teamcode.subsystems.DroneShooter;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lights;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Slide;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 
-public abstract class Robot extends OpMode {
+public class Robot extends OpMode {
 
     public Drive drive;
     public Intake intake;
@@ -26,6 +27,7 @@ public abstract class Robot extends OpMode {
     public Climber climber;
     public Lights lights;
     public AprilTagCamera aprilTagCamera;
+    public DroneShooter droneShooter;
 
     public static Pose2d pose = null;
 
@@ -51,6 +53,7 @@ public abstract class Robot extends OpMode {
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
         aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
+        droneShooter = new DroneShooter(hardwareMap);
     }
 
     @Override
