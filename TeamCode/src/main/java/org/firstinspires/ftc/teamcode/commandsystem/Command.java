@@ -8,6 +8,8 @@ public abstract class Command {
     ArrayList<Trigger> triggers = new ArrayList<>();
 
     ElapsedTime timer = new ElapsedTime();
+
+    double scheduledTimestamp = 0;
     double initializedTimestamp = 0;
 
     public Command() {
@@ -64,6 +66,7 @@ public abstract class Command {
 
     public void schedule() {
         state = State.QUEUED;
+        scheduledTimestamp = CommandScheduler.getInstance().timer.milliseconds();
     }
 
     public final void cancel() {

@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode.commandsystem;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import java.util.ArrayList;
 
 public final class CommandScheduler implements Runnable {
     private static CommandScheduler instance = null;
     ArrayList<Command> commands;
     ArrayList<Subsystem> subsystems;
+    ElapsedTime timer = new ElapsedTime();
 
     public CommandScheduler() {
         commands = new ArrayList<>();
@@ -23,7 +26,7 @@ public final class CommandScheduler implements Runnable {
         }
         for (Command command : commands) {
             if (command.triggered() && command.state == Command.State.UNSCHEDULED)
-                command.state = Command.State.QUEUED;
+                command.schedule();
         }
         for (Subsystem subsystem : subsystems) {
             subsystem.cancelConflictingCommands();
