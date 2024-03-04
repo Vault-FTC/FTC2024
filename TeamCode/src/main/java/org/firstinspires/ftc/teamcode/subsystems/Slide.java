@@ -29,11 +29,11 @@ public class Slide extends Subsystem {
     }
 
     private void runMotor(double speed) {
-        if (speed > 0 && encoder.getPosition() > Constants.Slide.maxExtensionPosition) {
+        /*if (speed > 0 && encoder.getPosition() > Constants.Slide.maxExtensionPosition) {
             speed = 0;
         } else if (speed < 0 && encoder.getPosition() < 0) {
             speed = -0.3;
-        }
+        }*/
         motor1.setPower(speed);
         motor2.setPower(-speed);
     }

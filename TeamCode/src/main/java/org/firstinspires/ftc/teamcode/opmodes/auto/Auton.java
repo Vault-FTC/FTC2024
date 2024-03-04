@@ -58,7 +58,11 @@ public abstract class Auton extends Robot {
     @Override
     public void start() {
         visionPipeline.close();
-        propCam.stopStreaming();
+        try {
+            propCam.stopStreaming();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         propCam.closeCameraDevice();
     }
 

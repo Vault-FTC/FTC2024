@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Vector2d;
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -46,9 +47,10 @@ public class AprilTagCamera extends Subsystem {
 
     private Pose2d calculateBotPose(AprilTagDetection detection) { // The provided angles are in degrees, and intrinsic
         Pose2d tagPose = Constants.Vision.backdropTagPoses[detection.id - 1];
+        Vector2d relativeCoordinates = new Vector2d(detection.ftcPose.x, detection.ftcPose.y).rotate(tagPose.rotation.getAngleRadians());
         Pose2d camPose = new Pose2d(
-                tagPose.x - detection.ftcPose.x,
-                tagPose.y - detection.ftcPose.y,
+                tagPose.x - relativeCoordinates.x,
+                tagPose.y - relativeCoordinates.y,
                 Constants.Vision.useAprilTagHeading && Math.abs(detection.ftcPose.yaw) < Constants.Vision.aprilTagHeadingThresholdDegrees ? Rotation2d.fromDegrees(tagPose.rotation.getAngleDegrees() - detection.ftcPose.yaw) : poseSupplier.get().rotation);
         Vector2d relativeBotCoordinates = Constants.Vision.camToRobot.rotate(camPose.rotation.getAngleRadians());
         return new Pose2d(camPose.x + relativeBotCoordinates.x, camPose.y + relativeBotCoordinates.y, camPose.rotation);
@@ -60,9 +62,10 @@ public class AprilTagCamera extends Subsystem {
         List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
         int i = 0;
         for (AprilTagDetection detection : detections) {
+            DashboardLayout.setNodeValue("follow", detection.id);
             if (detection.metadata != null && detection.ftcPose.range < Constants.Vision.useAprilTagMaxDistIn && detection.id >= 1 && detection.id <= 6) {
                 Pose2d calculatedPose = calculateBotPose(detection);
-                position.add(calculatedPose);
+                position = position.add(calculatedPose);
                 rotations.add(calculatedPose.rotation);
                 i++;
             }
@@ -98,6 +101,7 @@ public class AprilTagCamera extends Subsystem {
 
     @Override
     public void periodic() {
+        adjustBotPose();
         Pose2d botPose = poseSupplier.get();
         boolean withinRange = Math.abs(Rotation2d.signed_minusPI_to_PI(botPose.rotation.getAngleRadians())) < Math.toRadians(Constants.Vision.turnCamOnThresholdDegrees) && botPose.x < Constants.Vision.useAprilTagMaxDistIn;
         if (withinRange && cameraEnabled) {
@@ -108,7 +112,11 @@ public class AprilTagCamera extends Subsystem {
             adjustBotPose();
         } else if (usingCamera) {
             usingCamera = false;
-            visionPortal.stopStreaming();
+            try {
+                visionPortal.stopStreaming();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

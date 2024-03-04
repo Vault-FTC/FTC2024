@@ -9,7 +9,7 @@ public class Constants {
     public static final boolean debugMode = true;
 
     public static final class ControlSettings {
-        public static final boolean slideManualControl = false;
+        public static final boolean slideManualControl = true;
     }
 
     public static final double triggerDeadZone = 0.1;
@@ -47,7 +47,7 @@ public class Constants {
 
     public static final class Vision {
         public static final int lookBehindFrames = 30;
-        public static final double useAprilTagMaxDistIn = 15;
+        public static final double useAprilTagMaxDistIn = 35;
         public static Vector2d camToRobot = new Vector2d(5.12, 6.61); // This assumes that the camera's euler angles are always the same as the robot, because I don't want to write a bunch of code for rotation matrices...
         public static final Pose2d[] backdropTagPoses = {
                 new Pose2d(9.0, 29.381, new Rotation2d(Math.PI / 2)),
@@ -58,7 +58,7 @@ public class Constants {
                 new Pose2d(9.0, 111.964, new Rotation2d(Math.PI / 2)),
         };
         public static boolean useAprilTagHeading = true;
-        public static double aprilTagHeadingThresholdDegrees = 10;
+        public static double aprilTagHeadingThresholdDegrees = 90;
         public static double turnCamOnThresholdDegrees = 45;
     }
 }
