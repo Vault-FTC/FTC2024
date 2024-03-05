@@ -69,9 +69,7 @@ public class Drive extends Subsystem {
     @Override
     public void periodic() {
         odometry.update();
-        if (Constants.debugMode) {
-            DashboardLayout.setNodeValue("pose", odometry.getPose().toString());
-        }
+        DashboardLayout.setNodeValue("pose", odometry.getPose().toString());
     }
 
 }

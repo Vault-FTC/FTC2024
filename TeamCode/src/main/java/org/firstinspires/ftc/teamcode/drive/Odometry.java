@@ -3,15 +3,13 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 public class Odometry {
 
     public static final class Params {
         public static final double trackWidth = 13.5433071;
-
-        public static final double horizontalDist = 7.38;
+        public static final double horizontalDist = 7.80; //7.35
         public static double inPerTick = 0.002968431495;
     }
 
@@ -83,11 +81,9 @@ public class Odometry {
     }
 
     public Pose2d update() {
-        if (Constants.debugMode) {
-            DashboardLayout.setNodeValue("encoder0", parallel0.getPosition());
-            DashboardLayout.setNodeValue("encoder1", parallel1.getPosition());
-            DashboardLayout.setNodeValue("encoder2", perpendicular.getPosition());
-        }
+        DashboardLayout.setNodeValue("encoder0", parallel0.getPosition());
+        DashboardLayout.setNodeValue("encoder1", parallel1.getPosition());
+        DashboardLayout.setNodeValue("encoder2", perpendicular.getPosition());
         Pose2d delta = delta();
         pose = pose.add(new Pose2d(delta.rotate(pose.rotation.getAngleRadians()), new Rotation2d(delta.rotation.getAngleRadians())));
         return pose;

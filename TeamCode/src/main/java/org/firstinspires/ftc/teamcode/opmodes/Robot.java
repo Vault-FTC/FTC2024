@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.BackdropHome;
+import org.firstinspires.ftc.teamcode.commands.FlashLights;
 import org.firstinspires.ftc.teamcode.commands.FollowFuturePath;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
@@ -93,14 +94,17 @@ public class Robot extends OpMode {
     }
 
     public Command getAutomaticPlaceCommand(Pose2d backdropPose) {
+        Command flashLights = new FlashLights(lights, 750);
         Command command = new SequentialCommandGroup(
+                new InstantCommand(flashLights::schedule),
                 new FollowFuturePath(() -> getToBackdropPath(backdropPose), drive), // Get close to the backdrop
                 new SlideToPosition(slide, 500),
                 new WaitCommand(500), // Wait for an april tag detection
                 new BackdropHome(drive.base, placer, backdropPose, 2000, 500), // Home in on the backdrop
                 new InstantCommand(() -> placer.open()),
-                new FollowPath(Path.getBuilder().addWaypoint(backdropPose.toWaypoint()).addWaypoint(backdropPose.x + 4.0, backdropPose.y).build(), drive));
-        new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(command::cancel));
+                new FollowPath(Path.getBuilder().addWaypoint(backdropPose.toWaypoint()).addWaypoint(backdropPose.x + 4.0, backdropPose.y).build(), drive),
+                new InstantCommand(() -> flashLights.cancel()));
+        new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(flashLights::cancel));
         return command;
     }
 

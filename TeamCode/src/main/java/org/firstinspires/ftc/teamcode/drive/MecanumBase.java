@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utils.PIDController;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 import java.util.function.Supplier;
 
@@ -251,7 +250,6 @@ public class MecanumBase {
                 } else if (targetPoint.equals(Vector2d.undefined)) { // If there is no valid intersection, follow the endpoint of the current segment
                     targetPoint = segments[waypointIndex][1];
                 }
-                DashboardLayout.setNodeValue("follow", targetPoint.toString());
 
                 driveToPosition(targetPoint, endOfPath);
         }
@@ -282,6 +280,20 @@ public class MecanumBase {
 
         lastPose = botPose;
         return atEndpoint && atTargetHeading;
+    }
+
+    /**
+     * @return An estimation of the remaining distance the robot will travel before completing the path.
+     */
+    public double remainingDistance() {
+        if (driveState == DriveState.IDLE) {
+            return 0;
+        }
+        double distance = poseSupplier.get().distanceTo(segments[waypointIndex][1]);
+        for (int i = waypointIndex + 1; i < segments.length; i++) {
+            distance += segments[i][0].distanceTo(segments[i][1]);
+        }
+        return distance;
     }
 
     public boolean atWaypoint(Waypoint waypoint, double maxLinearErr, double maxRotErr) {

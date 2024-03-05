@@ -2,14 +2,13 @@ package org.firstinspires.ftc.teamcode.commandsystem;
 
 import java.util.ArrayList;
 
-public class SequentialCommandGroup extends Command {
-    private final Command[] commands;
+public class SequentialCommandGroup extends CommandGroup {
 
     private boolean hasStarted = false;
     private int index = 0;
 
     public SequentialCommandGroup(Command... commands) {
-        this.commands = commands;
+        super(commands);
     }
 
     @Override

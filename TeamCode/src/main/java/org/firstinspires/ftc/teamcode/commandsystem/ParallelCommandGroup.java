@@ -2,11 +2,9 @@ package org.firstinspires.ftc.teamcode.commandsystem;
 
 import java.util.ArrayList;
 
-public class ParallelCommandGroup extends Command {
-    private final Command[] commands;
-
+public class ParallelCommandGroup extends CommandGroup {
     public ParallelCommandGroup(Command... commands) {
-        this.commands = commands;
+        super(commands);
     }
 
     @Override
