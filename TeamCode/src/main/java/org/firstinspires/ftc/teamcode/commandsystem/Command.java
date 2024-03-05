@@ -70,8 +70,10 @@ public abstract class Command {
     }
 
     public final void cancel() {
+        if (state != State.UNSCHEDULED) {
+            end(true);
+        }
         state = State.UNSCHEDULED;
-        end(true);
     }
 
     protected final void addRequirements(Subsystem... subsystems) {

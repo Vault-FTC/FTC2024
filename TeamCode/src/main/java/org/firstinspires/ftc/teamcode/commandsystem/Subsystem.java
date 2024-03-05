@@ -22,7 +22,7 @@ public class Subsystem {
                 else
                     priority = toRun.type.ordinal();
 
-                if (requirement.type.ordinal() > priority || (toRun != null && requirement.type.ordinal() == priority && requirement.scheduledTimestamp > toRun.scheduledTimestamp)) {
+                if (requirement.type.ordinal() > priority) {
                     if (toRun != null) toRun.cancel();
                     toRun = requirement;
                 } else {

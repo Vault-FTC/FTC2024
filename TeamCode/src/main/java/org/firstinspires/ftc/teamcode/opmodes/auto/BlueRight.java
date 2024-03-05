@@ -89,7 +89,7 @@ public class BlueRight extends Auton {
                         new FollowPath(paths.get(3), drive),
                         new SequentialCommandGroup(
                                 new WaitCommand(750),
-                                new ParallelCommandGroup(new InstantCommand(() -> placer.close()), new SlideToPosition(slide, gamepad2, 0)))
+                                new ParallelCommandGroup(new InstantCommand(() -> placer.close()), new SlideToPosition(slide, 0)))
                 ))
                 .build();
     }

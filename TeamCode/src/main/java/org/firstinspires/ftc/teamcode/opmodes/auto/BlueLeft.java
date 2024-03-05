@@ -87,7 +87,7 @@ public class BlueLeft extends Auton {
                         new FollowPath(paths.get(1), drive),
                         new SequentialCommandGroup(
                                 new WaitCommand(1500),
-                                new SlideToPosition(slide, gamepad2, 500))))
+                                new SlideToPosition(slide, 500))))
                 .add(new FollowPath(paths.get(2), drive)) // Drive to the backdrop
                 .add(new InstantCommand(() -> aprilTagCamera.enable())) // Camera is no longer necessary
                 .add(new InstantCommand(() -> placer.open())) // Place the pixel
@@ -96,7 +96,7 @@ public class BlueLeft extends Auton {
                         new FollowPath(paths.get(3), drive),
                         new SequentialCommandGroup(
                                 new WaitCommand(750),
-                                new ParallelCommandGroup(new InstantCommand(() -> placer.close()), new SlideToPosition(slide, gamepad2, 0)))
+                                new ParallelCommandGroup(new InstantCommand(() -> placer.close()), new SlideToPosition(slide, 0)))
                 ))
                 .build();
     }

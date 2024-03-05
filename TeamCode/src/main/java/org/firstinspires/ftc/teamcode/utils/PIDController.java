@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class PIDController {
-    private final double kP;
-    private final double kI;
-    private final double kD;
+    private double kP;
+    private double kI;
+    private double kD;
     private double i;
     private double lastError = 0;
     private double minIntegralErr = 0;
@@ -20,6 +20,34 @@ public class PIDController {
         this.kD = kD;
         timer = new ElapsedTime();
         timer.reset();
+    }
+
+    public PIDController(PIDGains pidGains) {
+        this(pidGains.kP, pidGains.kI, pidGains.kD);
+    }
+
+    public void setP(double kP) {
+        this.kP = kP;
+    }
+
+    public void setI(double kI) {
+        this.kI = kI;
+    }
+
+    public void setD(double kD) {
+        this.kD = kD;
+    }
+
+    public void setGains(PIDGains pidGains) {
+        this.kP = pidGains.kP;
+        this.kI = pidGains.kI;
+        this.kD = pidGains.kD;
+    }
+
+    public void setGains(double kP, double kI, double kD) {
+        this.kP = kP;
+        this.kI = kI;
+        this.kD = kD;
     }
 
     /**
@@ -51,6 +79,18 @@ public class PIDController {
             return p + i + d;
         } else {
             return p + d;
+        }
+    }
+
+    public static class PIDGains {
+        public final double kP;
+        public final double kI;
+        public final double kD;
+
+        public PIDGains(double kP, double kI, double kD) {
+            this.kP = kP;
+            this.kI = kI;
+            this.kD = kD;
         }
     }
 }

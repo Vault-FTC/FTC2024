@@ -39,9 +39,9 @@ public class MecanumBase {
     public DriveState driveState = DriveState.IDLE;
 
     private final Supplier<Pose2d> poseSupplier;
-    public PIDController driveController = new PIDController(0.2, 0.0, 3.5);
+    public final PIDController driveController = new PIDController(0.2, 0.0, 3.5);
 
-    public PIDController rotController = new PIDController(2.0, 0.0001, 0.6);
+    public final PIDController rotController = new PIDController(2.0, 0.0001, 0.6);
 
     public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Supplier<Pose2d> poseSupplier) {
         lf = leftFront;
@@ -154,6 +154,10 @@ public class MecanumBase {
         rotSpeed = rotController.calculate(0, rotError);
 
         drive(movementSpeed.y, movementSpeed.x, rotSpeed);
+    }
+
+    public void driveToPosition(Waypoint targetPoint) {
+        driveToPosition(targetPoint, true);
     }
 
     private static Waypoint intersection(Pose2d botPose, Waypoint[] lineSegment, double radius) {
@@ -273,11 +277,22 @@ public class MecanumBase {
         if (segments[segments.length - 1][1].targetEndRotation == null) {
             atTargetHeading = true;
         } else {
-            atTargetHeading = Math.abs(Rotation2d.getError(botPose.rotation.getAngleRadians(), segments[segments.length - 1][1].targetEndRotation.getAngleRadians())) < Math.toRadians(5);
+            atTargetHeading = Math.abs(Rotation2d.getError(segments[segments.length - 1][1].targetEndRotation.getAngleRadians(), botPose.rotation.getAngleRadians())) < Math.toRadians(5);
         }
 
         lastPose = botPose;
         return atEndpoint && atTargetHeading;
+    }
+
+    public boolean atWaypoint(Waypoint waypoint, double maxLinearErr, double maxRotErr) {
+        Pose2d botPose = poseSupplier.get();
+        double rotErr;
+        if (waypoint == null) {
+            rotErr = 0;
+        } else {
+            rotErr = Math.abs(Rotation2d.getError(waypoint.targetEndRotation.getAngleRadians(), botPose.rotation.getAngleRadians()));
+        }
+        return botPose.distanceTo(waypoint) < maxLinearErr && rotErr < maxRotErr;
     }
 
 }

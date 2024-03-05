@@ -107,14 +107,18 @@ public class AprilTagCamera extends Subsystem {
         if (withinRange && cameraEnabled) {
             if (!usingCamera) {
                 usingCamera = true;
-                visionPortal.resumeStreaming();
+                try {
+                    visionPortal.resumeStreaming();
+                } catch (RuntimeException e) {
+                    e.printStackTrace();
+                }
             }
             adjustBotPose();
         } else if (usingCamera) {
             usingCamera = false;
             try {
                 visionPortal.stopStreaming();
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 e.printStackTrace();
             }
         }

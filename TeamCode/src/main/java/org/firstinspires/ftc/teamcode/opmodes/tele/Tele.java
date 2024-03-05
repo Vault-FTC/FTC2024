@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.ClimbDefault;
 import org.firstinspires.ftc.teamcode.commands.DriveDefault;
 import org.firstinspires.ftc.teamcode.commands.DriveToBackboard;
-import org.firstinspires.ftc.teamcode.commands.Intake;
+import org.firstinspires.ftc.teamcode.commands.RunIntake;
 import org.firstinspires.ftc.teamcode.commands.SlideDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
@@ -29,30 +29,33 @@ public class Tele extends Robot {
 
     public static Pose2d backdropPose = blueBackdropPose;
 
+    Command automaticPlace;
+
     @Override
     public void init() {
         super.init();
         if (alliance == Alliance.RED) {
             backdropPose = redBackdropPose;
         }
+        automaticPlace = getAutomaticPlaceCommand(backdropPose);
         driveController = new GamepadHelper(gamepad1);
         payloadController = new GamepadHelper(gamepad2);
         drive.setDefaultCommand(new DriveDefault(drive, () -> -driveController.leftStickY.getAsDouble(), driveController.leftStickX, () -> -driveController.rightStickX.getAsDouble()));
         driveController.leftBumper.onTrue(new InstantCommand(() -> drive.enableSlowMode()));
         driveController.rightBumper.onTrue(new InstantCommand(() -> drive.enableFastMode()));
         drive.odometry.setPosition(pose); // Set the robot position to the last position of the robot in autonomous
-        intake.setDefaultCommand(new Intake(intake, Constants.Intake.idleSpeed));
-        payloadController.rightTrigger.whileTrue(new InstantCommand(intake, () -> intake.run(1)));
-        payloadController.leftTrigger.andNot(payloadController.rightBumper).whileTrue(new InstantCommand(intake, () -> intake.run(-1)));
+        intake.setDefaultCommand(new RunIntake(intake, Constants.Intake.idleSpeed));
+        payloadController.rightTrigger.whileTrue(new RunIntake(intake, 0.8));
+        payloadController.leftTrigger.andNot(payloadController.rightBumper).whileTrue(new RunIntake(intake, -0.8));
         Command shootDrone = new SequentialCommandGroup(
                 new InstantCommand(() -> droneShooter.angleAdjuster.setPosition(0.5)),
                 new WaitCommand(1000),
                 new InstantCommand(() -> droneShooter.release.setPosition(-0.5))
         );
         payloadController.a.onTrue(shootDrone);
-        slide.setDefaultCommand(new SlideDefault(slide, payloadController.rightStickY));
-        payloadController.rightBumper.onTrue(new SlideToPosition(slide, gamepad2, Constants.Slide.defaultPlacePosition));
-        payloadController.leftBumper.onTrue(new SlideToPosition(slide, gamepad2, 0));
+        slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
+        payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
+        payloadController.leftBumper.onTrue(new SlideToPosition(slide, 0));
         payloadController.a.onTrue(new InstantCommand(() -> placer.open()));
         payloadController.b.onTrue(new InstantCommand(() -> placer.close()));
         climber.setDefaultCommand(new ClimbDefault(climber, payloadController.leftStickY));

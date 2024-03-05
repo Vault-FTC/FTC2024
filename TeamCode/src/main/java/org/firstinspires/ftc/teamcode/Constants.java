@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Vector2d;
+import org.firstinspires.ftc.teamcode.utils.PIDController.PIDGains;
 
 public class Constants {
 
@@ -17,7 +18,7 @@ public class Constants {
     public static final double deadZone = 0.05;
 
     public static final class Intake {
-        public static final double idleSpeed = 0.3;
+        public static final double idleSpeed = 0.5;
     }
 
     public static final class Slide {
@@ -43,6 +44,9 @@ public class Constants {
             public static final Pose2d redLeft = new Pose2d(106.0685, 133.451, new Rotation2d(Math.PI));
             public static final Pose2d redRight = new Pose2d(58.944, 133.451, new Rotation2d(Math.PI));
         }
+
+        public static final PIDGains defaultDriveGains = new PIDGains(0.2, 0.0, 3.5);
+        public static final PIDGains defaultRotGains = new PIDGains(2.0, 0.0001, 0.6);
     }
 
     public static final class Vision {

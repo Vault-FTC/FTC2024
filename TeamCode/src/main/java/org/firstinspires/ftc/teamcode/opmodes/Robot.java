@@ -5,8 +5,21 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
+import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.commands.BackdropHome;
+import org.firstinspires.ftc.teamcode.commands.FollowPath;
+import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
+import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
+import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
+import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
+import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
+import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
+import org.firstinspires.ftc.teamcode.drive.FutureWaypoint;
+import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
+import org.firstinspires.ftc.teamcode.drive.Rotation2d;
+import org.firstinspires.ftc.teamcode.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
@@ -59,6 +72,21 @@ public class Robot extends OpMode {
     @Override
     public void loop() {
         CommandScheduler.getInstance().run();
+    }
+
+    public Command getAutomaticPlaceCommand(Pose2d backdropPose) {
+        Command command = new SequentialCommandGroup(
+                new FollowPath(Path.getBuilder()
+                        .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
+                        .addWaypoint(new Waypoint(backdropPose.x + 4.0, backdropPose.y, Constants.Drive.defaultFollowRadius, new Rotation2d(Math.PI), new Rotation2d(Math.PI)))
+                        .build(), drive),
+                new SlideToPosition(slide, 500),
+                new WaitCommand(500),
+                new BackdropHome(drive.base, placer, backdropPose, 2000, 500),
+                new InstantCommand(() -> placer.open()),
+                new FollowPath(Path.getBuilder().addWaypoint(backdropPose.toWaypoint()).addWaypoint(backdropPose.x + 4.0, backdropPose.y).build(), drive));
+        new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(() -> command.cancel()));
+        return command;
     }
 
 }
