@@ -15,10 +15,9 @@ public class Constants {
 
     public static final double triggerDeadZone = 0.1;
     public static final double joystickDeadZone = 0.1;
-    public static final double deadZone = 0.05;
 
     public static final class Intake {
-        public static final double idleSpeed = 0.5;
+        public static final double defaultSpeed = 0.8;
     }
 
     public static final class Slide {

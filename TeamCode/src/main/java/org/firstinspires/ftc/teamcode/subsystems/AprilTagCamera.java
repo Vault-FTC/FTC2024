@@ -101,7 +101,6 @@ public class AprilTagCamera extends Subsystem {
 
     @Override
     public void periodic() {
-        adjustBotPose();
         Pose2d botPose = poseSupplier.get();
         boolean withinRange = Math.abs(Rotation2d.signed_minusPI_to_PI(botPose.rotation.getAngleRadians())) < Math.toRadians(Constants.Vision.turnCamOnThresholdDegrees) && botPose.x < Constants.Vision.useAprilTagMaxDistIn;
         if (withinRange && cameraEnabled) {

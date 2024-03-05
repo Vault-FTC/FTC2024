@@ -9,6 +9,18 @@ public class Path {
 
     final double timeout; // In milliseconds
 
+    public Path(double timeout, WaypointGenerator... waypoints) {
+        this.waypoints = new ArrayList<>();
+        for (WaypointGenerator waypoint : waypoints) {
+            this.waypoints.add(waypoint);
+        }
+        this.timeout = timeout;
+    }
+
+    public Path(WaypointGenerator... waypoints) {
+        this(Double.POSITIVE_INFINITY, waypoints);
+    }
+
     private Path(Builder builder) {
         waypoints = builder.waypoints;
         timeout = builder.timeout;

@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.BackdropHome;
+import org.firstinspires.ftc.teamcode.commands.FollowFuturePath;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
@@ -15,11 +16,10 @@ import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
-import org.firstinspires.ftc.teamcode.drive.FutureWaypoint;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
-import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
+import org.firstinspires.ftc.teamcode.drive.WaypointGenerator;
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
@@ -30,6 +30,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Placer;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
+
+import java.util.ArrayList;
 
 public class Robot extends OpMode {
 
@@ -74,18 +76,31 @@ public class Robot extends OpMode {
         CommandScheduler.getInstance().run();
     }
 
+    private Path getToBackdropPath(final Pose2d backdropPose) {
+        Pose2d botPose = drive.odometry.getPose();
+        ArrayList<Waypoint> waypoints = new ArrayList<>();
+        waypoints.add(botPose.toWaypoint());
+        if (drive.odometry.getPose().x > 85.0) { // If robot is in front of rigging
+            waypoints.add(new Waypoint(90, 70, Constants.Drive.defaultFollowRadius));
+            waypoints.add(new Waypoint(65, 70, Constants.Drive.defaultFollowRadius));
+        }
+        double backdropXInitial = 20.0;
+        if (botPose.x > backdropPose.x + backdropXInitial) {
+            waypoints.add(new Waypoint(backdropPose.x + backdropXInitial, backdropPose.y, Constants.Drive.defaultFollowRadius));
+        }
+        waypoints.add(new Waypoint(backdropPose.x + 4.0, backdropPose.y, Constants.Drive.defaultFollowRadius, null, backdropPose.rotation));
+        return new Path(waypoints.toArray(new WaypointGenerator[]{}));
+    }
+
     public Command getAutomaticPlaceCommand(Pose2d backdropPose) {
         Command command = new SequentialCommandGroup(
-                new FollowPath(Path.getBuilder()
-                        .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
-                        .addWaypoint(new Waypoint(backdropPose.x + 4.0, backdropPose.y, Constants.Drive.defaultFollowRadius, new Rotation2d(Math.PI), new Rotation2d(Math.PI)))
-                        .build(), drive),
+                new FollowFuturePath(() -> getToBackdropPath(backdropPose), drive), // Get close to the backdrop
                 new SlideToPosition(slide, 500),
-                new WaitCommand(500),
-                new BackdropHome(drive.base, placer, backdropPose, 2000, 500),
+                new WaitCommand(500), // Wait for an april tag detection
+                new BackdropHome(drive.base, placer, backdropPose, 2000, 500), // Home in on the backdrop
                 new InstantCommand(() -> placer.open()),
                 new FollowPath(Path.getBuilder().addWaypoint(backdropPose.toWaypoint()).addWaypoint(backdropPose.x + 4.0, backdropPose.y).build(), drive));
-        new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(() -> command.cancel()));
+        new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(command::cancel));
         return command;
     }
 
