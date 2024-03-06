@@ -1,12 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.debug;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-//@Disabled
+@Disabled
 @TeleOp(name = "climb test", group = "debug")
 public class ClimbTest extends OpMode {
     DcMotor motor;

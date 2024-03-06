@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes.debug;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -17,7 +18,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.utils.GamepadHelper;
 import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 
-//@Disabled
+@Disabled
 @TeleOp(name = "drive to position test")
 public class DriveToPositionTest extends OpMode {
 
