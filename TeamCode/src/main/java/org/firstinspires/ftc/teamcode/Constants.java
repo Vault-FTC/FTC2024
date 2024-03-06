@@ -38,10 +38,10 @@ public class Constants {
         public static final double calculateTargetHeadingMinDistance = 15.0;
 
         public static final class StartPositions {
-            public static final Pose2d blueLeft = new Pose2d(58.944, 7.894, new Rotation2d());
-            public static final Pose2d blueRight = new Pose2d(106.0685, 7.894, new Rotation2d());
-            public static final Pose2d redLeft = new Pose2d(106.0685, 133.451, new Rotation2d(Math.PI));
-            public static final Pose2d redRight = new Pose2d(58.944, 133.451, new Rotation2d(Math.PI));
+            public static final Pose2d blueLeft = new Pose2d(58.944, 10.019, new Rotation2d());
+            public static final Pose2d blueRight = new Pose2d(106.0685, 10.019, new Rotation2d());
+            public static final Pose2d redLeft = new Pose2d(106.0685, 131.326, new Rotation2d(Math.PI));
+            public static final Pose2d redRight = new Pose2d(58.944, 131.326, new Rotation2d(Math.PI));
         }
 
         public static final PIDGains defaultDriveGains = new PIDGains(0.2, 0.0, 3.5);

@@ -100,7 +100,7 @@ public class BlueLeft extends Auton {
                                 new WaitCommand(1500),
                                 new SlideToPosition(slide, 500))).setTimeout(8000))
                 .add(new FollowPath(paths.get(2), drive)) // Drive to the backdrop
-                .add(new InstantCommand(() -> aprilTagCamera.enable())) // Camera is no longer necessary
+                //.add(new InstantCommand(() -> aprilTagCamera.enable())) // Camera is no longer necessary
                 .add(new BackdropHome(drive.base, slide, placer, new FutureWaypoint(() -> getYellowPlaceWaypoint()), 2000, 1000))
                 .add(new InstantCommand(() -> placer.open())) // Place the pixel
                 .add(new WaitCommand(500))
