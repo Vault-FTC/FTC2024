@@ -61,7 +61,7 @@ public class Pipeline extends OpenCvPipeline {
                 propLocation = PropLocation.CENTER;
             }
 
-            locationHistory.add(propLocation.location);
+            locationHistory.add(propLocation.ordinal());
         }
 
         DashboardLayout.setNodeValue("prop", propX);

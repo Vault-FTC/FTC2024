@@ -36,11 +36,12 @@ public abstract class Auton extends Robot {
         propCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
+                telemetry.addData("Camera opened", "");
             }
 
             @Override
             public void onError(int errorCode) {
-                telemetry.addData("Camera Failed", "");
+                telemetry.addData("Camera failed", "");
                 telemetry.update();
             }
         });

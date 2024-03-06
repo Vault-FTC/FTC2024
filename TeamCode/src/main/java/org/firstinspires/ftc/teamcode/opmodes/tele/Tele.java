@@ -35,6 +35,7 @@ public class Tele extends Robot {
     @Override
     public void init() {
         super.init();
+        aprilTagCamera.disable();
         if (alliance == Alliance.RED) {
             backdropPose = redBackdropPose;
         }
