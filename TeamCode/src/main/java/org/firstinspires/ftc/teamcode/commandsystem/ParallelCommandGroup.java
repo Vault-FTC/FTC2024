@@ -3,14 +3,31 @@ package org.firstinspires.ftc.teamcode.commandsystem;
 import java.util.ArrayList;
 
 public class ParallelCommandGroup extends CommandGroup {
+
+    private double timeout = Double.POSITIVE_INFINITY;
+
     public ParallelCommandGroup(Command... commands) {
         super(commands);
     }
 
+    public void setTimeout(double timeout) {
+        this.timeout = timeout;
+    }
+
     @Override
-    public void execute() {
+    public void initialize() {
         for (Command command : commands) {
             command.schedule();
+        }
+    }
+
+    @Override
+    public void execute() {
+        if (timeSinceInitialized() > initializedTimestamp() + timeout) {
+            for (Command command : commands) {
+                command.cancel();
+            }
+            cancel();
         }
     }
 

@@ -9,35 +9,32 @@ import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 public abstract class Auton extends Robot {
 
     OpenCvWebcam propCam;
-    public final int STREAM_WIDTH = 1280;
-    public final int STREAM_HEIGHT = 720;
-
     Pipeline visionPipeline;
     Command autonomousCommand;
 
+    private final Rotation2d rotationOffset;
+
     public Auton(Alliance alliance, Rotation2d rotationOffset) {
         Robot.alliance = alliance;
-        drive.setFieldCentricOffset(rotationOffset);
+        this.rotationOffset = rotationOffset;
     }
 
     @Override
     public void init() {
         super.init();
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        drive.setFieldCentricOffset(rotationOffset);
 
-        propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "PropCam"), cameraMonitorViewId);
+        propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "PropCam"));
         visionPipeline = new Pipeline();
         propCam.setPipeline(visionPipeline);
         propCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                propCam.startStreaming(STREAM_WIDTH, STREAM_HEIGHT, OpenCvCameraRotation.UPRIGHT);
             }
 
             @Override
@@ -51,7 +48,7 @@ public abstract class Auton extends Robot {
     @Override
     public void init_loop() {
         telemetry.addData("prop location: ", visionPipeline.getPropLocation().toString());
-        DashboardLayout.setNodeValue("prop location", visionPipeline.getPropLocation().toString());
+        DashboardLayout.setNodeValue("prop", visionPipeline.getPropLocation().toString());
     }
 
 

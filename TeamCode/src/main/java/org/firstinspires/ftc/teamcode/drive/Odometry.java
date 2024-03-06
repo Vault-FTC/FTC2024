@@ -25,9 +25,9 @@ public class Odometry {
 
     public Odometry(HardwareMap hardwareMap) {
         pose = new Pose2d();
-        parallel0 = new PairedEncoder(hardwareMap.get(DcMotor.class, "lf"), false); //lf
-        parallel1 = new PairedEncoder(hardwareMap.get(DcMotor.class, "rf"), false); //lb
-        perpendicular = new PairedEncoder(hardwareMap.get(DcMotor.class, "lb"), false); //rf
+        parallel0 = new PairedEncoder(hardwareMap.get(DcMotor.class, "climbMotor"), true); //lf
+        parallel1 = new PairedEncoder(hardwareMap.get(DcMotor.class, "intakeMotor"), true); //lb
+        perpendicular = new PairedEncoder(hardwareMap.get(DcMotor.class, "rf"), true); //rf
         resetEncoders();
     }
 

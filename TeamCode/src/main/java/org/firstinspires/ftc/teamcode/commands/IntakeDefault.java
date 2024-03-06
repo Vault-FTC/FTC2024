@@ -15,6 +15,7 @@ public class IntakeDefault extends Command {
     public IntakeDefault(Intake intake, Supplier<Pose2d> poseSupplier) {
         this.intake = intake;
         this.poseSupplier = poseSupplier;
+        addRequirements(intake);
     }
 
     @Override

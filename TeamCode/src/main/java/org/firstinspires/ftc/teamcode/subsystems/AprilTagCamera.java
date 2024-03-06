@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class AprilTagCamera extends Subsystem {
 
     public final VisionPortal visionPortal;
-    private boolean cameraEnabled = false;
+    public boolean cameraEnabled = false;
     private boolean usingCamera = false;
     AprilTagProcessor aprilTagProcessor;
     Supplier<Pose2d> poseSupplier;

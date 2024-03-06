@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -62,6 +63,8 @@ public class Pipeline extends OpenCvPipeline {
 
             locationHistory.add(propLocation.location);
         }
+
+        DashboardLayout.setNodeValue("prop", propX);
 
         Imgproc.rectangle(toDisplay, new Point(propX - rectSize.x / 2, propY - rectSize.y / 2), new Point(propX + rectSize.x / 2, propY + rectSize.y / 2), new Scalar(0, 255, 0), 3);
 

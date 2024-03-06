@@ -45,7 +45,7 @@ public class BackdropHome extends Command {
     @Override
     public boolean isFinished() {
         atWaypoint = base.atWaypoint(backdropWaypoint, 0.5, 5)
-                || timeSinceInitialized() > getInitializedTimestamp() + followTimeout
+                || timeSinceInitialized() > initializedTimestamp() + followTimeout
                 || placer.touchSensor.isPressed()
                 || placer.distanceSensor.getDistance(DistanceUnit.INCH) < 0.5;
         if (atWaypoint && timestamp == -1) {

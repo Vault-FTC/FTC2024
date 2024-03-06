@@ -19,23 +19,30 @@ public class Slide extends Subsystem {
     private final TouchSensor limit;
     private int targetPosition;
 
-    public Slide(DcMotor motor1, DcMotor motor2, TouchSensor limit) {
+    private final int polarity;
+
+    public Slide(DcMotor motor1, DcMotor motor2, TouchSensor limit, boolean reversed) {
         this.motor1 = motor1;
         this.motor2 = motor2;
         encoder = new PairedEncoder(motor1);
         encoder.reset();
         this.limit = limit;
         controller = new PIDController(0.001, 0, 0);
+        polarity = reversed ? -1 : 1;
+    }
+
+    public Slide(DcMotor motor1, DcMotor motor2, TouchSensor limit) {
+        this(motor1, motor2, limit, false);
     }
 
     private void runMotor(double speed) {
-        /*if (speed > 0 && encoder.getPosition() > Constants.Slide.maxExtensionPosition) {
+        if (speed > 0 && encoder.getPosition() > Constants.Slide.maxExtensionPosition) {
             speed = 0;
         } else if (speed < 0 && encoder.getPosition() < 0) {
-            speed = -0.3;
-        }*/
-        motor1.setPower(speed);
-        motor2.setPower(-speed);
+            speed = -0.05;
+        }
+        motor1.setPower(speed * polarity);
+        motor2.setPower(-speed * polarity);
     }
 
 

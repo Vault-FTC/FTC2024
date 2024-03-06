@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 public class Placer extends Subsystem {
     private final Servo servo;
 
-    public final ColorRangeSensor distanceSensor;
+    public ColorRangeSensor distanceSensor;
     public final TouchSensor touchSensor;
 
     public Placer(HardwareMap hardwareMap) {

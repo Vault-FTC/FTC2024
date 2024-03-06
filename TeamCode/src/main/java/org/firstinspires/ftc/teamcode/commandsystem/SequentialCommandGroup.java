@@ -7,8 +7,14 @@ public class SequentialCommandGroup extends CommandGroup {
     private boolean hasStarted = false;
     private int index = 0;
 
+    private double timeout = Double.POSITIVE_INFINITY;
+
     public SequentialCommandGroup(Command... commands) {
         super(commands);
+    }
+
+    public void setTimeout(double timeout) {
+        this.timeout = timeout;
     }
 
     @Override
@@ -27,6 +33,12 @@ public class SequentialCommandGroup extends CommandGroup {
                 commands[index].schedule();
                 hasStarted = true;
             }
+        }
+        if (timeSinceInitialized() > initializedTimestamp() + timeout) {
+            for (Command command : commands) {
+                command.cancel();
+            }
+            cancel();
         }
     }
 

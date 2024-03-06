@@ -42,33 +42,41 @@ public class Tele extends Robot {
         driveController = new GamepadHelper(gamepad1);
         payloadController = new GamepadHelper(gamepad2);
 
-        drive.setDefaultCommand(new DriveDefault(drive, () -> -driveController.leftStickY.getAsDouble(), driveController.leftStickX, () -> -driveController.rightStickX.getAsDouble()));
+        drive.setDefaultCommand(new DriveDefault(drive, () -> -driveController.leftStickY.getAsDouble(), () -> driveController.leftStickX.getAsDouble(), () -> -driveController.rightStickX.getAsDouble()));
         driveController.leftBumper.onTrue(new InstantCommand(() -> drive.enableSlowMode()));
         driveController.rightBumper.onTrue(new InstantCommand(() -> drive.enableFastMode()));
-        driveController.a.onTrue(automaticPlace);
+        driveController.a.and(driveController.b).onTrue(automaticPlace);
         drive.odometry.setPosition(pose); // Set the robot position to the last position of the robot in autonomous
 
         intake.setDefaultCommand(new IntakeDefault(intake, drive.odometry::getPose)); // Runs the intake automatically when the robot is in the right spot
-        payloadController.rightTrigger.whileTrue(new RunIntake(intake, Constants.Intake.defaultSpeed));
-        payloadController.leftTrigger.andNot(payloadController.rightBumper).whileTrue(new RunIntake(intake, -Constants.Intake.defaultSpeed));
+        payloadController.rightTrigger.or(driveController.rightTrigger).whileTrue(new RunIntake(intake, Constants.Intake.defaultSpeed));
+        payloadController.leftTrigger.or(driveController.leftTrigger).whileTrue(new RunIntake(intake, -Constants.Intake.defaultSpeed));
 
         Command shootDrone = new SequentialCommandGroup(
-                new InstantCommand(() -> droneShooter.angleAdjuster.setPosition(0.5)),
-                new WaitCommand(1000),
-                new InstantCommand(() -> droneShooter.release.setPosition(-0.5))
+                new InstantCommand(() -> droneShooter.angleAdjuster.setPosition(0.65)),
+                new WaitCommand(2000),
+                new InstantCommand(() -> droneShooter.release.setPosition(0))
         );
         payloadController.y.onTrue(shootDrone);
 
         slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
-        payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
-        payloadController.leftBumper.onTrue(new SlideToPosition(slide, 0));
+        payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition, gamepad2));
+        payloadController.leftBumper.onTrue(new SlideToPosition(slide, 0, gamepad2));
 
         payloadController.a.onTrue(new InstantCommand(() -> placer.open()));
         payloadController.b.onTrue(new InstantCommand(() -> placer.close()));
 
         climber.setDefaultCommand(new ClimbDefault(climber, payloadController.leftStickY));
+    }
 
-        aprilTagCamera.enable(); // Remove this line after testing
+    public void start() {
+        droneShooter.angleAdjuster.setPosition(0.4);
+    }
+
+    public void loop() {
+        super.loop();
+        telemetry.addData("servo pose", droneShooter.angleAdjuster.getPosition());
+        telemetry.addData("cam", aprilTagCamera.cameraEnabled);
     }
 
 }

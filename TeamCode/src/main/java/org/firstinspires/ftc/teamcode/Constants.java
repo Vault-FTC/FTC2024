@@ -51,7 +51,7 @@ public class Constants {
     public static final class Vision {
         public static final int lookBehindFrames = 30;
         public static final double useAprilTagMaxDistIn = 35;
-        public static Vector2d camToRobot = new Vector2d(5.12, 6.61); // This assumes that the camera's euler angles are always the same as the robot, because I don't want to write a bunch of code for rotation matrices...
+        public static Vector2d camToRobot = new Vector2d(-5.73, -8.82); // This assumes that the camera's euler angles are always the same as the robot, because I don't want to write a bunch of code for rotation matrices...
         public static final Pose2d[] backdropTagPoses = {
                 new Pose2d(9.0, 29.381, new Rotation2d(Math.PI / 2)),
                 new Pose2d(9.0, 35.381, new Rotation2d(Math.PI / 2)),

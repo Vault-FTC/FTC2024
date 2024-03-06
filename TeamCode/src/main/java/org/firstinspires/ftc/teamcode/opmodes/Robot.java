@@ -63,12 +63,13 @@ public class Robot extends OpMode {
         slide = new Slide(
                 hardwareMap.get(DcMotor.class, "slideMotor1"),
                 hardwareMap.get(DcMotor.class, "slideMotor2"),
-                hardwareMap.get(TouchSensor.class, "limit"));
+                hardwareMap.get(TouchSensor.class, "limit"), true);
         placer = new Placer(hardwareMap);
         climber = new Climber(hardwareMap.get(DcMotor.class, "climbMotor"));
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
         aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
+        aprilTagCamera.disable();
         droneShooter = new DroneShooter(hardwareMap);
     }
 
@@ -103,8 +104,8 @@ public class Robot extends OpMode {
                 new BackdropHome(drive.base, placer, backdropPose, 2000, 500), // Home in on the backdrop
                 new InstantCommand(() -> placer.open()),
                 new FollowPath(Path.getBuilder().addWaypoint(backdropPose.toWaypoint()).addWaypoint(backdropPose.x + 4.0, backdropPose.y).build(), drive),
-                new InstantCommand(() -> flashLights.cancel()));
-        new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(flashLights::cancel));
+                new InstantCommand(flashLights::cancel));
+        new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(command::cancel));
         return command;
     }
 
