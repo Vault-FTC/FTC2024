@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.tele;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.commands.AutomaticDroneLaunch;
 import org.firstinspires.ftc.teamcode.commands.ClimbDefault;
 import org.firstinspires.ftc.teamcode.commands.DriveDefault;
 import org.firstinspires.ftc.teamcode.commands.IntakeDefault;
@@ -59,6 +60,7 @@ public class Tele extends Robot {
                 new InstantCommand(() -> droneShooter.release.setPosition(0))
         );
         payloadController.y.onTrue(shootDrone);
+        payloadController.x.onTrue(new AutomaticDroneLaunch(drive, shootDrone, gamepad1));
 
         slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
         payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition, gamepad2));
