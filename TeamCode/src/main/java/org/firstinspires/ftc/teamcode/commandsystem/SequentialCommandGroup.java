@@ -13,8 +13,9 @@ public class SequentialCommandGroup extends CommandGroup {
         super(commands);
     }
 
-    public void setTimeout(double timeout) {
+    public SequentialCommandGroup setTimeout(double timeout) {
         this.timeout = timeout;
+        return this;
     }
 
     @Override

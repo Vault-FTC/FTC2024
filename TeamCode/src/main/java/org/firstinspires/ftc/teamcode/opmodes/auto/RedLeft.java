@@ -56,7 +56,7 @@ public class RedLeft extends Auton {
     }
 
     public RedLeft() {
-        super(Pipeline.Alliance.RED, StartPositions.redLeft.rotation);
+        super(Pipeline.Alliance.RED, StartPositions.redLeft);
         paths.add(Path.getBuilder().setDefaultRadius(8).setTimeout(3000) // Drive to spike mark path
                 .addWaypoint(StartPositions.redLeft.toWaypoint())
                 .addWaypoint(new FutureWaypoint(this::getPurplePlaceWaypoint)).build());

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
-import org.firstinspires.ftc.teamcode.drive.Rotation2d;
+import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.vision.Pipeline;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
@@ -17,17 +17,18 @@ public abstract class Auton extends Robot {
     Pipeline visionPipeline;
     Command autonomousCommand;
 
-    private final Rotation2d rotationOffset;
+    private final Pose2d startPosition;
 
-    public Auton(Alliance alliance, Rotation2d rotationOffset) {
+    public Auton(Alliance alliance, Pose2d startPosition) {
         Robot.alliance = alliance;
-        this.rotationOffset = rotationOffset;
+        this.startPosition = startPosition;
     }
 
     @Override
     public void init() {
         super.init();
-        drive.setFieldCentricOffset(rotationOffset);
+        drive.odometry.setPosition(startPosition);
+        drive.setFieldCentricOffset(startPosition.rotation);
 
         propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "PropCam"));
         visionPipeline = new Pipeline();

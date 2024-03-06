@@ -38,7 +38,7 @@ public class Tele extends Robot {
         if (alliance == Alliance.RED) {
             backdropPose = redBackdropPose;
         }
-        automaticPlace = getAutomaticPlaceCommand(backdropPose);
+        automaticPlace = getAutomaticPlaceCommand(backdropPose.toWaypoint());
         driveController = new GamepadHelper(gamepad1);
         payloadController = new GamepadHelper(gamepad2);
 

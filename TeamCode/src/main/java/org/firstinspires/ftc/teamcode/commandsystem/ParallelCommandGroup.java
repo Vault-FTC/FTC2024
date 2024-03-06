@@ -10,8 +10,9 @@ public class ParallelCommandGroup extends CommandGroup {
         super(commands);
     }
 
-    public void setTimeout(double timeout) {
+    public ParallelCommandGroup setTimeout(double timeout) {
         this.timeout = timeout;
+        return this;
     }
 
     @Override
@@ -34,7 +35,7 @@ public class ParallelCommandGroup extends CommandGroup {
     @Override
     public boolean isFinished() {
         for (Command command : commands) {
-            if (!command.isFinished()) {
+            if (command.state != State.UNSCHEDULED) {
                 return false;
             }
         }

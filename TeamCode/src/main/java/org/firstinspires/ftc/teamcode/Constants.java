@@ -62,6 +62,6 @@ public class Constants {
         };
         public static boolean useAprilTagHeading = true;
         public static double aprilTagHeadingThresholdDegrees = 90;
-        public static double turnCamOnThresholdDegrees = 45;
+        public static double turnCamOnThresholdDegrees = 15;
     }
 }

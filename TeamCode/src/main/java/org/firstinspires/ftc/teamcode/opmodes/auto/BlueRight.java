@@ -56,7 +56,7 @@ public class BlueRight extends Auton {
     }
 
     public BlueRight() {
-        super(Pipeline.Alliance.BLUE, StartPositions.blueRight.rotation);
+        super(Pipeline.Alliance.BLUE, StartPositions.blueRight);
         paths.add(Path.getBuilder().setDefaultRadius(8).setTimeout(3000) // Drive to spike mark path
                 .addWaypoint(StartPositions.blueRight.toWaypoint())
                 .addWaypoint(new FutureWaypoint(this::getPurplePlaceWaypoint)).build());

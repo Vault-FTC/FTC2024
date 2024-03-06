@@ -14,7 +14,7 @@ public class Slide extends Subsystem {
 
     public final DcMotor motor1;
     public final DcMotor motor2;
-    private final Encoder encoder;
+    public final Encoder encoder;
     private final PIDController controller;
     private final TouchSensor limit;
     private int targetPosition;
@@ -27,7 +27,7 @@ public class Slide extends Subsystem {
         encoder = new PairedEncoder(motor1);
         encoder.reset();
         this.limit = limit;
-        controller = new PIDController(0.001, 0, 0);
+        controller = new PIDController(0.01, 0, 0);
         polarity = reversed ? -1 : 1;
     }
 

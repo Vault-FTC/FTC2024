@@ -53,7 +53,7 @@ public class AprilTagCamera extends Subsystem {
                 tagPose.y - relativeCoordinates.y,
                 Constants.Vision.useAprilTagHeading && Math.abs(detection.ftcPose.yaw) < Constants.Vision.aprilTagHeadingThresholdDegrees ? Rotation2d.fromDegrees(tagPose.rotation.getAngleDegrees() - detection.ftcPose.yaw) : poseSupplier.get().rotation);
         Vector2d relativeBotCoordinates = Constants.Vision.camToRobot.rotate(camPose.rotation.getAngleRadians());
-        return new Pose2d(camPose.x + relativeBotCoordinates.x, camPose.y + relativeBotCoordinates.y, camPose.rotation);
+        return new Pose2d(camPose.x + relativeBotCoordinates.x, camPose.y + relativeBotCoordinates.y, new Rotation2d(camPose.rotation.getAngleRadians() + Math.PI));
     }
 
     private void adjustBotPose() {

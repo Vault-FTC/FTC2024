@@ -10,7 +10,7 @@ public class Rotation2d {
     private final double sin;
 
     public Rotation2d(double angle) {
-        this.angle = angle;
+        this.angle = signed_minusPI_to_PI(angle);
         cos = Math.cos(angle);
         sin = Math.sin(angle);
     }

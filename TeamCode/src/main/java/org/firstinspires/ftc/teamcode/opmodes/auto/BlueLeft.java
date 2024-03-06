@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Constants.Drive.StartPositions;
+import org.firstinspires.ftc.teamcode.commands.BackdropHome;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commands.TimedIntake;
@@ -41,8 +42,8 @@ public class BlueLeft extends Auton {
         return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(), new Rotation2d());
     }
 
-    private Waypoint getYellowPlaceWaypoint() {
-        double x = 28.0;
+    private Waypoint getInitialYellowPlaceWaypoint() {
+        double x = 32.0;
         double y = 34.5;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
@@ -56,8 +57,13 @@ public class BlueLeft extends Auton {
         return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, null, new Rotation2d(Math.PI / 2));
     }
 
+    private Waypoint getYellowPlaceWaypoint() {
+        Waypoint waypoint = getInitialYellowPlaceWaypoint();
+        return new Waypoint(waypoint.x - 4.0, waypoint.y, waypoint.followRadius, waypoint.targetFollowRotation, waypoint.targetEndRotation, waypoint.maxVelocity);
+    }
+
     public BlueLeft() {
-        super(Pipeline.Alliance.BLUE, StartPositions.blueLeft.rotation);
+        super(Pipeline.Alliance.BLUE, StartPositions.blueLeft);
     }
 
     @Override
@@ -75,7 +81,7 @@ public class BlueLeft extends Auton {
                 .build());
         paths.add(Path.getBuilder().setTimeout(5000).setDefaultMaxVelocity(0.5) // Drive to backdrop path
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
-                .addWaypoint(new FutureWaypoint(this::getYellowPlaceWaypoint))
+                .addWaypoint(new FutureWaypoint(this::getInitialYellowPlaceWaypoint))
                 .build());
         paths.add(Path.getBuilder().setTimeout(5000) // Park path
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
@@ -92,9 +98,10 @@ public class BlueLeft extends Auton {
                         new FollowPath(paths.get(1), drive),
                         new SequentialCommandGroup(
                                 new WaitCommand(1500),
-                                new SlideToPosition(slide, 500))))
+                                new SlideToPosition(slide, 500))).setTimeout(8000))
                 .add(new FollowPath(paths.get(2), drive)) // Drive to the backdrop
                 .add(new InstantCommand(() -> aprilTagCamera.enable())) // Camera is no longer necessary
+                .add(new BackdropHome(drive.base, slide, placer, new FutureWaypoint(() -> getYellowPlaceWaypoint()), 2000, 1000))
                 .add(new InstantCommand(() -> placer.open())) // Place the pixel
                 .add(new WaitCommand(500))
                 .add(new ParallelCommandGroup( // Close the placer, stow the slide, and park

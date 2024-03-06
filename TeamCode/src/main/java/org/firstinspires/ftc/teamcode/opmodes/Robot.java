@@ -69,7 +69,6 @@ public class Robot extends OpMode {
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
         aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
-        aprilTagCamera.disable();
         droneShooter = new DroneShooter(hardwareMap);
     }
 
@@ -78,7 +77,7 @@ public class Robot extends OpMode {
         CommandScheduler.getInstance().run();
     }
 
-    private Path getToBackdropPath(final Pose2d backdropPose) {
+    private Path getToBackdropPath(Waypoint backdropWaypoint) {
         Pose2d botPose = drive.odometry.getPose();
         ArrayList<Waypoint> waypoints = new ArrayList<>();
         waypoints.add(botPose.toWaypoint());
@@ -87,23 +86,25 @@ public class Robot extends OpMode {
             waypoints.add(new Waypoint(65, 70, Constants.Drive.defaultFollowRadius));
         }
         double backdropXInitial = 20.0;
-        if (botPose.x > backdropPose.x + backdropXInitial) {
-            waypoints.add(new Waypoint(backdropPose.x + backdropXInitial, backdropPose.y, Constants.Drive.defaultFollowRadius));
+        if (botPose.x > backdropWaypoint.x + backdropXInitial) {
+            waypoints.add(new Waypoint(backdropWaypoint.x + backdropXInitial, backdropWaypoint.y, Constants.Drive.defaultFollowRadius));
         }
-        waypoints.add(new Waypoint(backdropPose.x + 4.0, backdropPose.y, Constants.Drive.defaultFollowRadius, null, backdropPose.rotation));
+        waypoints.add(new Waypoint(backdropWaypoint.x + 4.0, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, null, backdropWaypoint.targetEndRotation));
         return new Path(waypoints.toArray(new WaypointGenerator[]{}));
     }
 
-    public Command getAutomaticPlaceCommand(Pose2d backdropPose) {
+    public Command getAutomaticPlaceCommand(WaypointGenerator backdropWaypoint) {
         Command flashLights = new FlashLights(lights, 750);
         Command command = new SequentialCommandGroup(
                 new InstantCommand(flashLights::schedule),
-                new FollowFuturePath(() -> getToBackdropPath(backdropPose), drive), // Get close to the backdrop
+                new FollowFuturePath(() -> getToBackdropPath(backdropWaypoint.getWaypoint()), drive), // Get close to the backdrop
                 new SlideToPosition(slide, 500),
+                new InstantCommand(aprilTagCamera::enable),
                 new WaitCommand(500), // Wait for an april tag detection
-                new BackdropHome(drive.base, placer, backdropPose, 2000, 500), // Home in on the backdrop
+                new InstantCommand(aprilTagCamera::disable),
+                new BackdropHome(drive.base, slide, placer, backdropWaypoint, 2000, 500), // Home in on the backdrop
                 new InstantCommand(() -> placer.open()),
-                new FollowPath(Path.getBuilder().addWaypoint(backdropPose.toWaypoint()).addWaypoint(backdropPose.x + 4.0, backdropPose.y).build(), drive),
+                new FollowPath(Path.getBuilder().addWaypoint(backdropWaypoint).addWaypoint(backdropWaypoint.getWaypoint().x + 4.0, backdropWaypoint.getWaypoint().y).build(), drive),
                 new InstantCommand(flashLights::cancel));
         new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(command::cancel));
         return command;
