@@ -47,7 +47,7 @@ public class Drive extends Subsystem {
 
     public enum Mode {
         FAST(1.0),
-        SLOW(0.5);
+        SLOW(0.25);
 
         final double multiplier;
 

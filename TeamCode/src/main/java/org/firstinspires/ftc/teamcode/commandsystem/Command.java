@@ -73,11 +73,11 @@ public abstract class Command {
         if (state != State.UNSCHEDULED) {
             end(true);
         }
-        /*if (this instanceof CommandGroup) { // Cancel every command in the command group as well as the over-arching command group sequence
+        if (this instanceof CommandGroup) { // Cancel every command in the command group as well as the over-arching command group sequence
             for (Command command : ((CommandGroup) this).commands) {
                 command.cancel();
             }
-        }*/
+        }
         state = State.UNSCHEDULED;
     }
 

@@ -67,7 +67,7 @@ public class Robot extends OpMode {
                 hardwareMap.get(DcMotor.class, "slideMotor2"),
                 hardwareMap.get(TouchSensor.class, "limit"), true);
         placer = new Placer(hardwareMap);
-        climber = new Climber(hardwareMap.get(DcMotor.class, "climbMotor"));
+        climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
         aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
@@ -97,18 +97,18 @@ public class Robot extends OpMode {
         return new Path(waypoints.toArray(new WaypointGenerator[]{}));
     }
 
-    public Command getAutomaticPlaceCommand(WaypointGenerator backdropWaypoint) {
+    public Command getAutomaticPlaceCommand(Waypoint backdropWaypoint) {
         Command flashLights = new FlashLights(lights, 750);
         Command command = new SequentialCommandGroup(
                 new InstantCommand(flashLights::schedule),
-                new FollowFuturePath(() -> getToBackdropPath(backdropWaypoint.getWaypoint()), drive), // Get close to the backdrop
+                new FollowFuturePath(() -> getToBackdropPath(backdropWaypoint), drive), // Get close to the backdrop
                 new SlideToPosition(slide, 500),
                 new InstantCommand(aprilTagCamera::enable),
                 new WaitCommand(500), // Wait for an april tag detection
                 new InstantCommand(aprilTagCamera::disable),
                 new BackdropHome(drive.base, slide, placer, backdropWaypoint, 2000, 500), // Home in on the backdrop
                 new InstantCommand(() -> placer.open()),
-                new FollowPath(Path.getBuilder().addWaypoint(backdropWaypoint).addWaypoint(backdropWaypoint.getWaypoint().x + 4.0, backdropWaypoint.getWaypoint().y).build(), drive),
+                new FollowPath(Path.getBuilder().addWaypoint(backdropWaypoint).addWaypoint(backdropWaypoint.x + 4.0, backdropWaypoint.y).build(), drive),
                 new InstantCommand(flashLights::cancel));
         new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(command::cancel));
         return command;

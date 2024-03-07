@@ -17,6 +17,6 @@ public class ClimbDefault extends Command {
 
     @Override
     public void execute() {
-        climber.run(speed.getAsDouble());
+        climber.winch(speed.getAsDouble());
     }
 }

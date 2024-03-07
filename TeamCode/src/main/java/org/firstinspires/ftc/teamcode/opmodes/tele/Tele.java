@@ -73,6 +73,7 @@ public class Tele extends Robot {
         payloadController.b.onTrue(new InstantCommand(() -> placer.close()));
 
         climber.setDefaultCommand(new ClimbDefault(climber, payloadController.leftStickY));
+        payloadController.dpadDown.onTrue(new InstantCommand(() -> climber.deliverHook()));
     }
 
     public void start() {

@@ -67,6 +67,7 @@ public abstract class Auton extends Robot {
             e.printStackTrace();
         }
         propCam.closeCameraDevice();
+        autonomousCommand.schedule();
     }
 
 }
