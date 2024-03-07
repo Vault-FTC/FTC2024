@@ -45,16 +45,18 @@ public class Robot extends OpMode {
     public AprilTagCamera aprilTagCamera;
     public DroneShooter droneShooter;
 
-    public static Pose2d pose = null;
+    public static Pose2d botPose = null;
+    public static int slidePose = 0;
 
     public static Alliance alliance = Alliance.BLUE;
 
     @Override
     public void init() {
-        if (pose == null) {
-            pose = new Pose2d();
+        if (botPose == null) {
+            botPose = new Pose2d();
         }
         CommandScheduler.getInstance().clearRegistry();
+        CommandScheduler.getInstance().cancelAll();
         WebdashboardServer.getInstance(); // Initialize the dashboard server
 
         // Instantiate subsystems
@@ -75,6 +77,8 @@ public class Robot extends OpMode {
     @Override
     public void loop() {
         CommandScheduler.getInstance().run();
+        botPose = drive.odometry.getPose();
+        slidePose = slide.encoder.getPosition();
     }
 
     private Path getToBackdropPath(Waypoint backdropWaypoint) {

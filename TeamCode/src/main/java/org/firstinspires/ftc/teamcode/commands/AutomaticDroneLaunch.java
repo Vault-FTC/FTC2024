@@ -24,7 +24,7 @@ public class AutomaticDroneLaunch extends Command {
 
     @Override
     public void execute() {
-        target = new Waypoint(30, drive.odometry.getPose().x, 0, null, new Rotation2d(-Math.PI / 2));
+        target = new Waypoint(30, drive.odometry.getPose().x, 0, null, new Rotation2d());
         drive.base.driveToPosition(target);
     }
 

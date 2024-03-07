@@ -14,14 +14,12 @@ import java.util.ArrayList;
 
 public class Pipeline extends OpenCvPipeline {
 
-    private final Mat toDisplay = new Mat();
     private PropLocation propLocation = PropLocation.CENTER;
     private ArrayList<Integer> locationHistory = new ArrayList<>();
     private boolean processing = true;
 
     @Override
     public Mat processFrame(Mat frame) {
-        frame.copyTo(toDisplay);
 
         Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
         Imgproc.medianBlur(frame, frame, 7);
@@ -66,9 +64,7 @@ public class Pipeline extends OpenCvPipeline {
 
         DashboardLayout.setNodeValue("prop", propX);
 
-        Imgproc.rectangle(toDisplay, new Point(propX - rectSize.x / 2, propY - rectSize.y / 2), new Point(propX + rectSize.x / 2, propY + rectSize.y / 2), new Scalar(0, 255, 0), 3);
-
-        return toDisplay;
+        return frame;
     }
 
     public enum Alliance {

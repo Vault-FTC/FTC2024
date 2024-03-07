@@ -32,7 +32,7 @@ public class FollowPath extends Command {
     @Override
     public void execute() {
         subsystem.base.followPath();
-        if (gamepad != null && timeSinceInitialized() > 250 && !gamepad.atRest()) {
+        if (gamepad != null && timeSinceInitialized() > 250 && gamepad != null && !gamepad.atRest()) {
             cancel();
         }
     }

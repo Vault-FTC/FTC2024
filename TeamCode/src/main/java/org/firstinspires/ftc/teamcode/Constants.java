@@ -21,15 +21,15 @@ public class Constants {
     }
 
     public static final class Slide {
-        public static final int maxExtensionPosition = 500;
+        public static final int maxExtensionPosition = 2400;
         public static final int pidDeadband = 10;
-        public static final int defaultPlacePosition = 500;
+        public static final int defaultPlacePosition = 2300;
     }
 
     public static final class Placer {
-        public static final double placePosition = 0.4;
+        public static final double placePosition = 0.8;
 
-        public static final double closePosition = 0;
+        public static final double closePosition = 0.45;
     }
 
     public static final class Drive {
@@ -50,7 +50,7 @@ public class Constants {
 
     public static final class Vision {
         public static final int lookBehindFrames = 30;
-        public static final double useAprilTagMaxDistIn = 35;
+        public static final double useAprilTagMaxDistIn = 20;
         public static Vector2d camToRobot = new Vector2d(-5.73, -8.82); // This assumes that the camera's euler angles are always the same as the robot, because I don't want to write a bunch of code for rotation matrices...
         public static final Pose2d[] backdropTagPoses = {
                 new Pose2d(9.0, 29.381, new Rotation2d(Math.PI / 2)),

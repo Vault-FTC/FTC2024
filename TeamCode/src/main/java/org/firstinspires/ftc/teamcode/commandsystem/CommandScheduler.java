@@ -52,6 +52,12 @@ public final class CommandScheduler implements Runnable {
         }
     }
 
+    public void cancelAll() {
+        for (Command command : commands) {
+            command.cancel();
+        }
+    }
+
     public static CommandScheduler getInstance() {
         if (instance == null) {
             instance = new CommandScheduler();

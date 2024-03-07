@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.commands.ClimbDefault;
 import org.firstinspires.ftc.teamcode.commands.DriveDefault;
 import org.firstinspires.ftc.teamcode.commands.IntakeDefault;
 import org.firstinspires.ftc.teamcode.commands.RunIntake;
+import org.firstinspires.ftc.teamcode.commands.SlideCalibrate;
 import org.firstinspires.ftc.teamcode.commands.SlideDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
@@ -26,8 +27,8 @@ public class Tele extends Robot {
     GamepadHelper driveController;
     GamepadHelper payloadController;
 
-    public static Pose2d blueBackdropPose = new Pose2d(9.0, 40, new Rotation2d(Math.PI / 2));
-    public static Pose2d redBackdropPose = new Pose2d(9.0, 110, new Rotation2d(Math.PI / 2));
+    public static Pose2d blueBackdropPose = new Pose2d(9.0, 40, new Rotation2d(-Math.PI / 2));
+    public static Pose2d redBackdropPose = new Pose2d(9.0, 110, new Rotation2d(-Math.PI / 2));
 
     public static Pose2d backdropPose = blueBackdropPose;
 
@@ -48,7 +49,7 @@ public class Tele extends Robot {
         driveController.leftBumper.onTrue(new InstantCommand(() -> drive.enableSlowMode()));
         driveController.rightBumper.onTrue(new InstantCommand(() -> drive.enableFastMode()));
         driveController.a.and(driveController.b).onTrue(automaticPlace);
-        drive.odometry.setPosition(pose); // Set the robot position to the last position of the robot in autonomous
+        drive.odometry.setPosition(botPose); // Set the robot position to the last position of the robot in autonomous
 
         intake.setDefaultCommand(new IntakeDefault(intake, drive.odometry::getPose)); // Runs the intake automatically when the robot is in the right spot
         payloadController.rightTrigger.or(driveController.rightTrigger).whileTrue(new RunIntake(intake, Constants.Intake.defaultSpeed));
@@ -65,6 +66,8 @@ public class Tele extends Robot {
         slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
         payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition, gamepad2));
         payloadController.leftBumper.onTrue(new SlideToPosition(slide, 0, gamepad2));
+        payloadController.a.and(payloadController.x).and(payloadController.y).whileTrue(new SlideCalibrate(slide));
+        slide.encoder.setPosition(slidePose); // Set the slide position to the last slide position in autonomous
 
         payloadController.a.onTrue(new InstantCommand(() -> placer.open()));
         payloadController.b.onTrue(new InstantCommand(() -> placer.close()));

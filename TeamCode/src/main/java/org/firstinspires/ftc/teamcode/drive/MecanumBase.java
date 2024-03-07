@@ -122,6 +122,7 @@ public class MecanumBase {
         driveState = DriveState.IDLE;
         followPath = path;
         segments = followPath.getLineSegments();
+        followStartTimestamp = timer.milliseconds();
     }
 
     public void driveToPosition(Waypoint targetPoint, boolean useEndpointHeading) {
@@ -132,19 +133,23 @@ public class MecanumBase {
         double rotSpeed;
         double targetAngle;
 
+        boolean canFlip = false;
+
         if (useEndpointHeading && targetPoint.targetEndRotation != null && botPose.distanceTo(targetPoint) < Constants.Drive.trackEndpointHeadingMaxDistance) {
             targetAngle = targetPoint.targetEndRotation.getAngleRadians();
         } else if (targetPoint.targetFollowRotation != null) {
             targetAngle = targetPoint.targetFollowRotation.getAngleRadians();
         } else if (relativeTargetVector.magnitude > Constants.Drive.calculateTargetHeadingMinDistance) {
             targetAngle = relativeTargetVector.angle - Math.PI / 2;
+            canFlip = true;
         } else {
             targetAngle = lastTargetAngle;
+            canFlip = true;
         }
         lastTargetAngle = targetAngle;
 
         double rotError = Rotation2d.getError(targetAngle, botPose.rotation.getAngleRadians());
-        if (rotError > Math.PI) {
+        if (rotError > Math.PI && canFlip) {
             rotError = Rotation2d.getError(targetAngle + Math.PI, botPose.rotation.getAngleRadians());
         }
         double magnitude = movementSpeed.magnitude / (1.5 * Math.pow(Math.abs(rotError), 2) + 1); // originally 0.9 * rotError ^ 2
@@ -256,7 +261,7 @@ public class MecanumBase {
     }
 
     public boolean finishedFollowing() {
-        if (timer.milliseconds() > followStartTimestamp + followPath.timeout) {
+        if (timer.milliseconds() > followStartTimestamp + followPath.timeout && timer.milliseconds() > followStartTimestamp + 1) {
             return true;
         }
 
@@ -269,9 +274,7 @@ public class MecanumBase {
 
         lastTimestamp = currentTimestamp;
 
-        double distanceToEndpoint = new Vector2d(segments[segments.length - 1][1].x - botPose.x, segments[segments.length - 1][1].y - botPose.y).magnitude;
-
-        atEndpoint = speed < 2.0 && distanceToEndpoint < 2.0 && waypointIndex == segments.length - 1;
+        atEndpoint = speed < 2.0 && botPose.distanceTo(segments[segments.length - 1][1]) < 2.0 && waypointIndex == segments.length - 1;
         if (segments[segments.length - 1][1].targetEndRotation == null) {
             atTargetHeading = true;
         } else {

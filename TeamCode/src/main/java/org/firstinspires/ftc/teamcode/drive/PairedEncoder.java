@@ -1,10 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
-
-import java.text.Format;
 
 public class PairedEncoder implements Encoder {
 
@@ -32,6 +28,10 @@ public class PairedEncoder implements Encoder {
     @Override
     public void reset() {
         offset = -pairedMotor.getCurrentPosition();
+    }
+
+    public void setPosition(int position) {
+        offset = -pairedMotor.getCurrentPosition() + position;
     }
 
 

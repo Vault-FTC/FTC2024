@@ -24,7 +24,8 @@ public class BackdropHome extends Command {
     private final double endTime;
     private boolean atWaypoint = false;
 
-    private int timestamp = -1;
+    private boolean lastAtWaypoint = false;
+    private double timestamp = -1;
 
     public BackdropHome(MecanumBase base, Slide slide, Placer placer, WaypointGenerator futureBackdropWaypoint, double followTimeout, double endTime) {
         this.futureBackdropWaypoint = futureBackdropWaypoint;
@@ -38,7 +39,8 @@ public class BackdropHome extends Command {
     @Override
     public void initialize() {
         atWaypoint = false;
-        base.driveController.setGains(0.3, 0.0003, 3.5);
+        lastAtWaypoint = false;
+        base.driveController.setGains(0.1, 0.00001, 4);
         base.rotController.setGains(3.0, 0.0001, 0.6);
         backdropWaypoint = futureBackdropWaypoint.getWaypoint();
     }
@@ -50,18 +52,18 @@ public class BackdropHome extends Command {
 
     @Override
     public boolean isFinished() {
+        lastAtWaypoint = atWaypoint;
         atWaypoint = base.atWaypoint(backdropWaypoint, 0.5, 5)
                 || timeSinceInitialized() > initializedTimestamp() + followTimeout
                 || placer.touchSensor.isPressed()
-                || placer.distanceSensor.getDistance(DistanceUnit.INCH) < 0.5 && slide.encoder.getPosition() > 200;
-        if (atWaypoint && timestamp == -1) {
-            if (timestamp == -1) {
-                timestamp = (int) timeSinceInitialized();
-            } else {
-                return timeSinceInitialized() - timestamp > endTime;
-            }
+                || (placer.distanceSensor.getDistance(DistanceUnit.INCH) < 0.5 && slide.encoder.getPosition() > 500);
+
+
+        if (atWaypoint && !lastAtWaypoint) {
+            timestamp = timeSinceInitialized();
         }
-        return false;
+
+        return atWaypoint && timeSinceInitialized() > timestamp + endTime;
     }
 
     @Override

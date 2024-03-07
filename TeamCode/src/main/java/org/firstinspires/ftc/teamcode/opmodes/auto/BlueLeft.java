@@ -34,7 +34,7 @@ public class BlueLeft extends Auton {
                 x -= 11.375;
                 break;
             case CENTER:
-                y = 35;
+                y = 31;
                 break;
             case RIGHT:
                 x += 11.375;
@@ -54,7 +54,7 @@ public class BlueLeft extends Auton {
             case RIGHT:
                 y += 6.0;
         }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, null, new Rotation2d(Math.PI / 2));
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2));
     }
 
     private Waypoint getYellowPlaceWaypoint() {
@@ -76,7 +76,7 @@ public class BlueLeft extends Auton {
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
                 .addWaypoint(new FutureWaypoint(() -> {
                     Pose2d botPose = drive.odometry.getPose();
-                    return new Waypoint(botPose.x - 8.0, botPose.y - 3.0, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(90));
+                    return new Waypoint(botPose.x - 8.0, botPose.y - 3.0, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-90));
                 }))
                 .build());
         paths.add(Path.getBuilder().setTimeout(5000).setDefaultMaxVelocity(0.5) // Drive to backdrop path
@@ -85,7 +85,7 @@ public class BlueLeft extends Auton {
                 .build());
         paths.add(Path.getBuilder().setTimeout(5000) // Park path
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
-                .addWaypoint(36.0, 30)
+                .addWaypoint(46.0, 30)
                 .addWaypoint(33.0, 25)
                 .addWaypoint(new Waypoint(18, 10, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(90)))
                 .build());
@@ -98,7 +98,7 @@ public class BlueLeft extends Auton {
                         new FollowPath(paths.get(1), drive),
                         new SequentialCommandGroup(
                                 new WaitCommand(1500),
-                                new SlideToPosition(slide, 500))).setTimeout(8000))
+                                new SlideToPosition(slide, 2000))).setTimeout(8000))
                 .add(new FollowPath(paths.get(2), drive)) // Drive to the backdrop
                 //.add(new InstantCommand(() -> aprilTagCamera.enable())) // Camera is no longer necessary
                 .add(new BackdropHome(drive.base, slide, placer, new FutureWaypoint(() -> getYellowPlaceWaypoint()), 2000, 1000))

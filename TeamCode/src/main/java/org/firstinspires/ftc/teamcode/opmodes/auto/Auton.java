@@ -6,9 +6,9 @@ import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.vision.Pipeline;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 public abstract class Auton extends Robot {
@@ -27,15 +27,18 @@ public abstract class Auton extends Robot {
     @Override
     public void init() {
         super.init();
+
         drive.odometry.setPosition(startPosition);
         drive.setFieldCentricOffset(startPosition.rotation);
 
         propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "PropCam"));
         visionPipeline = new Pipeline();
         propCam.setPipeline(visionPipeline);
+
         propCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
+                propCam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
                 telemetry.addData("Camera opened", "");
             }
 
@@ -45,12 +48,13 @@ public abstract class Auton extends Robot {
                 telemetry.update();
             }
         });
+
+
     }
 
     @Override
     public void init_loop() {
         telemetry.addData("prop location: ", visionPipeline.getPropLocation().toString());
-        DashboardLayout.setNodeValue("prop", visionPipeline.getPropLocation().toString());
     }
 
 
@@ -63,11 +67,6 @@ public abstract class Auton extends Robot {
             e.printStackTrace();
         }
         propCam.closeCameraDevice();
-    }
-
-    @Override
-    public void stop() {
-        pose = drive.odometry.getPose();
     }
 
 }
