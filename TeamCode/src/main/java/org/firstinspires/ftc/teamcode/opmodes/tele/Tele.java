@@ -49,6 +49,7 @@ public class Tele extends Robot {
         driveController.leftBumper.onTrue(new InstantCommand(() -> drive.enableSlowMode()));
         driveController.rightBumper.onTrue(new InstantCommand(() -> drive.enableFastMode()));
         driveController.a.and(driveController.b).onTrue(automaticPlace);
+        driveController.b.and(driveController.x).and(driveController.y).onTrue(new InstantCommand(() -> drive.odometry.setPosition(new Pose2d())));
         drive.odometry.setPosition(botPose); // Set the robot position to the last position of the robot in autonomous
 
         intake.setDefaultCommand(new IntakeDefault(intake, drive.odometry::getPose)); // Runs the intake automatically when the robot is in the right spot
