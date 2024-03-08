@@ -51,7 +51,7 @@ public class AprilTagCamera extends Subsystem {
         Pose2d camPose = new Pose2d(
                 tagPose.x - relativeCoordinates.x,
                 tagPose.y - relativeCoordinates.y,
-                Constants.Vision.useAprilTagHeading && Math.abs(detection.ftcPose.yaw) < Constants.Vision.aprilTagHeadingThresholdDegrees ? Rotation2d.fromDegrees(tagPose.rotation.getAngleDegrees() - detection.ftcPose.yaw) : poseSupplier.get().rotation);
+                Constants.Vision.useAprilTagHeading && Math.abs(detection.ftcPose.yaw) < Constants.Vision.aprilTagHeadingThresholdDegrees ? Rotation2d.fromDegrees(tagPose.rotation.getAngleDegrees() - detection.ftcPose.yaw) : new Rotation2d(poseSupplier.get().rotation.getAngleRadians() - Math.PI));
         Vector2d relativeBotCoordinates = Constants.Vision.camToRobot.rotate(camPose.rotation.getAngleRadians());
         return new Pose2d(camPose.x + relativeBotCoordinates.x, camPose.y + relativeBotCoordinates.y, new Rotation2d(camPose.rotation.getAngleRadians() + Math.PI));
     }
@@ -63,7 +63,7 @@ public class AprilTagCamera extends Subsystem {
         int i = 0;
         for (AprilTagDetection detection : detections) {
             DashboardLayout.setNodeValue("follow", detection.id);
-            if (detection.metadata != null && detection.ftcPose.range < Constants.Vision.useAprilTagMaxDistIn && detection.id >= 1 && detection.id <= 6) {
+            if (detection.metadata != null && detection.id >= 1 && detection.id <= 6 && detection.ftcPose.range < Constants.Vision.useAprilTagMaxRangeIn) {
                 Pose2d calculatedPose = calculateBotPose(detection);
                 position = position.add(calculatedPose);
                 rotations.add(calculatedPose.rotation);
@@ -82,7 +82,7 @@ public class AprilTagCamera extends Subsystem {
         if (exposureControl.getMode() != ExposureControl.Mode.Manual) {
             exposureControl.setMode(ExposureControl.Mode.Manual);
         }
-        exposureControl.setExposure((long) exposureMS, TimeUnit.MILLISECONDS);
+        exposureControl.setExposure(exposureMS, TimeUnit.MILLISECONDS);
         GainControl gainControl = visionPortal.getCameraControl(GainControl.class);
         gainControl.setGain(gain);
     }
@@ -102,7 +102,7 @@ public class AprilTagCamera extends Subsystem {
     @Override
     public void periodic() {
         Pose2d botPose = poseSupplier.get();
-        boolean withinRange = Math.abs(Rotation2d.signed_minusPI_to_PI(botPose.rotation.getAngleRadians())) < Math.toRadians(Constants.Vision.turnCamOnThresholdDegrees) && botPose.x < Constants.Vision.useAprilTagMaxDistIn;
+        boolean withinRange = Math.abs(Rotation2d.signed_minusPI_to_PI(botPose.rotation.getAngleRadians() + Math.PI / 2)) < Math.toRadians(Constants.Vision.turnCamOnThresholdDegrees) && botPose.x < Constants.Vision.useAprilTagMaxXIn;
         if (withinRange && cameraEnabled) {
             if (!usingCamera) {
                 usingCamera = true;

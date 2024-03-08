@@ -85,15 +85,18 @@ public class Robot extends OpMode {
         Pose2d botPose = drive.odometry.getPose();
         ArrayList<Waypoint> waypoints = new ArrayList<>();
         waypoints.add(botPose.toWaypoint());
-        if (drive.odometry.getPose().x > 85.0) { // If robot is in front of rigging
+        if (botPose.x > 85.0) { // If robot is in front of rigging
             waypoints.add(new Waypoint(90, 70, Constants.Drive.defaultFollowRadius));
             waypoints.add(new Waypoint(65, 70, Constants.Drive.defaultFollowRadius));
         }
-        double backdropXInitial = 20.0;
-        if (botPose.x > backdropWaypoint.x + backdropXInitial) {
-            waypoints.add(new Waypoint(backdropWaypoint.x + backdropXInitial, backdropWaypoint.y, Constants.Drive.defaultFollowRadius));
+        double initialOffset = 20.0;
+        if (botPose.x > backdropWaypoint.x + initialOffset) {
+            waypoints.add(new Waypoint(backdropWaypoint.x + initialOffset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, 0.5));
         }
-        waypoints.add(new Waypoint(backdropWaypoint.x + 4.0, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, null, backdropWaypoint.targetEndRotation));
+        double offset = 6.0;
+        if (botPose.x > backdropWaypoint.x + offset) {
+            waypoints.add(new Waypoint(backdropWaypoint.x + offset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, null, backdropWaypoint.targetEndRotation));
+        }
         return new Path(waypoints.toArray(new WaypointGenerator[]{}));
     }
 

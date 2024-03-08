@@ -29,6 +29,7 @@ public abstract class Auton extends Robot {
         super.init();
 
         drive.odometry.setPosition(startPosition);
+        botPose = startPosition;
         drive.setFieldCentricOffset(startPosition.rotation);
 
         propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "PropCam"));
@@ -54,6 +55,7 @@ public abstract class Auton extends Robot {
 
     @Override
     public void init_loop() {
+        telemetry.addData("Wait a few seconds after detection stabilizes to start the program", "");
         telemetry.addData("prop location: ", visionPipeline.getPropLocation().toString());
     }
 

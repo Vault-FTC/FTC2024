@@ -35,7 +35,7 @@ public class SequentialCommandGroup extends CommandGroup {
                 hasStarted = true;
             }
         }
-        if (timeSinceInitialized() > initializedTimestamp() + timeout) {
+        if (timeSinceInitialized() > timeout) {
             for (Command command : commands) {
                 command.cancel();
             }

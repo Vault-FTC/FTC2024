@@ -22,7 +22,7 @@ public class Constants {
 
     public static final class Slide {
         public static final int maxExtensionPosition = 2400;
-        public static final int pidDeadband = 10;
+        public static final int pidDeadband = 50;
         public static final int defaultPlacePosition = 2300;
     }
 
@@ -38,30 +38,31 @@ public class Constants {
         public static final double calculateTargetHeadingMinDistance = 15.0;
 
         public static final class StartPositions {
-            public static final Pose2d blueLeft = new Pose2d(58.944, 10.019, new Rotation2d());
-            public static final Pose2d blueRight = new Pose2d(106.0685, 10.019, new Rotation2d());
-            public static final Pose2d redLeft = new Pose2d(106.0685, 131.326, new Rotation2d(Math.PI));
-            public static final Pose2d redRight = new Pose2d(58.944, 131.326, new Rotation2d(Math.PI));
+            public static final Pose2d blueLeft = new Pose2d(58.944, 11.8, new Rotation2d());
+            public static final Pose2d blueRight = new Pose2d(106.0685, 11.8, new Rotation2d()); //10.019
+            public static final Pose2d redLeft = new Pose2d(106.0685, 129.5, new Rotation2d(Math.PI));
+            public static final Pose2d redRight = new Pose2d(58.944, 129.5, new Rotation2d(Math.PI));
         }
 
-        public static final PIDGains defaultDriveGains = new PIDGains(0.2, 0.0, 3.5);
-        public static final PIDGains defaultRotGains = new PIDGains(2.0, 0.0001, 0.6);
+        public static final PIDGains defaultDriveGains = new PIDGains(0.1, 0.0, 2.5);
+        public static final PIDGains defaultRotGains = new PIDGains(3.0, 0.0001, 0.6);
     }
 
     public static final class Vision {
         public static final int lookBehindFrames = 30;
-        public static final double useAprilTagMaxDistIn = 20;
+        public static final double useAprilTagMaxXIn = 50;
+        public static final double useAprilTagMaxRangeIn = 35;
         public static Vector2d camToRobot = new Vector2d(-5.73, -8.82); // This assumes that the camera's euler angles are always the same as the robot, because I don't want to write a bunch of code for rotation matrices...
         public static final Pose2d[] backdropTagPoses = {
-                new Pose2d(9.0, 29.381, new Rotation2d(Math.PI / 2)),
-                new Pose2d(9.0, 35.381, new Rotation2d(Math.PI / 2)),
-                new Pose2d(9.0, 41.381, new Rotation2d(Math.PI / 2)),
-                new Pose2d(9.0, 99.964, new Rotation2d(Math.PI / 2)),
-                new Pose2d(9.0, 105.964, new Rotation2d(Math.PI / 2)),
-                new Pose2d(9.0, 111.964, new Rotation2d(Math.PI / 2)),
+                new Pose2d(10.5, 29.381, new Rotation2d(Math.PI / 2)),
+                new Pose2d(10.5, 35.381, new Rotation2d(Math.PI / 2)),
+                new Pose2d(10.5, 41.381, new Rotation2d(Math.PI / 2)),
+                new Pose2d(10.5, 99.964, new Rotation2d(Math.PI / 2)),
+                new Pose2d(10.5, 105.964, new Rotation2d(Math.PI / 2)),
+                new Pose2d(10.5, 111.964, new Rotation2d(Math.PI / 2)),
         };
         public static boolean useAprilTagHeading = true;
-        public static double aprilTagHeadingThresholdDegrees = 90;
-        public static double turnCamOnThresholdDegrees = 15;
+        public static double aprilTagHeadingThresholdDegrees = 10;
+        public static double turnCamOnThresholdDegrees = 30;
     }
 }

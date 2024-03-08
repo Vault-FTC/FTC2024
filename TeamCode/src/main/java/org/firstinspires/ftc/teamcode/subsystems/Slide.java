@@ -24,10 +24,12 @@ public class Slide extends Subsystem {
     public Slide(DcMotor motor1, DcMotor motor2, TouchSensor limit, boolean reversed) {
         this.motor1 = motor1;
         this.motor2 = motor2;
+        motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         encoder = new PairedEncoder(motor1, true);
         encoder.reset();
         this.limit = limit;
-        controller = new PIDController(0.01, 0, 0);
+        controller = new PIDController(0.01, 0.00001, 0);
         polarity = reversed ? -1 : 1;
     }
 

@@ -24,7 +24,7 @@ public class ParallelCommandGroup extends CommandGroup {
 
     @Override
     public void execute() {
-        if (timeSinceInitialized() > initializedTimestamp() + timeout) {
+        if (timeSinceInitialized() > timeout) {
             for (Command command : commands) {
                 command.cancel();
             }

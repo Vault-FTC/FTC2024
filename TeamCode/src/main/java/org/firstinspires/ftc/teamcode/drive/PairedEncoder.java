@@ -31,7 +31,7 @@ public class PairedEncoder implements Encoder {
     }
 
     public void setPosition(int position) {
-        offset = -pairedMotor.getCurrentPosition() + position;
+        offset = -pairedMotor.getCurrentPosition() + position * polarity;
     }
 
 

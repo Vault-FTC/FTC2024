@@ -23,8 +23,13 @@ public class AutomaticDroneLaunch extends Command {
     }
 
     @Override
+    public void initialize() {
+        target = new Waypoint(30, drive.odometry.getPose().y, 0, null, new Rotation2d());
+    }
+
+    @Override
     public void execute() {
-        target = new Waypoint(30, drive.odometry.getPose().x, 0, null, new Rotation2d());
+        target = new Waypoint(30, drive.odometry.getPose().y, 0, null, new Rotation2d());
         drive.base.driveToPosition(target);
     }
 

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.drive.MecanumBase;
@@ -41,7 +40,7 @@ public class BackdropHome extends Command {
         atWaypoint = false;
         lastAtWaypoint = false;
         base.driveController.setGains(0.1, 0.00001, 4);
-        base.rotController.setGains(3.0, 0.0001, 0.6);
+        base.rotController.setGains(5.0, 0.0001, 0.6);
         backdropWaypoint = futureBackdropWaypoint.getWaypoint();
     }
 
@@ -54,10 +53,9 @@ public class BackdropHome extends Command {
     public boolean isFinished() {
         lastAtWaypoint = atWaypoint;
         atWaypoint = base.atWaypoint(backdropWaypoint, 0.5, 5)
-                || timeSinceInitialized() > initializedTimestamp() + followTimeout
+                || timeSinceInitialized() > followTimeout
                 || placer.touchSensor.isPressed()
-                || (placer.distanceSensor.getDistance(DistanceUnit.INCH) < 0.5 && slide.encoder.getPosition() > 500);
-
+                || (placer.getDistance() < 1.0 && slide.encoder.getPosition() > 500);
 
         if (atWaypoint && !lastAtWaypoint) {
             timestamp = timeSinceInitialized();

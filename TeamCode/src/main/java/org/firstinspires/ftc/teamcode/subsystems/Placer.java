@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 public class Placer extends Subsystem {
     private final Servo servo;
@@ -33,5 +34,10 @@ public class Placer extends Subsystem {
 
     public double getDistance() {
         return distanceSensor.getDistance(DistanceUnit.INCH);
+    }
+
+    @Override
+    public void periodic() {
+        DashboardLayout.setNodeValue("distance", getDistance());
     }
 }

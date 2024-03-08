@@ -27,8 +27,8 @@ public class Tele extends Robot {
     GamepadHelper driveController;
     GamepadHelper payloadController;
 
-    public static Pose2d blueBackdropPose = new Pose2d(9.0, 40, new Rotation2d(-Math.PI / 2));
-    public static Pose2d redBackdropPose = new Pose2d(9.0, 110, new Rotation2d(-Math.PI / 2));
+    public static Pose2d blueBackdropPose = new Pose2d(20.0, 40, new Rotation2d(-Math.PI / 2));
+    public static Pose2d redBackdropPose = new Pose2d(20.0, 110, new Rotation2d(-Math.PI / 2));
 
     public static Pose2d backdropPose = blueBackdropPose;
 
@@ -37,7 +37,7 @@ public class Tele extends Robot {
     @Override
     public void init() {
         super.init();
-        aprilTagCamera.disable();
+        aprilTagCamera.enable();
         if (alliance == Alliance.RED) {
             backdropPose = redBackdropPose;
         }
@@ -50,6 +50,9 @@ public class Tele extends Robot {
         driveController.rightBumper.onTrue(new InstantCommand(() -> drive.enableFastMode()));
         driveController.a.and(driveController.b).onTrue(automaticPlace);
         driveController.b.and(driveController.x).and(driveController.y).onTrue(new InstantCommand(() -> drive.odometry.setPosition(new Pose2d())));
+        if (botPose == null) {
+            botPose = new Pose2d();
+        }
         drive.odometry.setPosition(botPose); // Set the robot position to the last position of the robot in autonomous
 
         intake.setDefaultCommand(new IntakeDefault(intake, drive.odometry::getPose)); // Runs the intake automatically when the robot is in the right spot
@@ -67,7 +70,8 @@ public class Tele extends Robot {
         slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
         payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition, gamepad2));
         payloadController.leftBumper.onTrue(new SlideToPosition(slide, 0, gamepad2));
-        payloadController.a.and(payloadController.x).and(payloadController.y).whileTrue(new SlideCalibrate(slide));
+        payloadController.options.whileTrue(new SlideCalibrate(slide));
+        payloadController.options.and(payloadController.b).onTrue(new InstantCommand(() -> slide.encoder.reset()));
         slide.encoder.setPosition(slidePose); // Set the slide position to the last slide position in autonomous
 
         payloadController.a.onTrue(new InstantCommand(() -> placer.open()));
