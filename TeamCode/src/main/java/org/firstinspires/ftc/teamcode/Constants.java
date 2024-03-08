@@ -9,6 +9,8 @@ public class Constants {
 
     public static final boolean debugMode = true;
 
+    public static final double fieldLengthIn = 141.345;
+
     public static final class ControlSettings {
         public static final boolean slideManualControl = true;
     }

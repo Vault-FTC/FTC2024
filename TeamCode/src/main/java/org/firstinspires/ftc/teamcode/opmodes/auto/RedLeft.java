@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import static org.firstinspires.ftc.teamcode.Constants.fieldLengthIn;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Constants.Drive.StartPositions;
+import org.firstinspires.ftc.teamcode.commands.BackdropHome;
+import org.firstinspires.ftc.teamcode.commands.FollowFuturePath;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commands.TimedIntake;
@@ -13,99 +17,106 @@ import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
 import org.firstinspires.ftc.teamcode.drive.FutureWaypoint;
 import org.firstinspires.ftc.teamcode.drive.Path;
-import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.vision.Pipeline;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "blue left", group = "blue")
+@Autonomous(name = "Red Left", group = "red")
 public class RedLeft extends Auton {
     ArrayList<Path> paths = new ArrayList<>();
 
-    private Waypoint getPurplePlaceWaypoint() {
-        double x = StartPositions.redLeft.x;
-        double y = 117.345;
+    Path leftPath = Path.getBuilder()
+            .addWaypoint(StartPositions.redLeft.toWaypoint())
+            .addWaypoint(StartPositions.redLeft.x + 6, fieldLengthIn - 23)
+            .addWaypoint(new Waypoint(StartPositions.redLeft.x - 1, fieldLengthIn - 27, Constants.Drive.defaultFollowRadius, null, new Rotation2d(-Math.PI / 4)))
+            .build();
+    Path centerPath = Path.getBuilder()
+            .addWaypoint(StartPositions.redLeft.toWaypoint())
+            .addWaypoint(StartPositions.redLeft.x, fieldLengthIn - 33.5)
+            .build();
+
+    Path rightPath = Path.getBuilder()
+            .addWaypoint(StartPositions.redLeft.toWaypoint())
+            .addWaypoint(new Waypoint(StartPositions.redLeft.x + 11.375, fieldLengthIn - 24, Constants.Drive.defaultFollowRadius, null, new Rotation2d()))
+            .build();
+
+    private Path getPhenomenomallyPerfectPurplePlacePath() {
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                x += 11.375;
-                break;
+                return leftPath;
             case CENTER:
-                y = 106.345;
-                break;
+                return centerPath;
             case RIGHT:
-                x -= 11.375;
+                return rightPath;
         }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(Math.PI), new Rotation2d(Math.PI));
+        return centerPath;
+    }
+
+    private Waypoint getInitialYellowPlaceWaypoint() {
+        Waypoint waypoint = getYellowPlaceWaypoint();
+        return new Waypoint(waypoint.x + 6.0, waypoint.y, waypoint.followRadius, waypoint.targetFollowRotation, waypoint.targetEndRotation);
     }
 
     private Waypoint getYellowPlaceWaypoint() {
-        double x = 28.0;
-        double y = 34.5;
+        double x = 17;
+        double y = fieldLengthIn - 34.5;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y -= 6.0;
+                y = fieldLengthIn - 28.25;
                 break;
             case CENTER:
+                y = fieldLengthIn - 34.5;
                 break;
             case RIGHT:
-                y += 6.0;
+                y = fieldLengthIn - 39.75;
+                break;
         }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius);
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2));
     }
 
     public RedLeft() {
-        super(Pipeline.Alliance.RED, StartPositions.redLeft);
-        paths.add(Path.getBuilder().setDefaultRadius(8).setTimeout(3000) // Drive to spike mark path
-                .addWaypoint(StartPositions.redLeft.toWaypoint())
-                .addWaypoint(new FutureWaypoint(this::getPurplePlaceWaypoint)).build());
-        paths.add(Path.getBuilder().setTimeout(2000) // Drive away from spike mark path
-                .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
-                .addWaypoint(new FutureWaypoint(() -> {
-                    Pose2d botPose = drive.odometry.getPose();
-                    return new Waypoint(botPose.x - 8.0, botPose.y - 3.0, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(90));
-                }))
-                .build());
-        paths.add(Path.getBuilder().setTimeout(5000).setDefaultMaxVelocity(0.5) // Drive to backdrop path
-                .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
-                .addWaypoint(new FutureWaypoint(this::getYellowPlaceWaypoint))
-                .build());
-        paths.add(Path.getBuilder().setTimeout(5000) // Park path
-                .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
-                .addWaypoint(36.0, 30)
-                .addWaypoint(33.0, 25)
-                .addWaypoint(new Waypoint(18, 10, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(90)))
-                .build());
-
-        autonomousCommand = SequentialCommandGroup.getBuilder()
-                .add(new FollowPath(paths.get(0), drive)) // Drive to place the purple pixel
-                .add(new TimedIntake(intake, -0.5, 2000)) // Run the intake in reverse to spit out the purple pixel
-                .add(new FollowPath(Path.getBuilder().setDefaultRadius(8)
-                        .addWaypoint(0, 15)
-                        .addWaypoint(new Waypoint(-30.0, 30.0, 8.0)).build(), drive))
-                .add(new ParallelCommandGroup( // Drive away from the spike mark and extend the slide
-                        new FollowPath(paths.get(1), drive),
-                        new SequentialCommandGroup(
-                                new WaitCommand(1500),
-                                new SlideToPosition(slide, 500))))
-                .add(new FollowPath(paths.get(2), drive)) // Drive to the backdrop
-                .add(new InstantCommand(() -> placer.open())) // Place the pixel
-                .add(new WaitCommand(500))
-                .add(new ParallelCommandGroup( // Close the placer, stow the slide, and park
-                        new FollowPath(paths.get(3), drive),
-                        new SequentialCommandGroup(
-                                new WaitCommand(750),
-                                new ParallelCommandGroup(new InstantCommand(() -> placer.close()), new SlideToPosition(slide, 0)))
-                ))
-                .build();
+        super(Pipeline.Alliance.BLUE, StartPositions.redLeft);
     }
 
     @Override
-    public void start() {
-        super.start();
+    public void init() {
+        super.init();
+        paths.add(Path.getBuilder().setTimeout(6000) // Drive away from spike mark and through rigging path
+                .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
+                .addWaypoint(new Waypoint(115, fieldLengthIn - 40, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
+                .addWaypoint(new Waypoint(55, fieldLengthIn - 40, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
+                .build());
+        paths.add(Path.getBuilder().setTimeout(5000).setDefaultMaxVelocity(0.5) // Drive to backdrop path
+                .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
+                .addWaypoint(new FutureWaypoint(this::getInitialYellowPlaceWaypoint))
+                .build());
+        paths.add(Path.getBuilder().setTimeout(5000) // Park path
+                .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
+                .addWaypoint(new Waypoint(23.0, fieldLengthIn - 30, Constants.Drive.defaultFollowRadius, null, null, 0.5))
+                .build());
 
-        autonomousCommand.schedule();
+        autonomousCommand = SequentialCommandGroup.getBuilder()
+                .add(new FollowFuturePath(this::getPhenomenomallyPerfectPurplePlacePath, drive)) // Drive to place the purple pixel
+                .add(new TimedIntake(intake, -0.7, 1000)) // Run the intake in reverse to spit out the purple pixel
+                .add(new FollowPath(paths.get(0), drive))
+                .add(new InstantCommand(() -> aprilTagCamera.enable()))
+                .add(new WaitCommand(500))
+                .add(new ParallelCommandGroup( // Drive to the backdrop and extend the slide
+                        new FollowPath(paths.get(1), drive),
+                        new SlideToPosition(slide, 1200)).setTimeout(5000))
+                .add(new InstantCommand(() -> aprilTagCamera.disable())) // Camera is no longer necessary
+                .add(new BackdropHome(drive.base, slide, placer, new FutureWaypoint(this::getYellowPlaceWaypoint), 2000, 500))
+                .add(new InstantCommand(() -> placer.open())) // Place the pixel
+                .add(new WaitCommand(1500))
+                .add(new ParallelCommandGroup( // Close the placer, stow the slide, and park
+                        new FollowPath(paths.get(2), drive),
+                        new SequentialCommandGroup(
+                                new WaitCommand(1250),
+                                new ParallelCommandGroup(new InstantCommand(() -> placer.close()), new SlideToPosition(slide, 0)))
+                ))
+                .build();
     }
 
     @Override
