@@ -23,13 +23,13 @@ public class Constants {
     }
 
     public static final class Slide {
-        public static final int maxExtensionPosition = 2400;
+        public static final int maxExtensionPosition = 2000;
         public static final int pidDeadband = 50;
         public static final int defaultPlacePosition = 2300;
     }
 
     public static final class Placer {
-        public static final double placePosition = 0.8;
+        public static final double placePosition = 0.9;
 
         public static final double closePosition = 0.45;
     }
@@ -47,7 +47,7 @@ public class Constants {
         }
 
         public static final PIDGains defaultDriveGains = new PIDGains(0.1, 0.0, 2.5);
-        public static final PIDGains defaultRotGains = new PIDGains(3.0, 0.0001, 0.6);
+        public static final PIDGains defaultRotGains = new PIDGains(2.75, 0.0001, 0.6);
     }
 
     public static final class Vision {

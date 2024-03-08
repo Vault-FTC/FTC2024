@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
-import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
 
 public class Climber extends Subsystem {
 
@@ -18,17 +17,11 @@ public class Climber extends Subsystem {
     }
 
     public void deliverHook() {
-        double servoPosition;
-        try {
-            servoPosition = Double.parseDouble(WebdashboardServer.getInstance().getFirstConnectedLayout().getInputValue("climb"));
-        } catch (Exception e) {
-            servoPosition = 0.4;
-        }
-        servo.setPosition(servoPosition);
+        servo.setPosition(0.1);
     }
 
     public void hookDown() {
-        servo.setPosition(0);
+        servo.setPosition(0.5);
     }
 
     public void winch(double speed) {

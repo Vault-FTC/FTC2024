@@ -69,6 +69,10 @@ public abstract class Command {
         scheduledTimestamp = CommandScheduler.getInstance().timer.milliseconds();
     }
 
+    public boolean scheduled() {
+        return state != State.UNSCHEDULED;
+    }
+
     public final void cancel() {
         if (state != State.UNSCHEDULED) {
             end(true);

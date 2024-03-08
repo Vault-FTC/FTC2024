@@ -31,11 +31,11 @@ public class RedRight extends Auton {
     Path leftPath = Path.getBuilder()
             .addWaypoint(StartPositions.redRight.toWaypoint())
             .addWaypoint(StartPositions.redRight.x - 6, fieldLengthIn - 24)
-            .addWaypoint(new Waypoint(StartPositions.redRight.x + 1, fieldLengthIn - 29, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(135)))
+            .addWaypoint(new Waypoint(StartPositions.redRight.x, fieldLengthIn - 29.5, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(135)))
             .build();
     Path centerPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(StartPositions.redRight.toWaypoint())
-            .addWaypoint(StartPositions.redRight.x, fieldLengthIn - 33.5)
+            .addWaypoint(StartPositions.redRight.x, fieldLengthIn - 35)
             .build();
 
     Path rightPath = Path.getBuilder().setTimeout(3000)
@@ -57,24 +57,24 @@ public class RedRight extends Auton {
 
     private Waypoint getInitialYellowPlaceWaypoint() {
         Waypoint waypoint = getYellowPlaceWaypoint();
-        return new Waypoint(waypoint.x + 6.0, waypoint.y, waypoint.followRadius, waypoint.targetFollowRotation, waypoint.targetEndRotation);
+        return new Waypoint(waypoint.x + 6.0, waypoint.y, waypoint.followRadius, waypoint.targetFollowRotation, waypoint.targetEndRotation, 0.5);
     }
 
     private Waypoint getYellowPlaceWaypoint() {
-        double x = 17;
-        double y = fieldLengthIn - 34.5;
+        double x = 18;
+        double y = fieldLengthIn - 33.5;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y = fieldLengthIn - 39.75;
+                y = fieldLengthIn - 39.5;
                 break;
             case CENTER:
-                y = fieldLengthIn - 34.5;
+                y = fieldLengthIn - 33.5;
                 break;
             case RIGHT:
-                y = fieldLengthIn - 28.25;
+                y = fieldLengthIn - 27;
                 break;
         }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2));
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2), 0.75);
     }
 
     public RedRight() {
@@ -105,18 +105,18 @@ public class RedRight extends Auton {
         autonomousCommand = SequentialCommandGroup.getBuilder()
                 .add(new FollowFuturePath(this::getPhenomenomallyPerfectPurplePlacePath, drive)) // Drive to place the purple pixel
                 .add(new TimedIntake(intake, -0.7, 1000)) // Run the intake in reverse to spit out the purple pixel
+                .add(new InstantCommand(() -> aprilTagCamera.enable()))
                 .add(new ParallelCommandGroup( // Drive away from the spike mark and extend the slide
                         new FollowPath(paths.get(0), drive),
                         new SequentialCommandGroup(
                                 new WaitCommand(1500),
                                 new SlideToPosition(slide, 1200))).setTimeout(5000))
-                .add(new InstantCommand(() -> aprilTagCamera.enable()))
                 .add(new WaitCommand(500)) // Wait for a detection
                 .add(new FollowPath(paths.get(1), drive)) // Drive to the backdrop
                 .add(new InstantCommand(() -> aprilTagCamera.disable())) // Camera is no longer necessary
                 .add(new BackdropHome(drive.base, slide, placer, new FutureWaypoint(this::getYellowPlaceWaypoint), 1500, 500))
                 .add(new InstantCommand(() -> placer.open())) // Place the pixel
-                .add(new WaitCommand(1000))
+                .add(new WaitCommand(1500))
                 .add(new ParallelCommandGroup( // Close the placer, stow the slide, and park
                         new FollowPath(paths.get(2), drive),
                         new SequentialCommandGroup(

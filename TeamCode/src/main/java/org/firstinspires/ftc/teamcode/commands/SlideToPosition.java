@@ -37,4 +37,9 @@ public class SlideToPosition extends Command {
     public boolean isFinished() {
         return subsystem.atTargetPosition() || (timeSinceInitialized() > 250 && (gamepad != null && !gamepad.atRest()));
     }
+
+    @Override
+    public void end(boolean interrupted) {
+        subsystem.drive(0);
+    }
 }

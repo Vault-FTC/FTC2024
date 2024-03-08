@@ -29,7 +29,7 @@ public class Slide extends Subsystem {
         encoder = new PairedEncoder(motor1, true);
         encoder.reset();
         this.limit = limit;
-        controller = new PIDController(0.01, 0.00001, 0);
+        controller = new PIDController(0.015, 0.0, 0.1);
         polarity = reversed ? -1 : 1;
     }
 
@@ -41,8 +41,6 @@ public class Slide extends Subsystem {
         speed *= polarity;
         if (speed > 0 && encoder.getPosition() > Constants.Slide.maxExtensionPosition) {
             speed = 0;
-        } else if (speed < 0 && encoder.getPosition() < 0) {
-            speed = -0.05;
         }
         motor1.setPower(speed);
         motor2.setPower(-speed);
@@ -54,7 +52,7 @@ public class Slide extends Subsystem {
 
     public void drive(double speed) {
         if (limit.isPressed()) {
-            encoder.reset();
+            //encoder.reset();
         }
         runMotor(speed);
     }

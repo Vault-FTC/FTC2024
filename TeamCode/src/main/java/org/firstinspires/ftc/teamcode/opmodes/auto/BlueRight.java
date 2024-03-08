@@ -25,19 +25,19 @@ import java.util.ArrayList;
 public class BlueRight extends Auton {
     ArrayList<Path> paths = new ArrayList<>();
 
-    Path leftPath = Path.getBuilder()
+    Path leftPath = Path.getBuilder().setTimeout(2000)
             .addWaypoint(StartPositions.blueRight.toWaypoint())
             .addWaypoint(StartPositions.blueRight.x + 6, 23)
-            .addWaypoint(new Waypoint(StartPositions.blueRight.x - 1, 27, Constants.Drive.defaultFollowRadius, null, new Rotation2d(-Math.PI / 4)))
+            .addWaypoint(new Waypoint(StartPositions.blueRight.x, 27, Constants.Drive.defaultFollowRadius, null, new Rotation2d(-Math.PI / 4)))
             .build();
-    Path centerPath = Path.getBuilder()
+    Path centerPath = Path.getBuilder().setTimeout(2000)
             .addWaypoint(StartPositions.blueRight.toWaypoint())
             .addWaypoint(StartPositions.blueRight.x, 33.5)
             .build();
 
-    Path rightPath = Path.getBuilder()
+    Path rightPath = Path.getBuilder().setTimeout(2000)
             .addWaypoint(StartPositions.blueRight.toWaypoint())
-            .addWaypoint(new Waypoint(StartPositions.blueRight.x + 11.375, 24, Constants.Drive.defaultFollowRadius, null, new Rotation2d()))
+            .addWaypoint(new Waypoint(StartPositions.blueRight.x + 9.5, 31, Constants.Drive.defaultFollowRadius, null, new Rotation2d()))
             .build();
 
     private Path getPhenomenomallyPerfectPurplePlacePath() {
@@ -54,21 +54,21 @@ public class BlueRight extends Auton {
 
     private Waypoint getInitialYellowPlaceWaypoint() {
         Waypoint waypoint = getYellowPlaceWaypoint();
-        return new Waypoint(waypoint.x + 6.0, waypoint.y, waypoint.followRadius, waypoint.targetFollowRotation, waypoint.targetEndRotation);
+        return new Waypoint(waypoint.x + 6.0, waypoint.y, waypoint.followRadius, waypoint.targetFollowRotation, waypoint.targetEndRotation, 0.5);
     }
 
     private Waypoint getYellowPlaceWaypoint() {
-        double x = 17;
+        double x = 16;
         double y = 34.5;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y = 28.25;
+                y = 27;
                 break;
             case CENTER:
-                y = 34.5;
+                y = 31.5;
                 break;
             case RIGHT:
-                y = 39.75;
+                y = 39.5;
                 break;
         }
         return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2));
@@ -83,8 +83,9 @@ public class BlueRight extends Auton {
         super.init();
         paths.add(Path.getBuilder().setTimeout(6000) // Drive away from spike mark and through rigging path
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
-                .addWaypoint(new Waypoint(115, 40, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
-                .addWaypoint(new Waypoint(55, 40, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
+                .addWaypoint(new Waypoint(115, 12.5, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
+                .addWaypoint(new Waypoint(65, 12.5, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
+                .addWaypoint(new Waypoint(40, 34, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
                 .build());
         paths.add(Path.getBuilder().setTimeout(5000).setDefaultMaxVelocity(0.5) // Drive to backdrop path
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
@@ -92,7 +93,8 @@ public class BlueRight extends Auton {
                 .build());
         paths.add(Path.getBuilder().setTimeout(5000) // Park path
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
-                .addWaypoint(new Waypoint(23.0, 30, Constants.Drive.defaultFollowRadius, null, null, 0.5))
+                .addWaypoint(new FutureWaypoint(() -> new Waypoint(drive.odometry.getPose().x + 5, drive.odometry.getPose().y, 8, null, null, 0.5)))
+                .addWaypoint(new Waypoint(23.0, 38, Constants.Drive.defaultFollowRadius, null, null, 0.5))
                 .build());
 
         autonomousCommand = SequentialCommandGroup.getBuilder()
@@ -103,7 +105,7 @@ public class BlueRight extends Auton {
                 .add(new WaitCommand(500))
                 .add(new ParallelCommandGroup( // Drive to the backdrop and extend the slide
                         new FollowPath(paths.get(1), drive),
-                        new SlideToPosition(slide, 1200)).setTimeout(5000))
+                        new SlideToPosition(slide, 1200)).setTimeout(3000))
                 .add(new InstantCommand(() -> aprilTagCamera.disable())) // Camera is no longer necessary
                 .add(new BackdropHome(drive.base, slide, placer, new FutureWaypoint(this::getYellowPlaceWaypoint), 2000, 500))
                 .add(new InstantCommand(() -> placer.open())) // Place the pixel

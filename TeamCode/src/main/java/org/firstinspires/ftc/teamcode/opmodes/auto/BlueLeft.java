@@ -32,13 +32,13 @@ public class BlueLeft extends Auton {
             .build();
     Path centerPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(StartPositions.blueLeft.toWaypoint())
-            .addWaypoint(StartPositions.blueLeft.x, 33.5)
+            .addWaypoint(StartPositions.blueLeft.x, 35)
             .build();
 
     Path rightPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(StartPositions.blueLeft.toWaypoint())
             .addWaypoint(StartPositions.blueLeft.x - 6, 24)
-            .addWaypoint(new Waypoint(StartPositions.blueLeft.x + 1, 29, Constants.Drive.defaultFollowRadius, null, new Rotation2d(-Math.PI / 4)))
+            .addWaypoint(new Waypoint(StartPositions.blueLeft.x, 29.5, Constants.Drive.defaultFollowRadius, null, new Rotation2d(-Math.PI / 4)))
             .build();
 
     private Path getPhenomenomallyPerfectPurplePlacePath() {
@@ -59,20 +59,20 @@ public class BlueLeft extends Auton {
     }
 
     private Waypoint getYellowPlaceWaypoint() {
-        double x = 17;
-        double y = 34.5;
+        double x = 18;
+        double y = 33.5;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y = 28.25;
+                y = 27;
                 break;
             case CENTER:
-                y = 34.5;
+                y = 33.5;
                 break;
             case RIGHT:
-                y = 39.75;
+                y = 39.5;
                 break;
         }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2));
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2), 0.75);
     }
 
     public BlueLeft() {
@@ -86,7 +86,7 @@ public class BlueLeft extends Auton {
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
                 .addWaypoint(new FutureWaypoint(() -> {
                     Pose2d botPose = drive.odometry.getPose();
-                    return new Waypoint(botPose.x - 8.0, botPose.y - 5.0, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-90));
+                    return new Waypoint(botPose.x - 8.0, botPose.y - 8.0, 6.0, null, Rotation2d.fromDegrees(-90));
                 }))
                 .build());
         paths.add(Path.getBuilder().setTimeout(3000).setDefaultMaxVelocity(0.5) // Drive to backdrop path
@@ -103,18 +103,18 @@ public class BlueLeft extends Auton {
         autonomousCommand = SequentialCommandGroup.getBuilder()
                 .add(new FollowFuturePath(this::getPhenomenomallyPerfectPurplePlacePath, drive)) // Drive to place the purple pixel
                 .add(new TimedIntake(intake, -0.7, 1000)) // Run the intake in reverse to spit out the purple pixel
+                .add(new InstantCommand(() -> aprilTagCamera.enable()))
                 .add(new ParallelCommandGroup( // Drive away from the spike mark and extend the slide
                         new FollowPath(paths.get(0), drive),
                         new SequentialCommandGroup(
                                 new WaitCommand(1500),
                                 new SlideToPosition(slide, 1200))).setTimeout(5000))
-                .add(new InstantCommand(() -> aprilTagCamera.enable()))
                 .add(new WaitCommand(500)) // Wait for a detection
                 .add(new FollowPath(paths.get(1), drive)) // Drive to the backdrop
                 .add(new InstantCommand(() -> aprilTagCamera.disable())) // Camera is no longer necessary
                 .add(new BackdropHome(drive.base, slide, placer, new FutureWaypoint(this::getYellowPlaceWaypoint), 1500, 500))
                 .add(new InstantCommand(() -> placer.open())) // Place the pixel
-                .add(new WaitCommand(1000))
+                .add(new WaitCommand(1500))
                 .add(new ParallelCommandGroup( // Close the placer, stow the slide, and park
                         new FollowPath(paths.get(2), drive),
                         new SequentialCommandGroup(

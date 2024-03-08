@@ -55,7 +55,7 @@ public class BackdropHome extends Command {
         atWaypoint = base.atWaypoint(backdropWaypoint, 0.5, 5)
                 || timeSinceInitialized() > followTimeout
                 || placer.touchSensor.isPressed()
-                || (placer.getDistance() < 1.0 && slide.encoder.getPosition() > 500);
+                || (placer.getDistance() < 2.2 && slide.encoder.getPosition() > 500);
 
         if (atWaypoint && !lastAtWaypoint) {
             timestamp = timeSinceInitialized();

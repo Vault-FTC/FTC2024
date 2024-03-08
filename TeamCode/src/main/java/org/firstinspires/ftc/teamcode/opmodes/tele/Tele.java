@@ -27,8 +27,8 @@ public class Tele extends Robot {
     GamepadHelper driveController;
     GamepadHelper payloadController;
 
-    public static Pose2d blueBackdropPose = new Pose2d(20.0, 40, new Rotation2d(-Math.PI / 2));
-    public static Pose2d redBackdropPose = new Pose2d(20.0, 110, new Rotation2d(-Math.PI / 2));
+    public static Pose2d blueBackdropPose = new Pose2d(17.0, 30, new Rotation2d(-Math.PI / 2));
+    public static Pose2d redBackdropPose = new Pose2d(17.0, 110, new Rotation2d(-Math.PI / 2));
 
     public static Pose2d backdropPose = blueBackdropPose;
 
@@ -54,15 +54,18 @@ public class Tele extends Robot {
             botPose = new Pose2d();
         }
         drive.odometry.setPosition(botPose); // Set the robot position to the last position of the robot in autonomous
+        drive.setFieldCentricOffset(fieldCentricOffset);
 
-        intake.setDefaultCommand(new IntakeDefault(intake, drive.odometry::getPose)); // Runs the intake automatically when the robot is in the right spot
+        intake.setDefaultCommand(new IntakeDefault(intake, lights, drive.odometry::getPose)); // Runs the intake automatically when the robot is in the right spot
         payloadController.rightTrigger.or(driveController.rightTrigger).whileTrue(new RunIntake(intake, Constants.Intake.defaultSpeed));
         payloadController.leftTrigger.or(driveController.leftTrigger).whileTrue(new RunIntake(intake, -Constants.Intake.defaultSpeed));
 
         Command shootDrone = new SequentialCommandGroup(
                 new InstantCommand(() -> droneShooter.angleAdjuster.setPosition(0.65)),
                 new WaitCommand(2000),
-                new InstantCommand(() -> droneShooter.release.setPosition(0))
+                new InstantCommand(() -> {
+                    droneShooter.release.setPosition(0.1);
+                })
         );
         payloadController.y.onTrue(shootDrone);
         payloadController.x.onTrue(new AutomaticDroneLaunch(drive, shootDrone, gamepad1));
@@ -83,7 +86,7 @@ public class Tele extends Robot {
     }
 
     public void start() {
-        droneShooter.angleAdjuster.setPosition(0.4);
+        droneShooter.angleAdjuster.setPosition(0.45);
     }
 
     public void loop() {

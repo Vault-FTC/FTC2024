@@ -10,17 +10,29 @@ public class FlashLights extends Command {
     private final Lights lights;
     private final int cycleTime;
 
-    public FlashLights(Lights lights, int cycleTime) {
+    private final RevBlinkinLedDriver.BlinkinPattern pattern;
+
+    public FlashLights(Lights lights, int cycleTime, RevBlinkinLedDriver.BlinkinPattern pattern) {
         this.lights = lights;
         this.cycleTime = cycleTime;
+        this.pattern = pattern;
+    }
+
+    public FlashLights(Lights lights, int cycleTime) {
+        this(lights, cycleTime, RevBlinkinLedDriver.BlinkinPattern.GREEN);
     }
 
     @Override
     public void execute() {
         if (Math.sin(timeSinceInitialized() * 2 * Math.PI / cycleTime) > 0) {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+            lights.setPattern(pattern);
         } else {
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GOLD);
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLACK);
         }
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
     }
 }

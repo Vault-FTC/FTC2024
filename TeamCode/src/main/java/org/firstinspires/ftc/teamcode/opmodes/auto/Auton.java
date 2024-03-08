@@ -30,7 +30,7 @@ public abstract class Auton extends Robot {
 
         drive.odometry.setPosition(startPosition);
         botPose = startPosition;
-        drive.setFieldCentricOffset(startPosition.rotation);
+        fieldCentricOffset = startPosition.rotation;
 
         propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "PropCam"));
         visionPipeline = new Pipeline();

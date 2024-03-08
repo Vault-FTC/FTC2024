@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
+import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.drive.WaypointGenerator;
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagCamera;
@@ -47,6 +48,7 @@ public class Robot extends OpMode {
 
     public static Pose2d botPose = null;
     public static int slidePose = 0;
+    public static Rotation2d fieldCentricOffset = new Rotation2d();
 
     public static Alliance alliance = Alliance.BLUE;
 
@@ -85,19 +87,23 @@ public class Robot extends OpMode {
         Pose2d botPose = drive.odometry.getPose();
         ArrayList<Waypoint> waypoints = new ArrayList<>();
         waypoints.add(botPose.toWaypoint());
+        double timeout;
         if (botPose.x > 85.0) { // If robot is in front of rigging
             waypoints.add(new Waypoint(90, 70, Constants.Drive.defaultFollowRadius));
             waypoints.add(new Waypoint(65, 70, Constants.Drive.defaultFollowRadius));
         }
+        timeout = 5000;
         double initialOffset = 20.0;
         if (botPose.x > backdropWaypoint.x + initialOffset) {
-            waypoints.add(new Waypoint(backdropWaypoint.x + initialOffset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, 0.5));
+            waypoints.add(new Waypoint(backdropWaypoint.x + initialOffset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)));
+            timeout += 2000;
         }
         double offset = 6.0;
         if (botPose.x > backdropWaypoint.x + offset) {
-            waypoints.add(new Waypoint(backdropWaypoint.x + offset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, null, backdropWaypoint.targetEndRotation));
+            waypoints.add(new Waypoint(backdropWaypoint.x + offset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, Rotation2d.fromDegrees(-90), backdropWaypoint.targetEndRotation));
+            timeout += 1000;
         }
-        return new Path(waypoints.toArray(new WaypointGenerator[]{}));
+        return new Path(timeout, waypoints.toArray(new WaypointGenerator[]{}));
     }
 
     public Command getAutomaticPlaceCommand(Waypoint backdropWaypoint) {
@@ -105,7 +111,7 @@ public class Robot extends OpMode {
         Command command = new SequentialCommandGroup(
                 new InstantCommand(flashLights::schedule),
                 new FollowFuturePath(() -> getToBackdropPath(backdropWaypoint), drive), // Get close to the backdrop
-                new SlideToPosition(slide, 500),
+                new SlideToPosition(slide, 1200),
                 new InstantCommand(aprilTagCamera::enable),
                 new WaitCommand(500), // Wait for an april tag detection
                 new InstantCommand(aprilTagCamera::disable),
