@@ -98,7 +98,7 @@ public class BlueRight extends Auton {
         autonomousCommand = SequentialCommandGroup.getBuilder()
                 .add(new FollowFuturePath(this::getPhenomenomallyPerfectPurplePlacePath, drive)) // Drive to place the purple pixel
                 .add(new TimedIntake(intake, -0.7, 1000)) // Run the intake in reverse to spit out the purple pixel
-                .add(new FollowPath(paths.get(0), drive))
+                .add(new FollowPath(paths.get(0), drive))  // Drive away from the spike mark and through the rigging
                 .add(new InstantCommand(() -> aprilTagCamera.enable()))
                 .add(new WaitCommand(500))
                 .add(new ParallelCommandGroup( // Drive to the backdrop and extend the slide

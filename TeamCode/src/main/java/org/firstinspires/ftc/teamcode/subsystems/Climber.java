@@ -27,6 +27,10 @@ public class Climber extends Subsystem {
         servo.setPosition(servoPosition);
     }
 
+    public void hookDown() {
+        servo.setPosition(0);
+    }
+
     public void winch(double speed) {
         motor.setPower(speed);
     }

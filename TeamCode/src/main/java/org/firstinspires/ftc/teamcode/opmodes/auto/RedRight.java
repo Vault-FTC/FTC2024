@@ -30,7 +30,7 @@ public class RedRight extends Auton {
 
     Path leftPath = Path.getBuilder()
             .addWaypoint(StartPositions.redRight.toWaypoint())
-            .addWaypoint(StartPositions.redRight.x + 6, fieldLengthIn - 24)
+            .addWaypoint(StartPositions.redRight.x - 6, fieldLengthIn - 24)
             .addWaypoint(new Waypoint(StartPositions.redRight.x + 1, fieldLengthIn - 29, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(135)))
             .build();
     Path centerPath = Path.getBuilder().setTimeout(3000)
@@ -65,13 +65,13 @@ public class RedRight extends Auton {
         double y = fieldLengthIn - 34.5;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y = fieldLengthIn - 28.25;
+                y = fieldLengthIn - 39.75;
                 break;
             case CENTER:
                 y = fieldLengthIn - 34.5;
                 break;
             case RIGHT:
-                y = fieldLengthIn - 39.75;
+                y = fieldLengthIn - 28.25;
                 break;
         }
         return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2));

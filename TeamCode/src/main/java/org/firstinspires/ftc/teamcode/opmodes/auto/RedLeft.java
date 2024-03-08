@@ -64,20 +64,20 @@ public class RedLeft extends Auton {
         double y = fieldLengthIn - 34.5;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y = fieldLengthIn - 28.25;
+                y = fieldLengthIn - 39.75;
                 break;
             case CENTER:
                 y = fieldLengthIn - 34.5;
                 break;
             case RIGHT:
-                y = fieldLengthIn - 39.75;
+                y = fieldLengthIn - 28.25;
                 break;
         }
         return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2));
     }
 
     public RedLeft() {
-        super(Pipeline.Alliance.BLUE, StartPositions.redLeft);
+        super(Pipeline.Alliance.RED, StartPositions.redLeft);
     }
 
     @Override
@@ -100,7 +100,7 @@ public class RedLeft extends Auton {
         autonomousCommand = SequentialCommandGroup.getBuilder()
                 .add(new FollowFuturePath(this::getPhenomenomallyPerfectPurplePlacePath, drive)) // Drive to place the purple pixel
                 .add(new TimedIntake(intake, -0.7, 1000)) // Run the intake in reverse to spit out the purple pixel
-                .add(new FollowPath(paths.get(0), drive))
+                .add(new FollowPath(paths.get(0), drive)) // Drive away from the spike mark and through the rigging
                 .add(new InstantCommand(() -> aprilTagCamera.enable()))
                 .add(new WaitCommand(500))
                 .add(new ParallelCommandGroup( // Drive to the backdrop and extend the slide
