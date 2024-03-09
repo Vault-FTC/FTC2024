@@ -18,7 +18,7 @@ public class DriveToBackboard extends Command {
 
     public DriveToBackboard(Drive drive, Lights lights, Gamepad gamepad) {
         this.drive = drive;
-        flashLights = new FlashLights(lights, 500);
+        flashLights = new FlashLights(lights, 1000);
         this.gamepad = gamepad;
         addRequirements(drive);
     }

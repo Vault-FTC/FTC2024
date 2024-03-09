@@ -27,20 +27,21 @@ import java.util.ArrayList;
 public class RedLeft extends Auton {
     ArrayList<Path> paths = new ArrayList<>();
 
-    Path leftPath = Path.getBuilder()
+    Path leftPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(StartPositions.redLeft.toWaypoint())
-            .addWaypoint(StartPositions.redLeft.x + 6, fieldLengthIn - 23)
-            .addWaypoint(new Waypoint(StartPositions.redLeft.x - 1, fieldLengthIn - 27, Constants.Drive.defaultFollowRadius, null, new Rotation2d(-Math.PI / 4)))
+            .addWaypoint(new Waypoint(StartPositions.redLeft.x + 9.5, fieldLengthIn - 24, Constants.Drive.defaultFollowRadius, new Rotation2d(Math.PI), new Rotation2d(Math.PI)))
             .build();
-    Path centerPath = Path.getBuilder()
+    Path centerPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(StartPositions.redLeft.toWaypoint())
-            .addWaypoint(StartPositions.redLeft.x, fieldLengthIn - 33.5)
+            .addWaypoint(new Waypoint(StartPositions.redLeft.x + 1.5, fieldLengthIn - 33, 8, new Rotation2d(Math.PI), new Rotation2d(Math.PI)))
             .build();
 
-    Path rightPath = Path.getBuilder()
+    Path rightPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(StartPositions.redLeft.toWaypoint())
-            .addWaypoint(new Waypoint(StartPositions.redLeft.x + 11.375, fieldLengthIn - 24, Constants.Drive.defaultFollowRadius, null, new Rotation2d()))
+            .addWaypoint(StartPositions.redLeft.x + 6, fieldLengthIn - 23)
+            .addWaypoint(new Waypoint(StartPositions.redLeft.x, fieldLengthIn - 29, Constants.Drive.defaultFollowRadius, null, new Rotation2d(3 * Math.PI / 4)))
             .build();
+
 
     private Path getPhenomenomallyPerfectPurplePlacePath() {
         switch (visionPipeline.getPropLocation()) {
@@ -56,24 +57,24 @@ public class RedLeft extends Auton {
 
     private Waypoint getInitialYellowPlaceWaypoint() {
         Waypoint waypoint = getYellowPlaceWaypoint();
-        return new Waypoint(waypoint.x + 6.0, waypoint.y, waypoint.followRadius, waypoint.targetFollowRotation, waypoint.targetEndRotation);
+        return new Waypoint(waypoint.x + 6.0, waypoint.y, waypoint.followRadius, waypoint.targetFollowRotation, waypoint.targetEndRotation, 0.5);
     }
 
     private Waypoint getYellowPlaceWaypoint() {
-        double x = 17;
-        double y = fieldLengthIn - 34.5;
+        double x = 18;
+        double y = fieldLengthIn - 40;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y = fieldLengthIn - 39.75;
+                y = fieldLengthIn - 42;
                 break;
             case CENTER:
-                y = fieldLengthIn - 34.5;
+                y = fieldLengthIn - 40;
                 break;
             case RIGHT:
-                y = fieldLengthIn - 28.25;
+                y = fieldLengthIn - 28.5;
                 break;
         }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2));
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2), 0.5);
     }
 
     public RedLeft() {
@@ -85,8 +86,9 @@ public class RedLeft extends Auton {
         super.init();
         paths.add(Path.getBuilder().setTimeout(6000) // Drive away from spike mark and through rigging path
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
-                .addWaypoint(new Waypoint(115, fieldLengthIn - 40, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
-                .addWaypoint(new Waypoint(55, fieldLengthIn - 40, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
+                .addWaypoint(new Waypoint(115, fieldLengthIn - 14, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
+                .addWaypoint(new Waypoint(65, fieldLengthIn - 14, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
+                .addWaypoint(new Waypoint(40, fieldLengthIn - 34, 8.0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)))
                 .build());
         paths.add(Path.getBuilder().setTimeout(5000).setDefaultMaxVelocity(0.5) // Drive to backdrop path
                 .addWaypoint(new FutureWaypoint(() -> drive.odometry.getPose().toWaypoint()))
@@ -100,12 +102,12 @@ public class RedLeft extends Auton {
         autonomousCommand = SequentialCommandGroup.getBuilder()
                 .add(new FollowFuturePath(this::getPhenomenomallyPerfectPurplePlacePath, drive)) // Drive to place the purple pixel
                 .add(new TimedIntake(intake, -0.7, 1000)) // Run the intake in reverse to spit out the purple pixel
-                .add(new FollowPath(paths.get(0), drive)) // Drive away from the spike mark and through the rigging
+                .add(new FollowPath(paths.get(0), drive))  // Drive away from the spike mark and through the rigging
                 .add(new InstantCommand(() -> aprilTagCamera.enable()))
                 .add(new WaitCommand(500))
                 .add(new ParallelCommandGroup( // Drive to the backdrop and extend the slide
                         new FollowPath(paths.get(1), drive),
-                        new SlideToPosition(slide, 1200)).setTimeout(5000))
+                        new SlideToPosition(slide, 1200)).setTimeout(3000))
                 .add(new InstantCommand(() -> aprilTagCamera.disable())) // Camera is no longer necessary
                 .add(new BackdropHome(drive.base, slide, placer, new FutureWaypoint(this::getYellowPlaceWaypoint), 2000, 500))
                 .add(new InstantCommand(() -> placer.open())) // Place the pixel

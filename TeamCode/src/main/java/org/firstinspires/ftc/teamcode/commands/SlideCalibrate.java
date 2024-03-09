@@ -13,8 +13,8 @@ public class SlideCalibrate extends Command {
 
     @Override
     public void execute() {
-        slide.motor1.setPower(0.5);
-        slide.motor1.setPower(-0.5);
+        slide.motor1.setPower(1.0);
+        slide.motor1.setPower(-1.0);
     }
 
 }

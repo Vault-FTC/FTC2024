@@ -22,7 +22,7 @@ public class IntakeDefault extends Command {
         this.intake = intake;
         this.lights = lights;
         this.poseSupplier = poseSupplier;
-        flashLights = new FlashLights(lights, 500, RevBlinkinLedDriver.BlinkinPattern.ORANGE);
+        flashLights = new FlashLights(lights, 1000, RevBlinkinLedDriver.BlinkinPattern.ORANGE);
         addRequirements(intake);
     }
 

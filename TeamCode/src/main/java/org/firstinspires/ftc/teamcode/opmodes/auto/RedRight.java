@@ -28,10 +28,10 @@ import java.util.ArrayList;
 public class RedRight extends Auton {
     ArrayList<Path> paths = new ArrayList<>();
 
-    Path leftPath = Path.getBuilder()
+    Path leftPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(StartPositions.redRight.toWaypoint())
             .addWaypoint(StartPositions.redRight.x - 6, fieldLengthIn - 24)
-            .addWaypoint(new Waypoint(StartPositions.redRight.x, fieldLengthIn - 29.5, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(135)))
+            .addWaypoint(new Waypoint(StartPositions.redRight.x, fieldLengthIn - 29.5, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-135)))
             .build();
     Path centerPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(StartPositions.redRight.toWaypoint())
@@ -39,7 +39,7 @@ public class RedRight extends Auton {
             .build();
 
     Path rightPath = Path.getBuilder().setTimeout(3000)
-            .addWaypoint(StartPositions.redRight.toWaypoint()).setTimeout(3000)
+            .addWaypoint(StartPositions.redRight.toWaypoint())
             .addWaypoint(new Waypoint(StartPositions.redRight.x - 11.375, fieldLengthIn - 26, Constants.Drive.defaultFollowRadius, null, new Rotation2d(Math.PI)))
             .build();
 
@@ -62,19 +62,19 @@ public class RedRight extends Auton {
 
     private Waypoint getYellowPlaceWaypoint() {
         double x = 18;
-        double y = fieldLengthIn - 33.5;
+        double y = fieldLengthIn - 37;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y = fieldLengthIn - 39.5;
+                y = fieldLengthIn - 42;
                 break;
             case CENTER:
-                y = fieldLengthIn - 33.5;
+                y = fieldLengthIn - 35.5;
                 break;
             case RIGHT:
-                y = fieldLengthIn - 27;
+                y = fieldLengthIn - 29.5;
                 break;
         }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2), 0.75);
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2), 0.5);
     }
 
     public RedRight() {

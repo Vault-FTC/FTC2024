@@ -107,12 +107,12 @@ public class Robot extends OpMode {
     }
 
     public Command getAutomaticPlaceCommand(Waypoint backdropWaypoint) {
-        Command flashLights = new FlashLights(lights, 750);
+        Command flashLights = new FlashLights(lights, 1000);
         Command command = new SequentialCommandGroup(
                 new InstantCommand(flashLights::schedule),
+                new InstantCommand(aprilTagCamera::enable),
                 new FollowFuturePath(() -> getToBackdropPath(backdropWaypoint), drive), // Get close to the backdrop
                 new SlideToPosition(slide, 1200),
-                new InstantCommand(aprilTagCamera::enable),
                 new WaitCommand(500), // Wait for an april tag detection
                 new InstantCommand(aprilTagCamera::disable),
                 new BackdropHome(drive.base, slide, placer, backdropWaypoint, 2000, 500), // Home in on the backdrop

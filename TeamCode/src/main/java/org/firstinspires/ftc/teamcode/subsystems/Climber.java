@@ -12,8 +12,9 @@ public class Climber extends Subsystem {
     public final Servo servo;
 
     public Climber(HardwareMap hardwareMap) {
-        this.motor = hardwareMap.get(DcMotor.class, "climbMotor");
-        this.servo = hardwareMap.get(Servo.class, "climbServo");
+        motor = hardwareMap.get(DcMotor.class, "climbMotor");
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        servo = hardwareMap.get(Servo.class, "climbServo");
     }
 
     public void deliverHook() {

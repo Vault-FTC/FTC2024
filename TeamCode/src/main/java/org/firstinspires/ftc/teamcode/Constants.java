@@ -29,7 +29,7 @@ public class Constants {
     }
 
     public static final class Placer {
-        public static final double placePosition = 0.9;
+        public static final double placePosition = 0.99;
 
         public static final double closePosition = 0.45;
     }
@@ -46,7 +46,7 @@ public class Constants {
             public static final Pose2d redRight = new Pose2d(58.944, 129.5, new Rotation2d(Math.PI));
         }
 
-        public static final PIDGains defaultDriveGains = new PIDGains(0.1, 0.0, 2.5);
+        public static final PIDGains defaultDriveGains = new PIDGains(0.1, 0.0, 1.5);
         public static final PIDGains defaultRotGains = new PIDGains(2.75, 0.0001, 0.6);
     }
 

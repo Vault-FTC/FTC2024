@@ -61,10 +61,11 @@ public class Tele extends Robot {
         payloadController.leftTrigger.or(driveController.leftTrigger).whileTrue(new RunIntake(intake, -Constants.Intake.defaultSpeed));
 
         Command shootDrone = new SequentialCommandGroup(
-                new InstantCommand(() -> droneShooter.angleAdjuster.setPosition(0.65)),
+                new InstantCommand(() -> droneShooter.angleAdjuster.setPosition(0.6)),
                 new WaitCommand(2000),
                 new InstantCommand(() -> {
-                    droneShooter.release.setPosition(0.1);
+                    droneShooter.release.setPosition(0.8
+                    );
                 })
         );
         payloadController.y.onTrue(shootDrone);
@@ -87,6 +88,7 @@ public class Tele extends Robot {
 
     public void start() {
         droneShooter.angleAdjuster.setPosition(0.45);
+        droneShooter.release.setPosition(0.0);
     }
 
     public void loop() {
