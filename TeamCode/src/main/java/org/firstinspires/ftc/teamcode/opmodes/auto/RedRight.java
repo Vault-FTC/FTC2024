@@ -65,7 +65,7 @@ public class RedRight extends Auton {
         double y = fieldLengthIn - 37;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y = fieldLengthIn - 42;
+                y = fieldLengthIn - 43;
                 break;
             case CENTER:
                 y = fieldLengthIn - 35.5;

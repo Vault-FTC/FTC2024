@@ -1,8 +1,19 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import static org.firstinspires.ftc.teamcode.Constants.storageDir;
+
 import org.firstinspires.ftc.teamcode.Constants;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 public class Path {
     private final ArrayList<WaypointGenerator> waypoints;
@@ -91,5 +102,59 @@ public class Path {
 
     public static Builder getBuilder() {
         return new Builder();
+    }
+
+    private static Rotation2d getRotation(String data) {
+        double angle;
+        try {
+            angle = Double.parseDouble(data);
+            return new Rotation2d(angle);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private static double getTimeout(String data) {
+        try {
+            return Double.parseDouble(data);
+        } catch (NumberFormatException e) {
+            return Double.POSITIVE_INFINITY;
+        }
+    }
+
+    public static Path loadPath(String fileName) {
+        StringBuilder data = new StringBuilder();
+        Builder pathBuilder = Path.getBuilder();
+        try {
+            File filePath = new File(storageDir, fileName);
+            FileInputStream input = new FileInputStream(filePath);
+
+            int character;
+            while ((character = input.read()) != -1) {
+                data.append((char) character);
+            }
+
+            JsonReader reader = Json.createReader(new StringReader(data.toString()));
+            JsonObject path = reader.readObject();
+            double timeout = getTimeout(path.getJsonString("timeout").getString());
+            JsonArray array = path.getJsonArray("points");
+            for (int i = 0; i < array.size(); i++) {
+                JsonObject object = array.getJsonObject(i);
+
+                JsonObject fieldVector = object.getJsonObject("fieldVector");
+                double x = fieldVector.getJsonNumber("x").doubleValue();
+                double y = fieldVector.getJsonNumber("y").doubleValue();
+                double followRadius = object.getJsonNumber("followRadius").doubleValue();
+                Rotation2d targetFollowRotation = getRotation(object.getJsonString("targetFollowRotation").getString());
+                Rotation2d targetEndRotation = getRotation(object.getJsonString("targetEndRotation").getString());
+                double maxVelocity = object.getJsonNumber("maxVelocity").doubleValue();
+
+                pathBuilder.addWaypoint(new Waypoint(x, y, followRadius, targetFollowRotation, targetEndRotation, maxVelocity));
+            }
+            return pathBuilder.setTimeout(timeout).build();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new Path();
     }
 }

@@ -1,12 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.os.Environment;
+
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Vector2d;
 import org.firstinspires.ftc.teamcode.utils.PIDController.PIDGains;
 
+import java.io.File;
+
 public class Constants {
 
+    public static final File storageDir = new File(Environment.getDataDirectory() + "org.firstinspires.ftc.teamcode/");
     public static final boolean debugMode = true;
 
     public static final double fieldLengthIn = 141.345;

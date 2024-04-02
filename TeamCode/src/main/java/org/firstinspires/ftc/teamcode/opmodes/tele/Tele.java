@@ -88,7 +88,7 @@ public class Tele extends Robot {
 
     public void start() {
         droneShooter.angleAdjuster.setPosition(0.45);
-        droneShooter.release.setPosition(0.0);
+        //droneShooter.release.setPosition(0.0);
     }
 
     public void loop() {

@@ -32,7 +32,7 @@ public class BlueLeft extends Auton {
             .build();
     Path centerPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(StartPositions.blueLeft.toWaypoint())
-            .addWaypoint(StartPositions.blueLeft.x, 35)
+            .addWaypoint(StartPositions.blueLeft.x, 33)
             .build();
 
     Path rightPath = Path.getBuilder().setTimeout(3000)
@@ -59,7 +59,7 @@ public class BlueLeft extends Auton {
     }
 
     private Waypoint getYellowPlaceWaypoint() {
-        double x = 18;
+        double x = 17;
         double y = 33.5;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:

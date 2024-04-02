@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.webdashboard;
 
+import static org.firstinspires.ftc.teamcode.Constants.storageDir;
+
 import com.qualcomm.robotcore.util.RobotLog;
 
 import org.firstinspires.ftc.teamcode.Constants;
@@ -7,6 +9,10 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -20,16 +26,27 @@ import javax.json.JsonReader;
 
 public class WebdashboardServer extends WebSocketServer {
 
-    ArrayList<DashboardLayout> layouts = new ArrayList<>();
-
-    public DashboardLayout getFirstConnectedLayout() {
-        if (layouts.size() > 0) return layouts.get(0);
-        else return null;
-    }
-
     private static WebdashboardServer instance = null;
 
     public static final int port = 5837;
+
+    ArrayList<DashboardLayout> layouts = new ArrayList<>();
+
+    private static final DashboardLayout emptyLayout = new EmptyLayout();
+
+    public DashboardLayout firstConnectedLayout() {
+        if (layouts.size() > 0) return layouts.get(0);
+        else return emptyLayout;
+    }
+
+    public DashboardLayout getLayout(String id) {
+        for (DashboardLayout layout : layouts) {
+            if (Objects.equals(layout.id, id)) {
+                return layout;
+            }
+        }
+        return emptyLayout;
+    }
 
     private WebdashboardServer(int port) throws UnknownHostException {
         super(new InetSocketAddress(port));
@@ -58,26 +75,45 @@ public class WebdashboardServer extends WebSocketServer {
     }
 
     @Override
-    public void onMessage(WebSocket conn, String message) {
-        if (Objects.equals(message, "ping")) {
+    public void onMessage(WebSocket conn, String data) {
+        if (Objects.equals(data, "ping")) {
             conn.send("pong");
         } else {
             DashboardLayout layout = getLayout(conn);
             assert layout != null;
 
-            JsonReader reader = Json.createReader(new StringReader(message));
-            JsonObject object = reader.readObject().getJsonObject("message");
+            JsonReader reader = Json.createReader(new StringReader(data));
+            JsonObject object = reader.readObject();
+            JsonObject message = object.getJsonObject("message");
 
-            if (Objects.equals(object.getString("messageType"), "layout state")) {
+            if (Objects.equals(message.getString("messageType"), "layout state")) {
                 if (!layouts.isEmpty()) {
-                    layout.update(object);
+                    layout.update(message);
+                    layout.id = object.getJsonString("id").toString();
                 }
-            } else if (Objects.equals(object.getString("messageType"), "node update")) {
-                layout.updateNode(object);
-            } else if (Objects.equals(object.getString("messageType"), "click")) {
-                layout.buttonClicked(object.getString("nodeID"));
+            } else if (Objects.equals(message.getString("messageType"), "node update")) {
+                layout.updateNode(message);
+            } else if (Objects.equals(message.getString("messageType"), "path update")) {
+                try {
+                    savePath(message);
+                } catch (IOException e) {
+
+                }
+            } else if (Objects.equals(message.getString("messageType"), "click")) {
+                layout.buttonClicked(message.getString("nodeID"));
             }
         }
+    }
+
+    private static void savePath(JsonObject object) throws IOException {
+        JsonObject configuration = object.getJsonObject("configuration");
+        JsonObject path = configuration.getJsonObject("path");
+        String fileName = configuration.getJsonString("id").getString().replace(" ", "_") + ".json";
+        File output = new File(storageDir, fileName);
+        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
+        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
+        writer.write(path.toString());
+        writer.close();
     }
 
     @Override
