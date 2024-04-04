@@ -94,6 +94,7 @@ public class DashboardLayout {
     public void update(JsonObject object) {
         ArrayList<DashboardNode> nodes = new ArrayList<>();
         JsonArray jsonValues = object.getJsonArray("layout");
+        id = object.getJsonString("id").toString();
         for (JsonValue jsonValue : jsonValues) {
             JsonObject node = jsonValue.asJsonObject();
             nodes.add(new DashboardNode(node.getString("id"), getNodeType(node.getString("type")), String.valueOf(node.get("state"))));
@@ -179,6 +180,7 @@ public class DashboardLayout {
     public void createNotice(String notice, NoticeType type, int durationMilliseconds) {
         JsonObject data = Json.createObjectBuilder()
                 .add("messageType", "notify")
+                .add("message", notice)
                 .add("type", type.value)
                 .add("duration", durationMilliseconds)
                 .build();

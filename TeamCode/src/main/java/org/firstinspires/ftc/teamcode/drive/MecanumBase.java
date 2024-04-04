@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.control.PIDController;
 
 import java.util.function.Supplier;
 
@@ -78,10 +78,10 @@ public class MecanumBase {
         strafe *= 1.41;
 
         double[] wheelSpeeds = { // Order: lf, rf, lb, rb
-                drive + strafe - turn,
-                drive - strafe + turn,
                 drive - strafe - turn,
-                drive + strafe + turn
+                drive + strafe + turn,
+                drive + strafe - turn,
+                drive - strafe + turn
         };
 
         double largest = 1.0;
@@ -121,7 +121,7 @@ public class MecanumBase {
         waypointIndex = 0;
         driveState = DriveState.IDLE;
         followPath = path;
-        segments = followPath.getLineSegments();
+        segments = followPath.generateLineSegments();
         followStartTimestamp = timer.milliseconds();
     }
 

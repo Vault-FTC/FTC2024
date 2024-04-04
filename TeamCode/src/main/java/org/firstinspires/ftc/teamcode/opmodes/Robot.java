@@ -59,7 +59,7 @@ public class Robot extends OpMode {
         }
         CommandScheduler.getInstance().clearRegistry();
         CommandScheduler.getInstance().cancelAll();
-        WebdashboardServer.getInstance(); // Initialize the dashboard server
+        WebdashboardServer.getInstance().newLog(); // Initialize the dashboard server
 
         // Instantiate subsystems
         drive = new Drive(hardwareMap);
@@ -74,6 +74,11 @@ public class Robot extends OpMode {
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
         aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
         droneShooter = new DroneShooter(hardwareMap);
+    }
+
+    @Override
+    public void init_loop() {
+        CommandScheduler.getInstance().run();
     }
 
     @Override

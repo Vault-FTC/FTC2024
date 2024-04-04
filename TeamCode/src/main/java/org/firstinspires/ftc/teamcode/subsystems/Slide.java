@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
-import org.firstinspires.ftc.teamcode.drive.PairedEncoder;
-import org.firstinspires.ftc.teamcode.utils.PIDController;
+import org.firstinspires.ftc.teamcode.control.PIDController;
+import org.firstinspires.ftc.teamcode.utils.PairedEncoder;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 public class Slide extends Subsystem {

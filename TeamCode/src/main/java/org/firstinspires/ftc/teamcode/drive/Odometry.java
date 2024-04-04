@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.utils.Encoder;
+import org.firstinspires.ftc.teamcode.utils.PairedEncoder;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 public class Odometry {
@@ -25,9 +27,9 @@ public class Odometry {
 
     public Odometry(HardwareMap hardwareMap) {
         pose = new Pose2d();
-        parallel0 = new PairedEncoder(hardwareMap.get(DcMotor.class, "climbMotor"), true); //lf
-        parallel1 = new PairedEncoder(hardwareMap.get(DcMotor.class, "intakeMotor"), true); //lb
-        perpendicular = new PairedEncoder(hardwareMap.get(DcMotor.class, "rf"), true); //rf
+        parallel0 = new PairedEncoder(hardwareMap.get(DcMotor.class, "rf")); //lf
+        parallel1 = new PairedEncoder(hardwareMap.get(DcMotor.class, "rb"), true); //lb
+        perpendicular = new PairedEncoder(hardwareMap.get(DcMotor.class, "slideMotor1")); //rf
         resetEncoders();
     }
 

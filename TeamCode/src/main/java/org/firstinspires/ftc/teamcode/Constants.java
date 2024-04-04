@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import android.os.Environment;
 
+import org.firstinspires.ftc.teamcode.control.PIDController.PIDGains;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Vector2d;
-import org.firstinspires.ftc.teamcode.utils.PIDController.PIDGains;
 
 import java.io.File;
 
@@ -36,7 +36,7 @@ public class Constants {
     public static final class Placer {
         public static final double placePosition = 0.99;
 
-        public static final double closePosition = 0.45;
+        public static final double storagePosition = 0.45;
     }
 
     public static final class Drive {

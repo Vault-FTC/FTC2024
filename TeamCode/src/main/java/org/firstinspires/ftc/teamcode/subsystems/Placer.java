@@ -11,25 +11,35 @@ import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 public class Placer extends Subsystem {
-    private final Servo servo;
+    private final Servo lifter0;
+    private final Servo lifter1;
+
+    private final Servo placer;
 
     public ColorRangeSensor distanceSensor;
     public final TouchSensor touchSensor;
 
     public Placer(HardwareMap hardwareMap) {
-        servo = hardwareMap.get(Servo.class, "placerServo");
-        servo.setDirection(Servo.Direction.FORWARD);
-        servo.close();
+        lifter0 = hardwareMap.get(Servo.class, "lifter0");
+        lifter0.setDirection(Servo.Direction.FORWARD);
+        lifter0.close();
+        lifter1 = hardwareMap.get(Servo.class, "lifter1");
+        lifter1.setDirection(Servo.Direction.FORWARD);
+        lifter1.close();
+        placer = hardwareMap.get(Servo.class, "placer");
+        placer.setDirection(Servo.Direction.FORWARD);
+        placer.close();
         distanceSensor = hardwareMap.get(ColorRangeSensor.class, "distanceSensor");
         touchSensor = hardwareMap.get(TouchSensor.class, "placerTouch");
     }
 
     public void open() {
-        servo.setPosition(Constants.Placer.placePosition);
+        lifter0.setPosition(Constants.Placer.placePosition);
+        lifter1.setPosition(Constants.Placer.placePosition);
     }
 
     public void close() {
-        servo.setPosition(Constants.Placer.closePosition);
+        lifter0.setPosition(Constants.Placer.storagePosition);
     }
 
     public double getDistance() {

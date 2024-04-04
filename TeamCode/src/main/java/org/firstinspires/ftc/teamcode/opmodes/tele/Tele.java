@@ -45,7 +45,7 @@ public class Tele extends Robot {
         driveController = new GamepadHelper(gamepad1);
         payloadController = new GamepadHelper(gamepad2);
 
-        drive.setDefaultCommand(new DriveDefault(drive, () -> -driveController.leftStickY.getAsDouble(), () -> driveController.leftStickX.getAsDouble(), () -> -driveController.rightStickX.getAsDouble()));
+        drive.setDefaultCommand(new DriveDefault(drive, () -> -driveController.leftStickY.getAsDouble(), () -> driveController.leftStickX.getAsDouble(), () -> driveController.rightStickX.getAsDouble()));
         driveController.leftBumper.onTrue(new InstantCommand(() -> drive.enableSlowMode()));
         driveController.rightBumper.onTrue(new InstantCommand(() -> drive.enableFastMode()));
         driveController.a.and(driveController.b).onTrue(automaticPlace);

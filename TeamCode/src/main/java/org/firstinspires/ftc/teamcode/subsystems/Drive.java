@@ -24,8 +24,8 @@ public class Drive extends Subsystem {
                 hardwareMap.get(DcMotor.class, "rf"),
                 hardwareMap.get(DcMotor.class, "lb"),
                 hardwareMap.get(DcMotor.class, "rb"), odometry::getPose);
-        base.lf.setDirection(DcMotorSimple.Direction.REVERSE);
-        base.lb.setDirection(DcMotorSimple.Direction.REVERSE);
+        base.rf.setDirection(DcMotorSimple.Direction.REVERSE);
+        base.rb.setDirection(DcMotorSimple.Direction.REVERSE);
         base.driveController.setGains(Constants.Drive.defaultDriveGains);
         base.rotController.setGains(Constants.Drive.defaultRotGains);
     }

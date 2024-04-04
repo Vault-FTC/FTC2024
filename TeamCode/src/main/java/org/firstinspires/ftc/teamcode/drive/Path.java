@@ -16,7 +16,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 
 public class Path {
-    private final ArrayList<WaypointGenerator> waypoints;
+    public final ArrayList<WaypointGenerator> waypoints;
 
     final double timeout; // In milliseconds
 
@@ -92,7 +92,7 @@ public class Path {
         return generatedWaypoints.toArray(new Waypoint[]{});
     }
 
-    public Waypoint[][] getLineSegments() {
+    public Waypoint[][] generateLineSegments() {
         ArrayList<Waypoint[]> segments = new ArrayList<>();
         for (int i = 0; i < waypoints.size() - 1; i++) {
             segments.add(new Waypoint[]{waypoints.get(i).getWaypoint(), waypoints.get(i + 1).getWaypoint()});
@@ -114,12 +114,42 @@ public class Path {
         }
     }
 
-    private static double getTimeout(String data) {
+    public double getTimeout() {
+        return timeout;
+    }
+
+    private static double parseTimeout(String data) {
         try {
             return Double.parseDouble(data);
         } catch (NumberFormatException e) {
             return Double.POSITIVE_INFINITY;
         }
+    }
+
+    public Path appendWaypoint(WaypointGenerator waypoint, double timeout) {
+        return join(new Path(timeout, waypoint));
+    }
+
+    public Path join(Path path) {
+        return join(path, path.timeout + timeout);
+    }
+
+    /**
+     * Creates a new path by joining the specified path to the end of this path instance.
+     *
+     * @param path
+     * @param timeout
+     * @return
+     */
+    public Path join(Path path, double timeout) {
+        Builder builder = getBuilder().setTimeout(timeout);
+        for (WaypointGenerator waypoint : waypoints) {
+            builder.addWaypoint(waypoint);
+        }
+        for (WaypointGenerator waypoint : path.waypoints) {
+            builder.addWaypoint(waypoint);
+        }
+        return builder.build();
     }
 
     public static Path loadPath(String fileName) {
@@ -136,7 +166,7 @@ public class Path {
 
             JsonReader reader = Json.createReader(new StringReader(data.toString()));
             JsonObject path = reader.readObject();
-            double timeout = getTimeout(path.getJsonString("timeout").getString());
+            double timeout = parseTimeout(path.getJsonString("timeout").getString());
             JsonArray array = path.getJsonArray("points");
             for (int i = 0; i < array.size(); i++) {
                 JsonObject object = array.getJsonObject(i);

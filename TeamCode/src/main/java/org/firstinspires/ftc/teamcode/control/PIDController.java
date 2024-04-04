@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utils;
+package org.firstinspires.ftc.teamcode.control;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -7,7 +7,7 @@ public class PIDController {
     private double kI;
     private double kD;
     private double i;
-    private double lastError = 0;
+    private double lastMeasurement = 0;
     private double minIntegralErr = 0;
     private double maxIntegralErr = Double.POSITIVE_INFINITY;
 
@@ -69,16 +69,21 @@ public class PIDController {
     }
 
     public double calculate(double measurement, double setpoint) {
+        double[] outputs = calculateTerms(measurement, setpoint);
+        return outputs[0] + outputs[1] + outputs[2];
+    }
+
+    public double[] calculateTerms(double measurement, double setpoint) {
         double error = setpoint - measurement;
         double dt = elapsedTime();
         double p = kP * error;
-        double d = -kD * (error - lastError) / dt;
-        lastError = error;
+        double d = kD * (measurement - lastMeasurement) / dt; // This does essentially the same thing as using de/dt. The only difference is that when the setpoint changes the output won't spike.
+        lastMeasurement = measurement;
         if (Math.abs(error) > Math.abs(minIntegralErr) && Math.abs(error) < Math.abs(maxIntegralErr)) {
             i += kI * error * dt;
-            return p + i + d;
+            return new double[]{p, i, d};
         } else {
-            return p + d;
+            return new double[]{p, 0, d};
         }
     }
 

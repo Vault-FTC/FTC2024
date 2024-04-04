@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.webdashboard;
 
 import static org.firstinspires.ftc.teamcode.Constants.storageDir;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.RobotLog;
+import com.qualcomm.robotcore.util.ThreadPool;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.java_websocket.WebSocket;
@@ -30,6 +32,8 @@ public class WebdashboardServer extends WebSocketServer {
 
     public static final int port = 5837;
 
+    ElapsedTime timer;
+
     ArrayList<DashboardLayout> layouts = new ArrayList<>();
 
     private static final DashboardLayout emptyLayout = new EmptyLayout();
@@ -51,13 +55,14 @@ public class WebdashboardServer extends WebSocketServer {
     private WebdashboardServer(int port) throws UnknownHostException {
         super(new InetSocketAddress(port));
         setReuseAddr(true);
+        timer = new ElapsedTime();
         start();
     }
 
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         layouts.add(new DashboardLayout(conn));
-
+        newLog();
     }
 
     @Override
@@ -94,15 +99,33 @@ public class WebdashboardServer extends WebSocketServer {
             } else if (Objects.equals(message.getString("messageType"), "node update")) {
                 layout.updateNode(message);
             } else if (Objects.equals(message.getString("messageType"), "path update")) {
+                log("got path update");
+                log(getLayout("auto_creator_1").toString());
                 try {
+                    getLayout("auto_creator_1").createNotice("received path message", DashboardLayout.NoticeType.POSITIVE, 8000);
                     savePath(message);
                 } catch (IOException e) {
-
+                    log("couldn't save");
                 }
             } else if (Objects.equals(message.getString("messageType"), "click")) {
                 layout.buttonClicked(message.getString("nodeID"));
             }
         }
+    }
+
+    public void newLog() {
+        JsonObject message = Json.createObjectBuilder()
+                .add("messageType", "reset log")
+                .build();
+        ThreadPool.getDefaultScheduler().submit(() -> broadcast(message.toString()));
+    }
+
+    public void log(String value) {
+        JsonObject message = Json.createObjectBuilder()
+                .add("messageType", "log")
+                .add("value", timer.milliseconds() + ": " + value)
+                .build();
+        ThreadPool.getDefaultScheduler().submit(() -> broadcast(message.toString()));
     }
 
     private static void savePath(JsonObject object) throws IOException {
