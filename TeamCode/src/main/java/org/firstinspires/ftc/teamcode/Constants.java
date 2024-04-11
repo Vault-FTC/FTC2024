@@ -11,9 +11,8 @@ import java.io.File;
 
 public class Constants {
 
-    public static final File storageDir = new File(Environment.getDataDirectory() + "org.firstinspires.ftc.teamcode/");
+    public static final File storageDir = new File(Environment.getExternalStorageDirectory() + "/Download");
     public static final boolean debugMode = true;
-
     public static final double fieldLengthIn = 141.345;
 
     public static final class ControlSettings {
@@ -28,15 +27,19 @@ public class Constants {
     }
 
     public static final class Slide {
-        public static final int maxExtensionPosition = 2000;
+        public static final int preparePlacerPosition = 800;
+        public static final int maxExtensionPosition = 1500;
         public static final int pidDeadband = 50;
-        public static final int defaultPlacePosition = 2300;
+        public static final int defaultPlacePosition = 1000;
     }
 
     public static final class Placer {
-        public static final double placePosition = 0.99;
-
-        public static final double storagePosition = 0.45;
+        public static final double lifter0PlacePosition = 0.3;
+        public static final double lifter1PlacePosition = 0.5;
+        public static final double lifter0StoragePosition = 0.1;
+        public static final double lifter1StoragePosition = 0.8;
+        public static final double openPosition = 0.56;
+        public static final double closePosition = 0.62;
     }
 
     public static final class Drive {
@@ -51,8 +54,8 @@ public class Constants {
             public static final Pose2d redRight = new Pose2d(58.944, 129.5, new Rotation2d(Math.PI));
         }
 
-        public static final PIDGains defaultDriveGains = new PIDGains(0.1, 0.0, 1.5);
-        public static final PIDGains defaultRotGains = new PIDGains(2.75, 0.0001, 0.6);
+        public static final PIDGains defaultDriveGains = new PIDGains(0.05, 0.0, 1.5);
+        public static final PIDGains defaultRotGains = new PIDGains(0.075, 0.00001, 0.6);
     }
 
     public static final class Vision {

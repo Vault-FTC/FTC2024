@@ -39,7 +39,7 @@ public class AprilTagCamera extends Subsystem {
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
         aprilTagProcessor.setDecimation(2);
         visionPortal = new VisionPortal.Builder()
-                .setCamera(hardwareMap.get(WebcamName.class, "AprilCam"))
+                .setCamera(hardwareMap.get(WebcamName.class, "backCam"))
                 .addProcessor(aprilTagProcessor)
                 .build();
         CommandScheduler.getInstance().schedule(new CameraCalibrate(this));

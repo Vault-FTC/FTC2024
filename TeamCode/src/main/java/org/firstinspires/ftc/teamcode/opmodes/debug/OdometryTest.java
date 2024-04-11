@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.Odometry;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
-import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
+import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 @Disabled
 @TeleOp(name = "odo test")
@@ -16,7 +16,7 @@ public class OdometryTest extends OpMode {
 
     @Override
     public void init() {
-        WebdashboardServer.getInstance();
+        Server.getInstance();
         odometry = new Odometry(hardwareMap);
     }
 

@@ -26,9 +26,9 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 
 
-public class WebdashboardServer extends WebSocketServer {
+public class Server extends WebSocketServer {
 
-    private static WebdashboardServer instance = null;
+    private static Server instance = null;
 
     public static final int port = 5837;
 
@@ -45,6 +45,7 @@ public class WebdashboardServer extends WebSocketServer {
 
     public DashboardLayout getLayout(String id) {
         for (DashboardLayout layout : layouts) {
+            log(layout.id + " " + id);
             if (Objects.equals(layout.id, id)) {
                 return layout;
             }
@@ -52,7 +53,7 @@ public class WebdashboardServer extends WebSocketServer {
         return emptyLayout;
     }
 
-    private WebdashboardServer(int port) throws UnknownHostException {
+    private Server(int port) throws UnknownHostException {
         super(new InetSocketAddress(port));
         setReuseAddr(true);
         timer = new ElapsedTime();
@@ -90,26 +91,37 @@ public class WebdashboardServer extends WebSocketServer {
             JsonReader reader = Json.createReader(new StringReader(data));
             JsonObject object = reader.readObject();
             JsonObject message = object.getJsonObject("message");
+            String messageType = object.getString("messageType");
 
-            if (Objects.equals(message.getString("messageType"), "layout state")) {
-                if (!layouts.isEmpty()) {
+            switch (messageType) {
+                case "layout state":
                     layout.update(message);
-                    layout.id = object.getJsonString("id").toString();
-                }
-            } else if (Objects.equals(message.getString("messageType"), "node update")) {
-                layout.updateNode(message);
-            } else if (Objects.equals(message.getString("messageType"), "path update")) {
-                log("got path update");
-                log(getLayout("auto_creator_1").toString());
-                try {
-                    getLayout("auto_creator_1").createNotice("received path message", DashboardLayout.NoticeType.POSITIVE, 8000);
-                    savePath(message);
-                } catch (IOException e) {
-                    log("couldn't save");
-                }
-            } else if (Objects.equals(message.getString("messageType"), "click")) {
-                layout.buttonClicked(message.getString("nodeID"));
+                    layout.id = message.getString("id");
+                    break;
+                case "node update":
+                    layout.updateNode(message);
+                    break;
+                case "path update":
+                    try {
+                        savePath(message, FileType.PATH);
+                        layout.createNotice("Saved path to robot", DashboardLayout.NoticeType.POSITIVE, 8000);
+                    } catch (IOException e) {
+                        log(e.toString());
+                    }
+                    break;
+                case "value update":
+                    try {
+                        savePath(message, FileType.VALUE);
+                        layout.createNotice("Saved value to robot", DashboardLayout.NoticeType.POSITIVE, 8000);
+                    } catch (IOException e) {
+                        log(e.toString());
+                    }
+                    break;
+                case "click":
+                    layout.buttonClicked(message.getString("nodeID"));
+                    break;
             }
+            
         }
     }
 
@@ -128,15 +140,26 @@ public class WebdashboardServer extends WebSocketServer {
         ThreadPool.getDefaultScheduler().submit(() -> broadcast(message.toString()));
     }
 
-    private static void savePath(JsonObject object) throws IOException {
+    private static void savePath(JsonObject object, FileType fileType) throws IOException {
         JsonObject configuration = object.getJsonObject("configuration");
-        JsonObject path = configuration.getJsonObject("path");
-        String fileName = configuration.getJsonString("id").getString().replace(" ", "_") + ".json";
+        JsonObject path = configuration.getJsonObject(fileType.name);
+        String fileName = configuration.getString("id").replace(" ", "_") + ".json";
         File output = new File(storageDir, fileName);
         FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
         OutputStreamWriter writer = new OutputStreamWriter(fileOut);
         writer.write(path.toString());
         writer.close();
+    }
+
+    enum FileType {
+        PATH("path"),
+        VALUE("input");
+
+        final String name;
+
+        FileType(String name) {
+            this.name = name;
+        }
     }
 
     @Override
@@ -156,10 +179,10 @@ public class WebdashboardServer extends WebSocketServer {
         setConnectionLostTimeout(3);
     }
 
-    public static WebdashboardServer getInstance() {
+    public static Server getInstance() {
         if (instance == null) {
             try {
-                instance = new WebdashboardServer(port);
+                instance = new Server(port);
                 RobotLog.v("dashboard server started");
             } catch (UnknownHostException e) {
                 e.printStackTrace();

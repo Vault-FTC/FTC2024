@@ -36,6 +36,8 @@ public class Tele extends Robot {
 
     @Override
     public void init() {
+        // TODO: update this project to the latest SDK version
+
         super.init();
         aprilTagCamera.enable();
         if (alliance == Alliance.RED) {
@@ -45,7 +47,7 @@ public class Tele extends Robot {
         driveController = new GamepadHelper(gamepad1);
         payloadController = new GamepadHelper(gamepad2);
 
-        drive.setDefaultCommand(new DriveDefault(drive, () -> -driveController.leftStickY.getAsDouble(), () -> driveController.leftStickX.getAsDouble(), () -> driveController.rightStickX.getAsDouble()));
+        drive.setDefaultCommand(new DriveDefault(drive, () -> -driveController.leftStickY.getAsDouble(), () -> driveController.leftStickX.getAsDouble(), () -> -driveController.rightStickX.getAsDouble()));
         driveController.leftBumper.onTrue(new InstantCommand(() -> drive.enableSlowMode()));
         driveController.rightBumper.onTrue(new InstantCommand(() -> drive.enableFastMode()));
         driveController.a.and(driveController.b).onTrue(automaticPlace);
@@ -81,13 +83,21 @@ public class Tele extends Robot {
         payloadController.a.onTrue(new InstantCommand(() -> placer.open()));
         payloadController.b.onTrue(new InstantCommand(() -> placer.close()));
 
+        driveController.a.onTrue(new InstantCommand(() -> drive.odometry.setPosition(new Pose2d())));
+
         climber.setDefaultCommand(new ClimbDefault(climber, payloadController.leftStickY));
-        payloadController.dpadUp.onTrue(new InstantCommand(() -> climber.deliverHook()));
-        payloadController.dpadDown.onTrue(new InstantCommand(() -> climber.hookDown()));
+        // payloadController.dpadUp.onTrue(new InstantCommand(() -> climber.deliverHook()));
+        //payloadController.dpadDown.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
+
+        payloadController.dpadDown.onTrue(new InstantCommand(() -> placer.storagePosition()));
+        payloadController.dpadUp.onTrue(new InstantCommand(() -> placer.placePosition()));
+
+        //payloadController.dpadLeft.onTrue(new InstantCommand(() -> placer.open()));
+        //payloadController.dpadRight.onTrue(new InstantCommand(() -> placer.close()));
     }
 
     public void start() {
-        droneShooter.angleAdjuster.setPosition(0.45);
+        //droneShooter.angleAdjuster.setPosition(0.45);
         //droneShooter.release.setPosition(0.0);
     }
 

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.drive;
 import static org.firstinspires.ftc.teamcode.Constants.storageDir;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -156,7 +157,7 @@ public class Path {
         StringBuilder data = new StringBuilder();
         Builder pathBuilder = Path.getBuilder();
         try {
-            File filePath = new File(storageDir, fileName);
+            File filePath = new File(storageDir, fileName + ".json");
             FileInputStream input = new FileInputStream(filePath);
 
             int character;
@@ -166,23 +167,31 @@ public class Path {
 
             JsonReader reader = Json.createReader(new StringReader(data.toString()));
             JsonObject path = reader.readObject();
-            double timeout = parseTimeout(path.getJsonString("timeout").getString());
+            Server.getInstance().log(path.toString());
+            double timeout = parseTimeout(path.getString("timeout"));
             JsonArray array = path.getJsonArray("points");
             for (int i = 0; i < array.size(); i++) {
                 JsonObject object = array.getJsonObject(i);
+                Server.getInstance().log(object.toString());
 
                 JsonObject fieldVector = object.getJsonObject("fieldVector");
                 double x = fieldVector.getJsonNumber("x").doubleValue();
                 double y = fieldVector.getJsonNumber("y").doubleValue();
                 double followRadius = object.getJsonNumber("followRadius").doubleValue();
-                Rotation2d targetFollowRotation = getRotation(object.getJsonString("targetFollowRotation").getString());
-                Rotation2d targetEndRotation = getRotation(object.getJsonString("targetEndRotation").getString());
-                double maxVelocity = object.getJsonNumber("maxVelocity").doubleValue();
+                Rotation2d targetFollowRotation = getRotation(object.get("targetFollowRotation").toString());
+                Rotation2d targetEndRotation = getRotation(object.get("targetEndRotation").toString());
+                double maxVelocity;
+                try {
+                    maxVelocity = object.getJsonNumber("maxVelocity").doubleValue();
+                } catch (NullPointerException e) {
+                    maxVelocity = Double.POSITIVE_INFINITY;
+                }
 
                 pathBuilder.addWaypoint(new Waypoint(x, y, followRadius, targetFollowRotation, targetEndRotation, maxVelocity));
             }
             return pathBuilder.setTimeout(timeout).build();
         } catch (IOException e) {
+            Server.getInstance().log(e.toString());
             e.printStackTrace();
         }
         return new Path();

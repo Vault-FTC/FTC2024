@@ -33,13 +33,23 @@ public class Placer extends Subsystem {
         touchSensor = hardwareMap.get(TouchSensor.class, "placerTouch");
     }
 
+    public void placePosition() {
+        lifter0.setPosition(Constants.Placer.lifter0PlacePosition);
+        lifter1.setPosition(Constants.Placer.lifter1PlacePosition);
+    }
+
+    public void storagePosition() {
+        lifter0.setPosition(Constants.Placer.lifter0StoragePosition);
+        lifter1.setPosition(Constants.Placer.lifter1StoragePosition);
+        placer.setPosition(Constants.Placer.closePosition);
+    }
+
     public void open() {
-        lifter0.setPosition(Constants.Placer.placePosition);
-        lifter1.setPosition(Constants.Placer.placePosition);
+        placer.setPosition(Constants.Placer.openPosition);
     }
 
     public void close() {
-        lifter0.setPosition(Constants.Placer.storagePosition);
+        placer.setPosition(Constants.Placer.closePosition);
     }
 
     public double getDistance() {

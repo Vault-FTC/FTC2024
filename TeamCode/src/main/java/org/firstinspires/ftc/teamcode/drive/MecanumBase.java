@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.control.PIDController;
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 import java.util.function.Supplier;
 
@@ -78,10 +80,10 @@ public class MecanumBase {
         strafe *= 1.41;
 
         double[] wheelSpeeds = { // Order: lf, rf, lb, rb
-                drive - strafe - turn,
-                drive + strafe + turn,
                 drive + strafe - turn,
-                drive - strafe + turn
+                drive - strafe + turn,
+                drive - strafe - turn,
+                drive + strafe + turn
         };
 
         double largest = 1.0;
@@ -126,6 +128,17 @@ public class MecanumBase {
     }
 
     public void driveToPosition(Waypoint targetPoint, boolean useEndpointHeading) {
+        DashboardLayout layout = Server.getInstance().getLayout("dashboard_0");
+        driveController.setGains(new PIDController.PIDGains(
+                layout.getDoubleValue("drive kP", 0.05),
+                layout.getDoubleValue("drive kI", 0.0),
+                layout.getDoubleValue("drive kD", 1.5)));
+        rotController.setGains(new PIDController.PIDGains(
+                layout.getDoubleValue("rot kP", 0.075),
+                layout.getDoubleValue("rot kI", 0.00001),
+                layout.getDoubleValue("rot kD", 0.6)));
+
+
         Pose2d botPose = poseSupplier.get();
         Vector2d relativeTargetVector = (new Vector2d(targetPoint.x - botPose.x, targetPoint.y - botPose.y));
         Vector2d movementSpeed = (new Vector2d(driveController.calculate(0, relativeTargetVector.magnitude), relativeTargetVector.angle, false)).rotate(-botPose.rotation.getAngleRadians());
@@ -152,7 +165,7 @@ public class MecanumBase {
         if (rotError > Math.PI && canFlip) {
             rotError = Rotation2d.getError(targetAngle + Math.PI, botPose.rotation.getAngleRadians());
         }
-        double magnitude = movementSpeed.magnitude / (1.5 * Math.pow(Math.abs(rotError), 2) + 1); // originally 0.9 * rotError ^ 2
+        double magnitude = movementSpeed.magnitude; /// (1.5 * Math.pow(Math.abs(rotError), 2) + 1); // originally 0.9 * rotError ^ 2
         magnitude = Range.clip(magnitude, -targetPoint.maxVelocity, targetPoint.maxVelocity);
         movementSpeed = new Vector2d(magnitude, movementSpeed.angle, false);
         rotSpeed = rotController.calculate(0, rotError);

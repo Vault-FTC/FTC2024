@@ -31,7 +31,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Lights;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
-import org.firstinspires.ftc.teamcode.webdashboard.WebdashboardServer;
+import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 import java.util.ArrayList;
 
@@ -59,16 +59,17 @@ public class Robot extends OpMode {
         }
         CommandScheduler.getInstance().clearRegistry();
         CommandScheduler.getInstance().cancelAll();
-        WebdashboardServer.getInstance().newLog(); // Initialize the dashboard server
+        Server.getInstance().newLog(); // Initialize the dashboard server
 
         // Instantiate subsystems
         drive = new Drive(hardwareMap);
         intake = new Intake(hardwareMap.get(DcMotor.class, "intakeMotor"));
+        placer = new Placer(hardwareMap);
         slide = new Slide(
                 hardwareMap.get(DcMotor.class, "slideMotor1"),
                 hardwareMap.get(DcMotor.class, "slideMotor2"),
-                hardwareMap.get(TouchSensor.class, "limit"), true);
-        placer = new Placer(hardwareMap);
+                hardwareMap.get(TouchSensor.class, "limit"),
+                placer, true);
         climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);

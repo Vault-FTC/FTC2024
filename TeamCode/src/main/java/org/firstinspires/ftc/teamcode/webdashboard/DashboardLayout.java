@@ -77,7 +77,7 @@ public class DashboardLayout {
     public static void setNodeValue(String id, String value) {
         if (Constants.debugMode) {
             JsonObject jsonObject = getNodeData(id, value);
-            ThreadPool.getDefaultScheduler().submit(() -> WebdashboardServer.getInstance().broadcast(jsonObject.toString()));
+            ThreadPool.getDefaultScheduler().submit(() -> Server.getInstance().broadcast(jsonObject.toString()));
         }
     }
 
