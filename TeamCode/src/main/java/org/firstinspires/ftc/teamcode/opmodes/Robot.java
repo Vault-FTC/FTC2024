@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.teamcode.Constants;
@@ -64,12 +65,13 @@ public class Robot extends OpMode {
         // Instantiate subsystems
         drive = new Drive(hardwareMap);
         intake = new Intake(hardwareMap.get(DcMotor.class, "intakeMotor"));
+        intake.motor.setDirection(DcMotorSimple.Direction.REVERSE);
         placer = new Placer(hardwareMap);
         slide = new Slide(
                 hardwareMap.get(DcMotor.class, "slideMotor1"),
                 hardwareMap.get(DcMotor.class, "slideMotor2"),
                 hardwareMap.get(TouchSensor.class, "limit"),
-                placer, true);
+                placer, false);
         climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);

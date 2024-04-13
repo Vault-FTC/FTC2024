@@ -92,8 +92,8 @@ public class Tele extends Robot {
         payloadController.dpadDown.onTrue(new InstantCommand(() -> placer.storagePosition()));
         payloadController.dpadUp.onTrue(new InstantCommand(() -> placer.placePosition()));
 
-        //payloadController.dpadLeft.onTrue(new InstantCommand(() -> placer.open()));
-        //payloadController.dpadRight.onTrue(new InstantCommand(() -> placer.close()));
+        payloadController.dpadLeft.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
+        payloadController.dpadRight.onTrue(new SlideToPosition(slide, 0));
     }
 
     public void start() {

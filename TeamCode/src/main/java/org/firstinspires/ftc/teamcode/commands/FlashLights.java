@@ -16,6 +16,7 @@ public class FlashLights extends Command {
         this.lights = lights;
         this.cycleTime = cycleTime;
         this.pattern = pattern;
+        addRequirements(lights);
     }
 
     public FlashLights(Lights lights, int cycleTime) {

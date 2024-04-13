@@ -1,10 +1,15 @@
 package org.firstinspires.ftc.teamcode.webdashboard;
 
+import static org.firstinspires.ftc.teamcode.Constants.storageDir;
+
 import com.qualcomm.robotcore.util.ThreadPool;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.java_websocket.WebSocket;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -12,7 +17,6 @@ import java.util.Objects;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-import javax.json.JsonString;
 import javax.json.JsonValue;
 
 public class DashboardLayout {
@@ -94,10 +98,10 @@ public class DashboardLayout {
     public void update(JsonObject object) {
         ArrayList<DashboardNode> nodes = new ArrayList<>();
         JsonArray jsonValues = object.getJsonArray("layout");
-        id = object.getJsonString("id").toString();
+        id = object.getString("id");
         for (JsonValue jsonValue : jsonValues) {
             JsonObject node = jsonValue.asJsonObject();
-            nodes.add(new DashboardNode(node.getString("id"), getNodeType(node.getString("type")), String.valueOf(node.get("state"))));
+            nodes.add(new DashboardNode(node.getString("id"), getNodeType(node.getString("type")), node.getString("state")));
         }
         this.nodes = nodes;
     }
@@ -107,7 +111,8 @@ public class DashboardLayout {
         String nodeID = configuration.getString("id");
         for (DashboardNode node : nodes) {
             if (Objects.equals(node.id, nodeID)) {
-                node.state = ((JsonString) Objects.requireNonNull(configuration.get("state"))).getString();
+                node.state = Objects.requireNonNull(configuration.getString("state"));
+                Server.getInstance().log(node.state);
                 return;
             }
         }
@@ -120,13 +125,15 @@ public class DashboardLayout {
                     throw new IllegalArgumentException("Requested node is not an input");
                 }
                 try {
+                    Server.getInstance().log(node.state);
                     return Double.parseDouble(node.state);
                 } catch (NumberFormatException e) {
+                    Server.getInstance().log(e.toString());
                     return defaultValue;
                 }
             }
         }
-        throw new IllegalArgumentException("Requested node does not exist");
+        return defaultValue;
     }
 
     public boolean getBooleanValue(String id) {
@@ -138,7 +145,7 @@ public class DashboardLayout {
                 return Boolean.parseBoolean(node.state);
             }
         }
-        throw new IllegalArgumentException("Requested node does not exist");
+        return false;
     }
 
     public String getInputValue(String id) {
@@ -150,7 +157,7 @@ public class DashboardLayout {
                 return node.state;
             }
         }
-        throw new IllegalArgumentException("Requested node does not exist");
+        return "";
     }
 
     public String getSelectedValue(String id) {
@@ -162,7 +169,7 @@ public class DashboardLayout {
                 return node.state;
             }
         }
-        throw new IllegalArgumentException("Requested node does not exist");
+        return "";
     }
 
     public void buttonClicked(String id) {
@@ -225,6 +232,44 @@ public class DashboardLayout {
             Type(String name) {
                 this.name = name;
             }
+        }
+    }
+
+    public static String loadString(String fileName) {
+        StringBuilder data = new StringBuilder();
+        try {
+            File filePath = new File(storageDir, fileName + ".json");
+            FileInputStream input = new FileInputStream(filePath);
+
+            int character;
+            while ((character = input.read()) != -1) {
+                data.append((char) character);
+            }
+
+            return data.toString();
+        } catch (IOException e) {
+            Server.getInstance().log(e.toString());
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+
+    public static double loadDouble(String fileName, double defaultValue) {
+        try {
+            return Double.parseDouble(loadString(fileName));
+        } catch (NumberFormatException e) {
+            Server.getInstance().log(e.toString());
+            return defaultValue;
+        }
+    }
+
+    public static boolean loadBoolean(String fileName) {
+        try {
+            return Boolean.parseBoolean(loadString(fileName));
+        } catch (NumberFormatException e) {
+            Server.getInstance().log(e.toString());
+            return false;
         }
     }
 

@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.control.PIDController;
 import org.firstinspires.ftc.teamcode.utils.PairedEncoder;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 public class Slide extends Subsystem {
 
@@ -27,9 +28,10 @@ public class Slide extends Subsystem {
         this.motor2 = motor2;
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
-        encoder = new PairedEncoder(motor2, true);
+        motor2.setDirection(DcMotorSimple.Direction.REVERSE);
+        encoder = new PairedEncoder(motor2, false);
         encoder.reset();
+        targetPosition = 0;
         this.limit = limit;
         this.placer = placer;
         controller = new PIDController(0.015, 0.0, 0.1);
@@ -46,27 +48,34 @@ public class Slide extends Subsystem {
             speed = 0;
         }
         if (speed > 0 && encoder.getPosition() > Constants.Slide.preparePlacerPosition) {
-            //placer.placePosition();
+            placer.placePosition();
         } else if (speed < 0) {
-            //placer.storagePosition();
+            placer.storagePosition();
         }
         motor1.setPower(speed);
         motor2.setPower(-speed);
         DashboardLayout.setNodeValue("slide speed", speed);
-        DashboardLayout.setNodeValue("slide pose", encoder.getPosition());
         DashboardLayout.setNodeValue("slide limit", limit.isPressed());
     }
-
 
     public void drive(double speed) {
         if (limit.isPressed()) {
             encoder.reset();
         }
-        runMotor(speed);
+        double feedforward = speed > 0 ? Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.3) : 0;
+        runMotor(speed + feedforward);
+    }
+
+    public void stop() {
+        drive(0);
     }
 
     public void setTargetPosition(int targetPosition) {
         this.targetPosition = targetPosition;
+    }
+
+    public int getTargetPosition() {
+        return targetPosition;
     }
 
     public boolean atTargetPosition() {
@@ -75,5 +84,13 @@ public class Slide extends Subsystem {
 
     public void driveToPosition() {
         drive(-Range.clip(controller.calculate(encoder.getPosition(), targetPosition), -1, 1));
+    }
+
+    @Override
+    public void periodic() {
+        controller.setP(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kP", 0));
+        controller.setD(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kD", 0));
+        DashboardLayout.setNodeValue("slide pose", encoder.getPosition());
+        DashboardLayout.setNodeValue("slide target", targetPosition);
     }
 }

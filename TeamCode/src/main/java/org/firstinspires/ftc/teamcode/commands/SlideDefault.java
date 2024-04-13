@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 import java.util.function.DoubleSupplier;
 
@@ -19,6 +19,11 @@ public class SlideDefault extends Command {
 
     @Override
     public void execute() {
-        if (Constants.ControlSettings.slideManualControl) subsystem.drive(-speed.getAsDouble());
+        double speed = this.speed.getAsDouble();
+        if (Math.abs(speed) > 0) {
+            subsystem.drive(speed);
+            DashboardLayout.setNodeValue("slide target", subsystem.getTargetPosition());
+        }
     }
+
 }

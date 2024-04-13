@@ -5,7 +5,6 @@ import android.os.Environment;
 import org.firstinspires.ftc.teamcode.control.PIDController.PIDGains;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
-import org.firstinspires.ftc.teamcode.drive.Vector2d;
 
 import java.io.File;
 
@@ -27,17 +26,19 @@ public class Constants {
     }
 
     public static final class Slide {
-        public static final int preparePlacerPosition = 800;
+        public static final int preparePlacerPosition = 400;
         public static final int maxExtensionPosition = 1500;
         public static final int pidDeadband = 50;
-        public static final int defaultPlacePosition = 1000;
+        public static final int defaultPlacePosition = 600;
+
+        public static final double feedForward = 0.2;
     }
 
     public static final class Placer {
-        public static final double lifter0PlacePosition = 0.3;
-        public static final double lifter1PlacePosition = 0.5;
-        public static final double lifter0StoragePosition = 0.1;
-        public static final double lifter1StoragePosition = 0.8;
+        public static final double lifter0PlacePosition = 0.1;
+        public static final double lifter1PlacePosition = 0.7;
+        public static final double lifter0StoragePosition = 0.3;
+        public static final double lifter1StoragePosition = 0.5;
         public static final double openPosition = 0.56;
         public static final double closePosition = 0.62;
     }
@@ -62,7 +63,7 @@ public class Constants {
         public static final int lookBehindFrames = 30;
         public static final double useAprilTagMaxXIn = 50;
         public static final double useAprilTagMaxRangeIn = 35;
-        public static Vector2d camToRobot = new Vector2d(-5.73, -8.82); // This assumes that the camera's euler angles are always the same as the robot, because I don't want to write a bunch of code for rotation matrices...
+        public static Pose2d camRelativeToBot = new Pose2d(-5.73, -8.82, new Rotation2d(Math.PI)); // This assumes that the camera's euler angles are always the same as the robot, because I don't want to write a bunch of code for rotation matrices...
         public static final Pose2d[] backdropTagPoses = {
                 new Pose2d(10.5, 29.381, new Rotation2d(Math.PI / 2)),
                 new Pose2d(10.5, 35.381, new Rotation2d(Math.PI / 2)),

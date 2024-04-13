@@ -45,7 +45,6 @@ public class Server extends WebSocketServer {
 
     public DashboardLayout getLayout(String id) {
         for (DashboardLayout layout : layouts) {
-            log(layout.id + " " + id);
             if (Objects.equals(layout.id, id)) {
                 return layout;
             }
@@ -91,7 +90,7 @@ public class Server extends WebSocketServer {
             JsonReader reader = Json.createReader(new StringReader(data));
             JsonObject object = reader.readObject();
             JsonObject message = object.getJsonObject("message");
-            String messageType = object.getString("messageType");
+            String messageType = message.getString("messageType");
 
             switch (messageType) {
                 case "layout state":
@@ -103,7 +102,7 @@ public class Server extends WebSocketServer {
                     break;
                 case "path update":
                     try {
-                        savePath(message, FileType.PATH);
+                        savePath(message);
                         layout.createNotice("Saved path to robot", DashboardLayout.NoticeType.POSITIVE, 8000);
                     } catch (IOException e) {
                         log(e.toString());
@@ -111,7 +110,7 @@ public class Server extends WebSocketServer {
                     break;
                 case "value update":
                     try {
-                        savePath(message, FileType.VALUE);
+                        saveValue(message);
                         layout.createNotice("Saved value to robot", DashboardLayout.NoticeType.POSITIVE, 8000);
                     } catch (IOException e) {
                         log(e.toString());
@@ -121,7 +120,7 @@ public class Server extends WebSocketServer {
                     layout.buttonClicked(message.getString("nodeID"));
                     break;
             }
-            
+
         }
     }
 
@@ -140,14 +139,25 @@ public class Server extends WebSocketServer {
         ThreadPool.getDefaultScheduler().submit(() -> broadcast(message.toString()));
     }
 
-    private static void savePath(JsonObject object, FileType fileType) throws IOException {
+    private static void savePath(JsonObject object) throws IOException {
         JsonObject configuration = object.getJsonObject("configuration");
-        JsonObject path = configuration.getJsonObject(fileType.name);
+        JsonObject path = configuration.getJsonObject("path");
         String fileName = configuration.getString("id").replace(" ", "_") + ".json";
         File output = new File(storageDir, fileName);
         FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
         OutputStreamWriter writer = new OutputStreamWriter(fileOut);
         writer.write(path.toString());
+        writer.close();
+    }
+
+    private static void saveValue(JsonObject object) throws IOException {
+        JsonObject configuration = object.getJsonObject("configuration");
+        String value = configuration.getString("input");
+        String fileName = configuration.getString("id").replace(" ", "_") + ".txt";
+        File output = new File(storageDir, fileName);
+        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
+        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
+        writer.write(value);
         writer.close();
     }
 
