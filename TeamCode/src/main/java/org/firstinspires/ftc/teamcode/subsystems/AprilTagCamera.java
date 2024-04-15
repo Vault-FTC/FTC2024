@@ -37,7 +37,8 @@ public class AprilTagCamera extends Subsystem {
     public AprilTagCamera(HardwareMap hardwareMap, Supplier<Pose2d> poseSupplier) {
         this.poseSupplier = poseSupplier;
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
-        aprilTagProcessor.setDecimation(2);
+        aprilTagProcessor.setDecimation(0);
+        aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.OPENCV_IPPE_SQUARE);
         visionPortal = new VisionPortal.Builder()
                 .setCamera(hardwareMap.get(WebcamName.class, "backCam"))
                 .addProcessor(aprilTagProcessor)
@@ -51,9 +52,9 @@ public class AprilTagCamera extends Subsystem {
         Pose2d camPose = new Pose2d(
                 tagPose.x - relativeCoordinates.x,
                 tagPose.y - relativeCoordinates.y,
-                Constants.Vision.useAprilTagHeading && Math.abs(detection.ftcPose.yaw) < Constants.Vision.aprilTagHeadingThresholdDegrees ? Rotation2d.fromDegrees(tagPose.rotation.getAngleDegrees() - detection.ftcPose.yaw) : new Rotation2d(poseSupplier.get().rotation.getAngleRadians() - Math.PI));
-        Vector2d relativeBotCoordinates = Constants.Vision.camRelativeToBot.rotate(camPose.rotation.getAngleRadians());
-        return new Pose2d(camPose.x + relativeBotCoordinates.x, camPose.y + relativeBotCoordinates.y, new Rotation2d(camPose.rotation.getAngleRadians() - Constants.Vision.camRelativeToBot.rotation.getAngleRadians()));
+                Constants.Vision.useAprilTagHeading && Math.abs(detection.ftcPose.yaw) < Constants.Vision.aprilTagHeadingThresholdDegrees || true ? Rotation2d.fromDegrees(tagPose.rotation.getAngleDegrees() - detection.ftcPose.yaw) : new Rotation2d(poseSupplier.get().rotation.getAngleRadians() - Math.PI));
+        Vector2d relativeBotCoordinates = Constants.Vision.camToRobot.rotate(camPose.rotation.getAngleRadians());
+        return new Pose2d(camPose.x + relativeBotCoordinates.x, camPose.y + relativeBotCoordinates.y, new Rotation2d(camPose.rotation.getAngleRadians() + Math.PI));
     }
 
     private void adjustBotPose() {
@@ -103,7 +104,7 @@ public class AprilTagCamera extends Subsystem {
     public void periodic() {
         Pose2d botPose = poseSupplier.get();
         boolean withinRange = Math.abs(Rotation2d.signed_minusPI_to_PI(botPose.rotation.getAngleRadians() + Math.PI / 2)) < Math.toRadians(Constants.Vision.turnCamOnThresholdDegrees) && botPose.x < Constants.Vision.useAprilTagMaxXIn;
-        if (withinRange && cameraEnabled) {
+        if (withinRange && cameraEnabled || true) {
             if (!usingCamera) {
                 usingCamera = true;
                 try {
@@ -116,7 +117,7 @@ public class AprilTagCamera extends Subsystem {
         } else if (usingCamera) {
             usingCamera = false;
             try {
-                visionPortal.stopStreaming();
+                //visionPortal.stopStreaming();
             } catch (RuntimeException e) {
                 e.printStackTrace();
             }

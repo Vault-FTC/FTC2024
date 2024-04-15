@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.teamcode.Constants;
@@ -30,6 +29,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DroneShooter;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
 import org.firstinspires.ftc.teamcode.subsystems.Lights;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
+import org.firstinspires.ftc.teamcode.subsystems.PurplePixelPlacer;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.Server;
@@ -46,8 +46,10 @@ public class Robot extends OpMode {
     public Lights lights;
     public AprilTagCamera aprilTagCamera;
     public DroneShooter droneShooter;
-
+    public PurplePixelPlacer purplePixelPlacer;
     public static Pose2d botPose = null;
+    public static Pose2d blueBackdropPose = new Pose2d(17.0, 30, new Rotation2d(-Math.PI / 2));
+    public static Pose2d redBackdropPose = new Pose2d(17.0, 110, new Rotation2d(-Math.PI / 2));
     public static int slidePose = 0;
     public static Rotation2d fieldCentricOffset = new Rotation2d();
 
@@ -65,7 +67,6 @@ public class Robot extends OpMode {
         // Instantiate subsystems
         drive = new Drive(hardwareMap);
         intake = new Intake(hardwareMap.get(DcMotor.class, "intakeMotor"));
-        intake.motor.setDirection(DcMotorSimple.Direction.REVERSE);
         placer = new Placer(hardwareMap);
         slide = new Slide(
                 hardwareMap.get(DcMotor.class, "slideMotor1"),
@@ -77,6 +78,7 @@ public class Robot extends OpMode {
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
         aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
         droneShooter = new DroneShooter(hardwareMap);
+        purplePixelPlacer = new PurplePixelPlacer(hardwareMap);
     }
 
     @Override
@@ -89,6 +91,11 @@ public class Robot extends OpMode {
         CommandScheduler.getInstance().run();
         botPose = drive.odometry.getPose();
         slidePose = slide.encoder.getPosition();
+    }
+
+    @Override
+    public void stop() {
+        CommandScheduler.getInstance().clearRegistry();
     }
 
     private Path getToBackdropPath(Waypoint backdropWaypoint) {

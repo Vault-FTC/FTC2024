@@ -42,4 +42,9 @@ public class Waypoint extends Vector2d implements WaypointGenerator {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "x: " + x + " y: " + y + " follow radius: " + followRadius + " target follow rot: " + Rotation2d.stringOf(targetFollowRotation) + " target end rot: " + Rotation2d.stringOf(targetEndRotation) + " max vel: " + maxVelocity;
+    }
+
 }

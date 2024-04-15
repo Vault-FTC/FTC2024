@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -16,7 +16,7 @@ public class Placer extends Subsystem {
 
     private final Servo placer;
 
-    public ColorRangeSensor distanceSensor;
+    public DistanceSensor distanceSensor;
     public final TouchSensor touchSensor;
 
     public Placer(HardwareMap hardwareMap) {
@@ -29,7 +29,7 @@ public class Placer extends Subsystem {
         placer = hardwareMap.get(Servo.class, "placer");
         placer.setDirection(Servo.Direction.FORWARD);
         placer.close();
-        distanceSensor = hardwareMap.get(ColorRangeSensor.class, "distanceSensor");
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
         touchSensor = hardwareMap.get(TouchSensor.class, "placerTouch");
     }
 

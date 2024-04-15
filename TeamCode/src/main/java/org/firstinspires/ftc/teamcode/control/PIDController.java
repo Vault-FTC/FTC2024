@@ -8,8 +8,10 @@ public class PIDController {
     private double kD;
     private double i;
     private double lastMeasurement = 0;
+    private double lastSetpoint = 0;
     private double minIntegralErr = 0;
     private double maxIntegralErr = Double.POSITIVE_INFINITY;
+    public boolean resetIntegralOnSetPointChange = false;
 
     private final ElapsedTime timer;
     private double lastTimestamp = 0;
@@ -79,12 +81,20 @@ public class PIDController {
         double p = kP * error;
         double d = kD * (measurement - lastMeasurement) / dt; // This does essentially the same thing as using de/dt. The only difference is that when the setpoint changes the output won't spike.
         lastMeasurement = measurement;
+        if (lastSetpoint != setpoint && resetIntegralOnSetPointChange) {
+            i = 0;
+        }
+        lastSetpoint = setpoint;
         if (Math.abs(error) > Math.abs(minIntegralErr) && Math.abs(error) < Math.abs(maxIntegralErr)) {
             i += kI * error * dt;
             return new double[]{p, i, d};
         } else {
             return new double[]{p, 0, d};
         }
+    }
+
+    public double getP() {
+        return kP;
     }
 
     public static class PIDGains {

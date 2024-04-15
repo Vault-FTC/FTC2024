@@ -189,7 +189,12 @@ public class Path {
 
                 pathBuilder.addWaypoint(new Waypoint(x, y, followRadius, targetFollowRotation, targetEndRotation, maxVelocity));
             }
-            return pathBuilder.setTimeout(timeout).build();
+            Path loaded = pathBuilder.setTimeout(timeout).build();
+            Server.getInstance().log("fileName: ");
+            for (WaypointGenerator waypointGenerator : loaded.waypoints) {
+                Server.getInstance().log(waypointGenerator.toString());
+            }
+            return loaded;
         } catch (IOException e) {
             Server.getInstance().log(e.toString());
             e.printStackTrace();

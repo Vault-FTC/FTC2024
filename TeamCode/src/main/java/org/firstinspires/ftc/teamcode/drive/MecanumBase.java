@@ -51,6 +51,8 @@ public class MecanumBase {
         rb = rightBack;
         setToCoastMode();
         this.poseSupplier = poseSupplier;
+        driveController.resetIntegralOnSetPointChange = true;
+        rotController.resetIntegralOnSetPointChange = true;
         timer.startTime();
     }
 

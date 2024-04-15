@@ -89,4 +89,11 @@ public class Rotation2d {
         }
         return new Rotation2d(Math.atan2(y, x));
     }
+
+    public static String stringOf(Rotation2d rotation2d) {
+        if (rotation2d == null) {
+            return "null";
+        }
+        return "angle(" + rotation2d.angle + ")";
+    }
 }

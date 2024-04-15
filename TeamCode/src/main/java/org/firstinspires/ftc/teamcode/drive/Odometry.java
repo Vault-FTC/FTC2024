@@ -11,7 +11,7 @@ public class Odometry {
 
     public static final class Params {
         public static final double trackWidth = 13.658011373578302712160979877515;//13.543307086614173228346456692913;
-        public static final double horizontalDist = 7.80; //7.35
+        public static final double horizontalDist = 7.5035;
         public static double inPerTick = 0.002968431495;
     }
 
@@ -27,9 +27,9 @@ public class Odometry {
 
     public Odometry(HardwareMap hardwareMap) {
         pose = new Pose2d();
-        parallel0 = new PairedEncoder(hardwareMap.get(DcMotor.class, "lb")); //lf
-        parallel1 = new PairedEncoder(hardwareMap.get(DcMotor.class, "rf")); //lb
-        perpendicular = new PairedEncoder(hardwareMap.get(DcMotor.class, "climbMotor")); //rf
+        parallel0 = new PairedEncoder(hardwareMap.get(DcMotor.class, "rb"), true);
+        parallel1 = new PairedEncoder(hardwareMap.get(DcMotor.class, "lb"), true);
+        perpendicular = new PairedEncoder(hardwareMap.get(DcMotor.class, "climbMotor"));
         resetEncoders();
     }
 

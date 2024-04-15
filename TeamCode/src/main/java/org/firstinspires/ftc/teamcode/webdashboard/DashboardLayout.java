@@ -125,7 +125,6 @@ public class DashboardLayout {
                     throw new IllegalArgumentException("Requested node is not an input");
                 }
                 try {
-                    Server.getInstance().log(node.state);
                     return Double.parseDouble(node.state);
                 } catch (NumberFormatException e) {
                     Server.getInstance().log(e.toString());

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import androidx.core.math.MathUtils;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.TouchSensor;
@@ -23,18 +25,22 @@ public class Slide extends Subsystem {
     private int targetPosition;
     private final int polarity;
 
+    private double lastSpeed;
+
     public Slide(DcMotor motor1, DcMotor motor2, TouchSensor limit, Placer placer, boolean reversed) {
         this.motor1 = motor1;
         this.motor2 = motor2;
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor1.setDirection(DcMotorSimple.Direction.REVERSE);
         motor2.setDirection(DcMotorSimple.Direction.REVERSE);
         encoder = new PairedEncoder(motor2, false);
         encoder.reset();
         targetPosition = 0;
         this.limit = limit;
         this.placer = placer;
-        controller = new PIDController(0.015, 0.0, 0.1);
+        controller = new PIDController(0.0017, 0.0, 0.000003);
+        controller.resetIntegralOnSetPointChange = true;
         polarity = reversed ? -1 : 1;
     }
 
@@ -52,6 +58,15 @@ public class Slide extends Subsystem {
         } else if (speed < 0) {
             placer.storagePosition();
         }
+        double accelMax = Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide accel", 10.35);
+        if (speed > 0) {
+            speed = Math.min(lastSpeed + accelMax, speed);
+        } else {
+            speed = Math.max(lastSpeed - accelMax, speed);
+        }
+        speed = MathUtils.clamp(speed, -1.0, 1.0);
+        speed = Math.max(-Constants.Slide.maxDownSpeed, speed);
+        lastSpeed = speed;
         motor1.setPower(speed);
         motor2.setPower(-speed);
         DashboardLayout.setNodeValue("slide speed", speed);
@@ -61,8 +76,10 @@ public class Slide extends Subsystem {
     public void drive(double speed) {
         if (limit.isPressed()) {
             encoder.reset();
+            placer.close();
+            targetPosition = Math.max(targetPosition, 0);
         }
-        double feedforward = speed > 0 ? Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.3) : 0;
+        double feedforward = speed > 0 ? Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2) : 0;
         runMotor(speed + feedforward);
     }
 
@@ -83,13 +100,15 @@ public class Slide extends Subsystem {
     }
 
     public void driveToPosition() {
-        drive(-Range.clip(controller.calculate(encoder.getPosition(), targetPosition), -1, 1));
+        DashboardLayout.setNodeValue("calculated power", String.valueOf(controller.calculate(encoder.getPosition(), targetPosition)));
+        drive(Range.clip(controller.calculate(encoder.getPosition(), targetPosition), -1, 1));
     }
 
     @Override
     public void periodic() {
-        controller.setP(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kP", 0));
-        controller.setD(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kD", 0));
+        controller.setP(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kP", 0.0017));
+        controller.setI(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kI", 0.0000008));
+        controller.setD(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kD", 0.000003));
         DashboardLayout.setNodeValue("slide pose", encoder.getPosition());
         DashboardLayout.setNodeValue("slide target", targetPosition);
     }
