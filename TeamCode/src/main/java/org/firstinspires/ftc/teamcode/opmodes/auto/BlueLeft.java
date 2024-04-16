@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Constants.Drive.StartPositions;
@@ -22,7 +23,8 @@ import org.firstinspires.ftc.teamcode.vision.Pipeline;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "Blue Left", group = "blue")
+@Disabled
+@Autonomous(name = "Blue Left_old", group = "blue")
 public class BlueLeft extends Auton {
     ArrayList<Path> paths = new ArrayList<>();
 

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import static org.firstinspires.ftc.teamcode.Constants.fieldLengthIn;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.Constants.Drive.StartPositions;
@@ -23,7 +24,8 @@ import org.firstinspires.ftc.teamcode.vision.Pipeline;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "Red Left", group = "red")
+@Disabled
+@Autonomous(name = "Red Left_old", group = "red")
 public class RedLeft extends Auton {
     ArrayList<Path> paths = new ArrayList<>();
 
