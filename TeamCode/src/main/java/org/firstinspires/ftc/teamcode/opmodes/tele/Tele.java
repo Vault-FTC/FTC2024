@@ -31,8 +31,6 @@ public class Tele extends Robot {
 
     @Override
     public void init() {
-        // TODO: update this project to the latest SDK version
-
         super.init();
         aprilTagCamera.enable();
         if (alliance == Alliance.RED) {

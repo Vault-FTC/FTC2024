@@ -4,7 +4,6 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
@@ -32,12 +31,11 @@ public class Pipeline extends OpenCvPipeline {
 
         Mat circles = new Mat();
 
-        Imgproc.HoughCircles(frame, circles, Imgproc.HOUGH_GRADIENT, 1, 20, 100, 35, 15, 75);
+        Imgproc.HoughCircles(frame, circles, Imgproc.HOUGH_GRADIENT, 1, 20, 100, 35, 30, 80);
 
         double xSum = 0;
         double ySum = 0;
         double propX = 0;
-        double propY = 0;
 
         if (!circles.empty()) {
             for (int i = 0; i < circles.cols(); i++) {
@@ -45,18 +43,15 @@ public class Pipeline extends OpenCvPipeline {
                 ySum += circles.get(0, i)[1];
             }
             propX = xSum / circles.cols(); // Divide by the number of circles detected
-            propY = ySum / circles.cols();
         }
-
-        Point rectSize = new Point(200, 200);
 
         if (processing) {
             if (circles.empty() || propX > 1240) {
-                propLocation = PropLocation.RIGHT;
-            } else if (propX < 640) {
                 propLocation = PropLocation.LEFT;
-            } else {
+            } else if (propX < 640) {
                 propLocation = PropLocation.CENTER;
+            } else {
+                propLocation = PropLocation.RIGHT;
             }
 
             locationHistory.add(propLocation.ordinal());

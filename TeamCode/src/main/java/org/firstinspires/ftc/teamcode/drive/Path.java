@@ -167,13 +167,10 @@ public class Path {
 
             JsonReader reader = Json.createReader(new StringReader(data.toString()));
             JsonObject path = reader.readObject();
-            Server.getInstance().log(path.toString());
             double timeout = parseTimeout(path.getString("timeout"));
             JsonArray array = path.getJsonArray("points");
             for (int i = 0; i < array.size(); i++) {
                 JsonObject object = array.getJsonObject(i);
-                Server.getInstance().log(object.toString());
-
                 JsonObject fieldVector = object.getJsonObject("fieldVector");
                 double x = fieldVector.getJsonNumber("x").doubleValue();
                 double y = fieldVector.getJsonNumber("y").doubleValue();
@@ -190,10 +187,6 @@ public class Path {
                 pathBuilder.addWaypoint(new Waypoint(x, y, followRadius, targetFollowRotation, targetEndRotation, maxVelocity));
             }
             Path loaded = pathBuilder.setTimeout(timeout).build();
-            Server.getInstance().log("fileName: ");
-            for (WaypointGenerator waypointGenerator : loaded.waypoints) {
-                Server.getInstance().log(waypointGenerator.toString());
-            }
             return loaded;
         } catch (IOException e) {
             Server.getInstance().log(e.toString());

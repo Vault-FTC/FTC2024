@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
+import org.firstinspires.ftc.teamcode.control.PIDController;
 import org.firstinspires.ftc.teamcode.drive.MecanumBase;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.drive.WaypointGenerator;
@@ -25,6 +26,8 @@ public class BackdropHome extends Command {
 
     private boolean lastAtWaypoint = false;
     private double timestamp = -1;
+    private PIDController.PIDGains initialBaseGains;
+    private PIDController.PIDGains initialRotGains;
 
     public BackdropHome(MecanumBase base, Slide slide, Placer placer, WaypointGenerator futureBackdropWaypoint, double followTimeout, double endTime) {
         this.futureBackdropWaypoint = futureBackdropWaypoint;
@@ -42,6 +45,8 @@ public class BackdropHome extends Command {
         base.driveController.setGains(0.1, 0.00001, 4);
         base.rotController.setGains(5.0, 0.0001, 0.6);
         backdropWaypoint = futureBackdropWaypoint.getWaypoint();
+        initialBaseGains = base.driveController.getGains();
+        initialRotGains = base.rotController.getGains();
     }
 
     @Override
@@ -55,7 +60,7 @@ public class BackdropHome extends Command {
         atWaypoint = base.atWaypoint(backdropWaypoint, 0.5, 5)
                 || timeSinceInitialized() > followTimeout
                 || placer.touchSensor.isPressed()
-                || (placer.getDistance() < 2.2 && slide.encoder.getPosition() > 500);
+                || (placer.getDistance() < 4.0 && slide.encoder.getPosition() > 300);
 
         if (atWaypoint && !lastAtWaypoint) {
             timestamp = timeSinceInitialized();
@@ -66,8 +71,8 @@ public class BackdropHome extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        base.driveController.setGains(Constants.Drive.defaultDriveGains);
-        base.rotController.setGains(Constants.Drive.defaultRotGains);
+        base.driveController.setGains(initialBaseGains);
+        base.rotController.setGains(initialRotGains);
     }
 
 }

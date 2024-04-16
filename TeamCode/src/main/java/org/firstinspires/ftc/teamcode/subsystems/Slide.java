@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import android.util.Pair;
+
 import androidx.core.math.MathUtils;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,36 +25,30 @@ public class Slide extends Subsystem {
     private final TouchSensor limit;
     private final Placer placer;
     private int targetPosition;
-    private final int polarity;
-
     private double lastSpeed;
 
-    public Slide(DcMotor motor1, DcMotor motor2, TouchSensor limit, Placer placer, boolean reversed) {
+    public Slide(DcMotor motor1, DcMotor motor2, PairedEncoder encoder, TouchSensor limit, Placer placer) {
         this.motor1 = motor1;
         this.motor2 = motor2;
         motor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor1.setDirection(DcMotorSimple.Direction.REVERSE);
         motor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        encoder = new PairedEncoder(motor2, false);
+        this.encoder = encoder;
         encoder.reset();
         targetPosition = 0;
         this.limit = limit;
         this.placer = placer;
         controller = new PIDController(0.0017, 0.0, 0.000003);
         controller.resetIntegralOnSetPointChange = true;
-        polarity = reversed ? -1 : 1;
-    }
-
-    public Slide(DcMotor motor1, DcMotor motor2, TouchSensor limit, Placer placer) {
-        this(motor1, motor2, limit, placer, false);
     }
 
     private void runMotor(double speed) {
-        speed *= polarity;
+        double feedforward = speed > 0 ? Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2) : 0;
         if (speed > 0 && encoder.getPosition() > Constants.Slide.maxExtensionPosition) {
             speed = 0;
         }
+        speed += feedforward;
         if (speed > 0 && encoder.getPosition() > Constants.Slide.preparePlacerPosition) {
             placer.placePosition();
         } else if (speed < 0) {
@@ -79,8 +75,7 @@ public class Slide extends Subsystem {
             placer.close();
             targetPosition = Math.max(targetPosition, 0);
         }
-        double feedforward = speed > 0 ? Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2) : 0;
-        runMotor(speed + feedforward);
+        runMotor(speed);
     }
 
     public void stop() {
@@ -88,7 +83,7 @@ public class Slide extends Subsystem {
     }
 
     public void setTargetPosition(int targetPosition) {
-        this.targetPosition = targetPosition;
+        this.targetPosition = Math.min(targetPosition, Constants.Slide.maxExtensionPosition);
     }
 
     public int getTargetPosition() {

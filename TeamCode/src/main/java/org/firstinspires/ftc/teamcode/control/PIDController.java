@@ -52,6 +52,10 @@ public class PIDController {
         this.kD = kD;
     }
 
+    public PIDGains getGains() {
+        return new PIDGains(kP, kI, kD);
+    }
+
     /**
      * Defines the range in which the integral term will accumulate.  If the magnitude of the error is outside of this range, the integral will neither accumulate nor be added to the controller output.
      *

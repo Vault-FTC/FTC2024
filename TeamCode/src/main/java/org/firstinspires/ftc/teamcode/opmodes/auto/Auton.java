@@ -7,7 +7,9 @@ import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.vision.Pipeline;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
+import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 public abstract class Auton extends Robot {
@@ -31,9 +33,9 @@ public abstract class Auton extends Robot {
         botPose = startPosition;
         fieldCentricOffset = new Rotation2d(startPosition.rotation.getAngleRadians() + Math.PI);
 
-        propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "backCam"));
+        propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "propCam"));
         visionPipeline = new Pipeline();
-        /*propCam.setPipeline(visionPipeline);
+        propCam.setPipeline(visionPipeline);
 
         propCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -47,7 +49,7 @@ public abstract class Auton extends Robot {
                 telemetry.addData("Camera failed", "");
                 telemetry.update();
             }
-        });*/
+        });
 
 
     }
@@ -64,10 +66,10 @@ public abstract class Auton extends Robot {
         visionPipeline.close();
         try {
             propCam.stopStreaming();
+            propCam.closeCameraDevice();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        propCam.closeCameraDevice();
         autonomousCommand.schedule();
     }
 

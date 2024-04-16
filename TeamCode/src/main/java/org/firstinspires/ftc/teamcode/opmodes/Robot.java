@@ -31,6 +31,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Lights;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
 import org.firstinspires.ftc.teamcode.subsystems.PurplePixelPlacer;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
+import org.firstinspires.ftc.teamcode.utils.PairedEncoder;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
@@ -58,7 +59,7 @@ public class Robot extends OpMode {
     @Override
     public void init() {
         if (botPose == null) {
-            botPose = new Pose2d();
+            botPose = new Pose2d(0, 0, new Rotation2d(-Math.PI));
         }
         CommandScheduler.getInstance().clearRegistry();
         CommandScheduler.getInstance().cancelAll();
@@ -71,8 +72,9 @@ public class Robot extends OpMode {
         slide = new Slide(
                 hardwareMap.get(DcMotor.class, "slideMotor1"),
                 hardwareMap.get(DcMotor.class, "slideMotor2"),
+                new PairedEncoder(hardwareMap.get(DcMotor.class, "lf"), false),
                 hardwareMap.get(TouchSensor.class, "limit"),
-                placer, false);
+                placer);
         climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
