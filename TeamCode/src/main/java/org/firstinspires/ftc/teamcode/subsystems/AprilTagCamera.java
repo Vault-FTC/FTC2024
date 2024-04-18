@@ -17,7 +17,6 @@ import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import org.openftc.easyopencv.OpenCvInternalCamera;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +118,7 @@ public class AprilTagCamera extends Subsystem {
         } else if (usingCamera) {
             usingCamera = false;
             try {
-                //visionPortal.stopStreaming();
+                visionPortal.stopStreaming();
             } catch (RuntimeException e) {
                 e.printStackTrace();
             }

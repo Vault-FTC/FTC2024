@@ -7,29 +7,17 @@ import java.util.function.DoubleSupplier;
 
 public class SlideDefault extends Command {
 
-    Slide subsystem;
-    DoubleSupplier speed;
-
-    private double lastSpeed = 0;
-
-    public SlideDefault(Slide slide, DoubleSupplier speed) {
-        subsystem = slide;
-        this.speed = speed;
-        addRequirements(subsystem);
+    Slide slide;
+    DoubleSupplier speedSupplier;
+    public SlideDefault(Slide slide, DoubleSupplier speedSupplier) {
+        this.slide = slide;
+        this.speedSupplier = speedSupplier;
+        addRequirements(this.slide);
     }
 
     @Override
     public void execute() {
-        double speed = this.speed.getAsDouble();
-        if (speed == 0 && lastSpeed != 0) {
-            subsystem.setTargetPosition(subsystem.encoder.getPosition());
-        }
-        lastSpeed = speed;
-        if (Math.abs(speed) > 0) {
-            subsystem.drive(speed);
-        } else {
-            subsystem.driveToPosition();
-        }
+        slide.mizoom(speedSupplier.getAsDouble());
     }
 
 }

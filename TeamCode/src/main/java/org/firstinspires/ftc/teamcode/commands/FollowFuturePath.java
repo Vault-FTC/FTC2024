@@ -6,6 +6,8 @@ import org.firstinspires.ftc.robotcore.external.Supplier;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
+import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 public class FollowFuturePath extends Command {
     private final Supplier<Path> pathSupplier;
@@ -31,6 +33,7 @@ public class FollowFuturePath extends Command {
 
     @Override
     public void execute() {
+        DashboardLayout layout = Server.getInstance().getLayout("dashboard_0");
         subsystem.base.followPath();
         if (gamepad != null && timeSinceInitialized() > 250 && !gamepad.atRest()) {
             cancel();

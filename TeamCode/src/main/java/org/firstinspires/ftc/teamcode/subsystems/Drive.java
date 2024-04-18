@@ -4,12 +4,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
+import org.firstinspires.ftc.teamcode.control.PIDController;
 import org.firstinspires.ftc.teamcode.drive.MecanumBase;
 import org.firstinspires.ftc.teamcode.drive.Odometry;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 public class Drive extends Subsystem {
     public final MecanumBase base;
@@ -26,15 +27,11 @@ public class Drive extends Subsystem {
                 hardwareMap.get(DcMotor.class, "rb"), odometry::getPose);
         base.lf.setDirection(DcMotorSimple.Direction.REVERSE);
         base.lb.setDirection(DcMotorSimple.Direction.REVERSE);
-        base.driveController.setGains(Constants.Drive.defaultDriveGains);
-        base.rotController.setGains(Constants.Drive.defaultRotGains);
     }
 
     public void drive(double drive, double strafe, double turn, double heading) {
         base.drive(drive * multiplier, strafe * multiplier, turn * multiplier, heading - fieldCentricOffset.getAngleRadians(), false);
-        if (Constants.debugMode) {
-            DashboardLayout.setNodeValue("input", "drive: " + drive + " strafe: " + strafe + " turn: " + turn);
-        }
+        DashboardLayout.setNodeValue("input", "drive: " + drive + " strafe: " + strafe + " turn: " + turn);
     }
 
     public void drive(double drive, double strafe, double turn) {
@@ -70,6 +67,15 @@ public class Drive extends Subsystem {
     public void periodic() {
         odometry.update();
         DashboardLayout.setNodeValue("pose", odometry.getPose().toString());
+        DashboardLayout layout = Server.getInstance().getLayout("dashboard_0");
+        base.driveController.setGains(new PIDController.PIDGains(
+                layout.getDoubleValue("drive kP", 0.1),
+                layout.getDoubleValue("drive kI", 0.0),
+                layout.getDoubleValue("drive kD", 0.0001)));
+        base.rotController.setGains(new PIDController.PIDGains(
+                layout.getDoubleValue("rot kP", 1.0),
+                layout.getDoubleValue("rot kI", 0.0),
+                layout.getDoubleValue("rot kD", 0.0)));
     }
 
 }

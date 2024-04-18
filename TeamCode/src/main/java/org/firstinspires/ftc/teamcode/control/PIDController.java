@@ -97,10 +97,6 @@ public class PIDController {
         }
     }
 
-    public double getP() {
-        return kP;
-    }
-
     public static class PIDGains {
         public final double kP;
         public final double kI;
@@ -110,6 +106,11 @@ public class PIDController {
             this.kP = kP;
             this.kI = kI;
             this.kD = kD;
+        }
+
+        @Override
+        public String toString() {
+            return "kp: " + kP + " kI: " + kI + " kD: " + kD;
         }
     }
 }

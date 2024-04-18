@@ -15,10 +15,10 @@ public class PurplePixelPlacer extends Subsystem {
     }
 
     public void place() {
-        servo.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("purple place", 0));
+        servo.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("purple place", 0.95));
     }
 
     public void retract() {
-        servo.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("purple retract", 0));
+        servo.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("purple retract", 0.6));
     }
 }

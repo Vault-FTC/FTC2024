@@ -40,7 +40,7 @@ public class MecanumBase {
     public DriveState driveState = DriveState.IDLE;
 
     private final Supplier<Pose2d> poseSupplier;
-    public final PIDController driveController = new PIDController(0.2, 0.0, 3.5);
+    public final PIDController driveController = new PIDController(0.0, 0.0, 0);
 
     public final PIDController rotController = new PIDController(2.0, 0.0001, 0.6);
 
@@ -156,7 +156,7 @@ public class MecanumBase {
         if (rotError > Math.PI && canFlip) {
             rotError = Rotation2d.getError(targetAngle + Math.PI, botPose.rotation.getAngleRadians());
         }
-        double magnitude = (1.5 * Math.pow(Math.abs(rotError), 2) + 1); // originally 0.9 * rotError ^ 2
+        double magnitude = movementSpeed.magnitude / (1.5 * Math.pow(Math.abs(rotError), 2) + 1); // originally 0.9 * rotError ^ 2
         magnitude = Range.clip(magnitude, -targetPoint.maxVelocity, targetPoint.maxVelocity);
         movementSpeed = new Vector2d(magnitude, movementSpeed.angle, false);
         rotSpeed = rotController.calculate(0, rotError);

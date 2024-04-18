@@ -8,7 +8,6 @@ import org.firstinspires.ftc.teamcode.commands.DriveDefault;
 import org.firstinspires.ftc.teamcode.commands.IntakeDefault;
 import org.firstinspires.ftc.teamcode.commands.RunIntake;
 import org.firstinspires.ftc.teamcode.commands.SlideCalibrate;
-import org.firstinspires.ftc.teamcode.commands.SlideDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
@@ -16,15 +15,10 @@ import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
-import org.firstinspires.ftc.teamcode.utils.GamepadHelper;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 
 @TeleOp(name = "TeleOp")
 public class Tele extends Robot {
-
-    GamepadHelper driveController;
-    GamepadHelper payloadController;
-
     public static Pose2d backdropPose = blueBackdropPose;
 
     Command automaticPlace;
@@ -37,14 +31,15 @@ public class Tele extends Robot {
             backdropPose = redBackdropPose;
         }
         automaticPlace = getAutomaticPlaceCommand(backdropPose.toWaypoint());
-        driveController = new GamepadHelper(gamepad1);
-        payloadController = new GamepadHelper(gamepad2);
 
         drive.setDefaultCommand(new DriveDefault(drive, () -> -driveController.leftStickY.getAsDouble(), () -> driveController.leftStickX.getAsDouble(), () -> -driveController.rightStickX.getAsDouble()));
         driveController.leftBumper.onTrue(new InstantCommand(() -> drive.enableSlowMode()));
         driveController.rightBumper.onTrue(new InstantCommand(() -> drive.enableFastMode()));
         driveController.a.and(driveController.b).onTrue(automaticPlace);
         driveController.b.and(driveController.x).and(driveController.y).onTrue(new InstantCommand(() -> drive.odometry.setPosition(new Pose2d())));
+        driveController.dpadUp.onTrue(new InstantCommand(() -> climber.deliverHook()));
+        driveController.dpadDown.onTrue(new InstantCommand(() -> climber.hookDown()));
+
         if (botPose == null) {
             botPose = new Pose2d();
         }
@@ -56,18 +51,14 @@ public class Tele extends Robot {
         payloadController.leftTrigger.or(driveController.leftTrigger).whileTrue(new RunIntake(intake, -Constants.Intake.defaultSpeed));
 
         Command shootDrone = new SequentialCommandGroup(
-                new InstantCommand(() -> droneShooter.angleAdjuster.setPosition(0.6)),
+                new InstantCommand(() -> droneShooter.shootAngle()),
                 new WaitCommand(2000),
                 new InstantCommand(() -> {
-                    droneShooter.release.setPosition(0.8
-                    );
+                    droneShooter.releaseAngle();
                 })
         );
-        //payloadController.y.onTrue(shootDrone);
-        //payloadController.x.onTrue(new AutomaticDroneLaunch(drive, shootDrone, gamepad1));
 
-        slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
-        payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition, gamepad2));
+        payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
         payloadController.options.whileTrue(new SlideCalibrate(slide));
         payloadController.options.and(payloadController.b).onTrue(new InstantCommand(() -> slide.encoder.reset()));
         slide.encoder.setPosition(slidePose); // Set the slide position to the last slide position in autonomous
@@ -84,16 +75,15 @@ public class Tele extends Robot {
         payloadController.dpadDown.onTrue(new InstantCommand(() -> placer.storagePosition()));
         payloadController.dpadUp.onTrue(new InstantCommand(() -> placer.placePosition()));
 
-        payloadController.y.onTrue(new InstantCommand(() -> purplePixelPlacer.place()));
-        payloadController.x.onTrue(new InstantCommand(() -> purplePixelPlacer.retract()));
+        payloadController.y.onTrue(shootDrone);
+        //payloadController.x.onTrue(new AutomaticDroneLaunch(drive, shootDrone, gamepad1));
 
         payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
         payloadController.leftBumper.onTrue(new SlideToPosition(slide, -100));
     }
 
     public void start() {
-        //droneShooter.angleAdjuster.setPosition(0.45);
-        //droneShooter.release.setPosition(0.0);
+        droneShooter.storeAngle();
     }
 
     public void loop() {

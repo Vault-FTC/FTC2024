@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.control.PIDController;
 import org.firstinspires.ftc.teamcode.drive.MecanumBase;
@@ -42,8 +41,8 @@ public class BackdropHome extends Command {
     public void initialize() {
         atWaypoint = false;
         lastAtWaypoint = false;
-        base.driveController.setGains(0.1, 0.00001, 4);
-        base.rotController.setGains(5.0, 0.0001, 0.6);
+        //base.driveController.setGains(0.1, 0.00001, 4);
+        //base.rotController.setGains(0.75, 0.0001, 0.6);
         backdropWaypoint = futureBackdropWaypoint.getWaypoint();
         initialBaseGains = base.driveController.getGains();
         initialRotGains = base.rotController.getGains();

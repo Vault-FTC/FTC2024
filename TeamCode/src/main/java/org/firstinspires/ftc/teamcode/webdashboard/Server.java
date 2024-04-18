@@ -99,6 +99,7 @@ public class Server extends WebSocketServer {
                     break;
                 case "node update":
                     layout.updateNode(message);
+                    log("got node update: " + message);
                     break;
                 case "path update":
                     try {

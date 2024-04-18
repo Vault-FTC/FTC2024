@@ -112,7 +112,6 @@ public class DashboardLayout {
         for (DashboardNode node : nodes) {
             if (Objects.equals(node.id, nodeID)) {
                 node.state = Objects.requireNonNull(configuration.getString("state"));
-                Server.getInstance().log(node.state);
                 return;
             }
         }
@@ -127,7 +126,7 @@ public class DashboardLayout {
                 try {
                     return Double.parseDouble(node.state);
                 } catch (NumberFormatException e) {
-                    Server.getInstance().log(e.toString());
+                    Server.getInstance().log(e + "\n + couldn't get double value for id " + id);
                     return defaultValue;
                 }
             }

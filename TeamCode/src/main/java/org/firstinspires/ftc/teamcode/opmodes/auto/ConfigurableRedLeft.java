@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
+import static org.firstinspires.ftc.teamcode.Constants.fieldLengthIn;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.BackdropHome;
+import org.firstinspires.ftc.teamcode.commands.FollowFuturePath;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.DelayUntil;
@@ -18,29 +21,28 @@ import org.firstinspires.ftc.teamcode.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.vision.Pipeline;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
-@Autonomous(name = "Blue Left")
-public class ConfigurableBlueLeft extends Auton {
+@Autonomous(name = "Red Left")
+public class ConfigurableRedLeft extends Auton {
 
     boolean goToStack;
 
-    public ConfigurableBlueLeft() {
-        super(Pipeline.Alliance.BLUE, Constants.Drive.StartPositions.blueLeft);
-        goToStack = DashboardLayout.loadBoolean("stack_BL");
+    public ConfigurableRedLeft() {
+        super(Pipeline.Alliance.RED, Constants.Drive.StartPositions.redRight);
+        goToStack = DashboardLayout.loadBoolean("stack_RL");
     }
 
-    Path leftPath = Path.getBuilder()
-            .addWaypoint(Constants.Drive.StartPositions.blueLeft.toWaypoint()).setTimeout(3000)
-            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.blueLeft.x - 11.375, 26, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(180), 0.8))
+    Path leftPath = Path.getBuilder().setTimeout(3000)
+            .addWaypoint(Constants.Drive.StartPositions.redRight.toWaypoint())
+            .addWaypoint(Constants.Drive.StartPositions.redRight.x - 6, fieldLengthIn - 24)
+            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redRight.x, fieldLengthIn - 29.5, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-135), 0.7))
             .build();
     Path centerPath = Path.getBuilder().setTimeout(3000)
-            .addWaypoint(Constants.Drive.StartPositions.blueLeft.toWaypoint())
-            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.blueLeft.x, 33, Constants.Drive.defaultFollowRadius, Rotation2d.fromDegrees(180), Rotation2d.fromDegrees(180), 0.7))
+            .addWaypoint(Constants.Drive.StartPositions.redRight.toWaypoint())
+            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redRight.x, fieldLengthIn - 37, Constants.Drive.defaultFollowRadius, new Rotation2d(), new Rotation2d(), 0.7))
             .build();
-
     Path rightPath = Path.getBuilder().setTimeout(3000)
-            .addWaypoint(Constants.Drive.StartPositions.blueLeft.toWaypoint())
-            .addWaypoint(Constants.Drive.StartPositions.blueLeft.x - 6, 24)
-            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.blueLeft.x, 29.5, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(135), 0.8))
+            .addWaypoint(Constants.Drive.StartPositions.redRight.toWaypoint())
+            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redRight.x - 11.375, fieldLengthIn - 26, Constants.Drive.defaultFollowRadius, null, new Rotation2d(Math.PI), 0.7))
             .build();
 
     private Path getPhenomenomallyPerfectPurplePlacePath() {
@@ -56,32 +58,33 @@ public class ConfigurableBlueLeft extends Auton {
     }
 
     private Waypoint getYellowPlaceWaypoint() {
-        double x = 17;
-        double y = 33.5;
+        double x = 18;
+        double y = fieldLengthIn - 37;
         switch (visionPipeline.getPropLocation()) {
             case LEFT:
-                y = 27;
+                y = fieldLengthIn - 43;
                 break;
             case CENTER:
-                y = 33.5;
+                y = fieldLengthIn - 35.5;
                 break;
             case RIGHT:
-                y = 39.5;
+                y = fieldLengthIn - 29.5;
                 break;
         }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90), 3);
+        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, new Rotation2d(-Math.PI / 2), new Rotation2d(-Math.PI / 2), 0.5);
     }
+
 
     @Override
     public void init() {
         super.init();
         autonomousCommand = new SequentialCommandGroup(
-                //new FollowFuturePath(this::getPhenomenallyPerfectPurplePlacePath, drive), // Drive to the spike mark
+                new FollowFuturePath(this::getPhenomenomallyPerfectPurplePlacePath, drive), // Drive to the spike mark
                 new InstantCommand(purplePixelPlacer::place), // Place the pixel
-                new WaitCommand(DashboardLayout.loadDouble("wait_time_BL", 1000)), // Wait for the pixel to drop
+                new WaitCommand(DashboardLayout.loadDouble("wait_time_RL", 1000)), // Wait for the pixel to drop
                 new ParallelCommandGroup( // Begin driving away and retract the dropper arm
                         new SequentialCommandGroup(new WaitCommand(1000), new InstantCommand(purplePixelPlacer::retract)),
-                        new FollowPath(Path.loadPath("to_backdrop_BL"), drive)),
+                        new FollowPath(Path.loadPath("to_backdrop_RL"), drive)),
                 new SlideToPosition(slide, Constants.Slide.autoPlacePosition), // Move the slide to the correct position
                 new DelayUntil(slide::atTargetPosition, 3000), // Wait until the slide is close to the correct position
                 new BackdropHome(drive.base, slide, placer, new FutureWaypoint(this::getYellowPlaceWaypoint), 2000, 500), // Home in on the backdrop
@@ -92,7 +95,7 @@ public class ConfigurableBlueLeft extends Auton {
                                 new WaitCommand(750),
                                 new SlideToPosition(slide, Constants.Slide.stowedPosition)
                         ),
-                        new FollowPath(Path.loadPath("park_BL"), drive)
+                        new FollowPath(Path.loadPath("park_RL"), drive)
                 )
         );
     }

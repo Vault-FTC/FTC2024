@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.BackdropHome;
 import org.firstinspires.ftc.teamcode.commands.FlashLights;
 import org.firstinspires.ftc.teamcode.commands.FollowFuturePath;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
+import org.firstinspires.ftc.teamcode.commands.SlideDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
@@ -31,13 +31,15 @@ import org.firstinspires.ftc.teamcode.subsystems.Lights;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
 import org.firstinspires.ftc.teamcode.subsystems.PurplePixelPlacer;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
-import org.firstinspires.ftc.teamcode.utils.PairedEncoder;
+import org.firstinspires.ftc.teamcode.utils.GamepadHelper;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 import java.util.ArrayList;
 
 public class Robot extends OpMode {
+    public GamepadHelper driveController;
+    public GamepadHelper payloadController;
 
     public Drive drive;
     public Intake intake;
@@ -65,16 +67,16 @@ public class Robot extends OpMode {
         CommandScheduler.getInstance().cancelAll();
         Server.getInstance().newLog(); // Initialize the dashboard server
 
+        // Instantiate the gamepad helpers
+        driveController = new GamepadHelper(gamepad1);
+        payloadController = new GamepadHelper(gamepad2);
+
         // Instantiate subsystems
         drive = new Drive(hardwareMap);
         intake = new Intake(hardwareMap.get(DcMotor.class, "intakeMotor"));
         placer = new Placer(hardwareMap);
-        slide = new Slide(
-                hardwareMap.get(DcMotor.class, "slideMotor1"),
-                hardwareMap.get(DcMotor.class, "slideMotor2"),
-                new PairedEncoder(hardwareMap.get(DcMotor.class, "lf"), false),
-                hardwareMap.get(TouchSensor.class, "limit"),
-                placer);
+        slide = new Slide(hardwareMap, placer);
+        slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
         climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
@@ -117,7 +119,7 @@ public class Robot extends OpMode {
         }
         double offset = 6.0;
         if (botPose.x > backdropWaypoint.x + offset) {
-            waypoints.add(new Waypoint(backdropWaypoint.x + offset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, Rotation2d.fromDegrees(-90), backdropWaypoint.targetEndRotation));
+            waypoints.add(new Waypoint(backdropWaypoint.x + offset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)));
             timeout += 1000;
         }
         return new Path(timeout, waypoints.toArray(new WaypointGenerator[]{}));
@@ -130,7 +132,7 @@ public class Robot extends OpMode {
                 new InstantCommand(aprilTagCamera::enable),
                 new FollowFuturePath(() -> getToBackdropPath(backdropWaypoint), drive), // Get close to the backdrop
                 new SlideToPosition(slide, 1200),
-                new WaitCommand(500), // Wait for an april tag detection
+                new WaitCommand(1500), // Wait for an april tag detection
                 new InstantCommand(aprilTagCamera::disable),
                 new BackdropHome(drive.base, slide, placer, backdropWaypoint, 2000, 500), // Home in on the backdrop
                 new InstantCommand(() -> placer.open()),
