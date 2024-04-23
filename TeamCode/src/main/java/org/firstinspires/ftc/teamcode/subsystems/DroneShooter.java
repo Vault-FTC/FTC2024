@@ -17,11 +17,11 @@ public class DroneShooter extends Subsystem {
     }
 
     public void shootAngle() {
-        angleAdjuster.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("shoot angle", 0.35));
+        angleAdjuster.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("shoot angle", 0.38));
     }
 
     public void storeAngle() {
-        angleAdjuster.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("store angle", 0.25));
+        angleAdjuster.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("store angle", 0.3));
     }
 
     public void releaseAngle() {

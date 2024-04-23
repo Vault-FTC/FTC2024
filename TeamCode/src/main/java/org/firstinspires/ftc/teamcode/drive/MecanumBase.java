@@ -8,8 +8,6 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.control.PIDController;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
-import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 import java.util.function.Supplier;
 
@@ -265,28 +263,32 @@ public class MecanumBase {
     }
 
     public boolean finishedFollowing() {
-        if (timer.milliseconds() > followStartTimestamp + followPath.timeout && timer.milliseconds() > followStartTimestamp + 1) {
-            return true;
+        try {
+            if (timer.milliseconds() > followStartTimestamp + followPath.timeout && timer.milliseconds() > followStartTimestamp + 1) {
+                return true;
+            }
+
+            boolean atEndpoint;
+            boolean atTargetHeading;
+
+            Pose2d botPose = poseSupplier.get();
+            double currentTimestamp = timer.milliseconds();
+            double speed = botPose.distanceTo(lastPose) / (currentTimestamp - lastTimestamp) * 1000;
+
+            lastTimestamp = currentTimestamp;
+
+            atEndpoint = speed < 2.0 && botPose.distanceTo(segments[segments.length - 1][1]) < 2.0 && waypointIndex == segments.length - 1;
+            if (segments[segments.length - 1][1].targetEndRotation == null) {
+                atTargetHeading = true;
+            } else {
+                atTargetHeading = Math.abs(Rotation2d.getError(segments[segments.length - 1][1].targetEndRotation.getAngleRadians(), botPose.rotation.getAngleRadians())) < Math.toRadians(5);
+            }
+
+            lastPose = botPose;
+            return atEndpoint && atTargetHeading;
+        } catch (Exception e) {
+            return false;
         }
-
-        boolean atEndpoint;
-        boolean atTargetHeading;
-
-        Pose2d botPose = poseSupplier.get();
-        double currentTimestamp = timer.milliseconds();
-        double speed = botPose.distanceTo(lastPose) / (currentTimestamp - lastTimestamp) * 1000;
-
-        lastTimestamp = currentTimestamp;
-
-        atEndpoint = speed < 2.0 && botPose.distanceTo(segments[segments.length - 1][1]) < 2.0 && waypointIndex == segments.length - 1;
-        if (segments[segments.length - 1][1].targetEndRotation == null) {
-            atTargetHeading = true;
-        } else {
-            atTargetHeading = Math.abs(Rotation2d.getError(segments[segments.length - 1][1].targetEndRotation.getAngleRadians(), botPose.rotation.getAngleRadians())) < Math.toRadians(5);
-        }
-
-        lastPose = botPose;
-        return atEndpoint && atTargetHeading;
     }
 
     /**

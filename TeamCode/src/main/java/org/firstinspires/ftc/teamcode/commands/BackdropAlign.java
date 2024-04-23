@@ -23,13 +23,13 @@ public class BackdropAlign extends Command {
     @Override
     public void execute() {
         Pose2d botPose = drive.odometry.getPose();
-        backdropOffset = Server.getInstance().getLayout("dashboard_0").getDoubleValue("place offset", 4.0);
-        drive.base.driveToPosition(new Waypoint(botPose.x + placer.getDistance() - backdropOffset, botPose.y, 0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90), 0.6));
+        backdropOffset = Server.getInstance().getLayout("dashboard_0").getDoubleValue("place offset", 3.5);
+        drive.base.driveToPosition(new Waypoint(botPose.x - (placer.getDistance() - backdropOffset), botPose.y, 0, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90), 0.5));
     }
 
     @Override
     public boolean isFinished() {
-        return Math.abs(Rotation2d.unsigned_0_to_2PI(drive.odometry.getPose().rotation.getAngleRadians()) - Math.toRadians(270)) < Math.toRadians(5.0)
+        return Math.abs(Rotation2d.unsigned_0_to_2PI(drive.odometry.getPose().rotation.getAngleRadians()) - Math.toRadians(270)) < Math.toRadians(2.5)
                 && Math.abs(placer.getDistance() - backdropOffset) < 0.5
                 || timeSinceInitialized() > timeout;
     }

@@ -42,7 +42,7 @@ public class Slide extends Subsystem {
         controller.resetIntegralOnSetPointChange = true;
 
         new Trigger(() -> encoder.getPosition() > Constants.Slide.preparePlacerPosition && encoder.getVelocity() > 0).onTrue(new InstantCommand(placer::placePosition));
-        new Trigger(() -> encoder.getPosition() < Constants.Slide.stowPlacerPosition && targetPosition < 10).onTrue(new InstantCommand(placer::storagePosition));
+        new Trigger(() -> encoder.getPosition() < Constants.Slide.stowPlacerPosition && targetPosition < 10 || encoder.getVelocity() < -400).onTrue(new InstantCommand(placer::storagePosition));
     }
 
     public void mizoom(double input) {
@@ -108,6 +108,7 @@ public class Slide extends Subsystem {
         Server.getInstance().log(controller.getGains().toString());
         Server.getInstance().log("feedforward: " + feedforward);
         DashboardLayout.setNodeValue("slide pose", encoder.getPosition());
+        DashboardLayout.setNodeValue("slide velocity", encoder.getVelocity());
         DashboardLayout.setNodeValue("slide target", targetPosition);
         DashboardLayout.setNodeValue("slide limit", limit.isPressed());
     }

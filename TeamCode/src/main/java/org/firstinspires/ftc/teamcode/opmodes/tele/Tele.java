@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes.tele;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.commands.BackdropAlign;
 import org.firstinspires.ftc.teamcode.commands.ClimbDefault;
 import org.firstinspires.ftc.teamcode.commands.DriveDefault;
 import org.firstinspires.ftc.teamcode.commands.IntakeDefault;
@@ -12,6 +13,7 @@ import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
+import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
@@ -35,10 +37,12 @@ public class Tele extends Robot {
         drive.setDefaultCommand(new DriveDefault(drive, () -> -driveController.leftStickY.getAsDouble(), () -> driveController.leftStickX.getAsDouble(), () -> -driveController.rightStickX.getAsDouble()));
         driveController.leftBumper.onTrue(new InstantCommand(() -> drive.enableSlowMode()));
         driveController.rightBumper.onTrue(new InstantCommand(() -> drive.enableFastMode()));
-        driveController.a.and(driveController.b).onTrue(automaticPlace);
-        driveController.b.and(driveController.x).and(driveController.y).onTrue(new InstantCommand(() -> drive.odometry.setPosition(new Pose2d())));
         driveController.dpadUp.onTrue(new InstantCommand(() -> climber.deliverHook()));
         driveController.dpadDown.onTrue(new InstantCommand(() -> climber.hookDown()));
+        BackdropAlign backdropAlign = new BackdropAlign(drive, placer, 2000);
+        driveController.a.onTrue(backdropAlign);
+        driveController.gamepadActive.and(new Trigger(() -> backdropAlign.timeSinceInitialized() > 1000)).onTrue(new InstantCommand((() -> backdropAlign.cancel())));
+        driveController.b.and(driveController.x).and(driveController.y).onTrue(new InstantCommand(() -> drive.odometry.setPosition(new Pose2d())));
 
         if (botPose == null) {
             botPose = new Pose2d();
@@ -66,8 +70,6 @@ public class Tele extends Robot {
         payloadController.a.onTrue(new InstantCommand(() -> placer.open()));
         payloadController.b.onTrue(new InstantCommand(() -> placer.close()));
 
-        driveController.a.onTrue(new InstantCommand(() -> drive.odometry.setPosition(new Pose2d())));
-
         climber.setDefaultCommand(new ClimbDefault(climber, payloadController.leftStickY));
         payloadController.dpadRight.onTrue(new InstantCommand(() -> climber.deliverHook()));
         payloadController.dpadLeft.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
@@ -76,8 +78,6 @@ public class Tele extends Robot {
         payloadController.dpadUp.onTrue(new InstantCommand(() -> placer.placePosition()));
 
         payloadController.y.onTrue(shootDrone);
-        //payloadController.x.onTrue(new AutomaticDroneLaunch(drive, shootDrone, gamepad1));
-
         payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
         payloadController.leftBumper.onTrue(new SlideToPosition(slide, -100));
     }
@@ -89,7 +89,7 @@ public class Tele extends Robot {
     public void loop() {
         super.loop();
         telemetry.addData("servo pose", droneShooter.angleAdjuster.getPosition());
-        telemetry.addData("cam", aprilTagCamera.cameraEnabled);
+        telemetry.addData("heading", drive.odometry.getPose().rotation.getAngleDegrees());
     }
 
 }

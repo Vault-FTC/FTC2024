@@ -1,30 +1,24 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import static org.firstinspires.ftc.teamcode.Constants.fieldLengthIn;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.commands.BackdropHome;
 import org.firstinspires.ftc.teamcode.commands.FollowFuturePath;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
-import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
-import org.firstinspires.ftc.teamcode.commandsystem.DelayUntil;
 import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.commandsystem.ParallelCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
-import org.firstinspires.ftc.teamcode.drive.FutureWaypoint;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.vision.Pipeline;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
-@Autonomous(name = "Red Right")
-public class ConfigurableRedRight extends Auton {
+@Autonomous(name = "Red Right Only Purple")
+public class RedRightOnlyPurple extends Auton {
 
-    public ConfigurableRedRight() {
+    public RedRightOnlyPurple() {
         super(Pipeline.Alliance.RED, Constants.Drive.StartPositions.redRight);
     }
 
@@ -40,7 +34,7 @@ public class ConfigurableRedRight extends Auton {
 
     Path rightPath = Path.getBuilder()
             .addWaypoint(Constants.Drive.StartPositions.redRight.toWaypoint()).setTimeout(3000)
-            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redRight.x - 10.5, 30, Constants.Drive.defaultFollowRadius, new Rotation2d(), new Rotation2d(), 0.8))
+            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redRight.x - 12, 30, Constants.Drive.defaultFollowRadius, new Rotation2d(), new Rotation2d(), 0.8))
             .build();
 
     private Path getPhenomenallyPerfectPurplePlacePath() {
@@ -55,23 +49,6 @@ public class ConfigurableRedRight extends Auton {
         return centerPath;
     }
 
-    private Waypoint getYellowPlaceWaypoint() {
-        double x = 17;
-        double y = fieldLengthIn - 37;
-        switch (visionPipeline.getPropLocation()) {
-            case LEFT:
-                y = fieldLengthIn - 28;
-                break;
-            case CENTER:
-                break;
-            case RIGHT:
-                y = fieldLengthIn - 41;
-                break;
-        }
-        return new Waypoint(x, y, Constants.Drive.defaultFollowRadius, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90));
-    }
-
-
     @Override
     public void init() {
         super.init();
@@ -79,22 +56,13 @@ public class ConfigurableRedRight extends Auton {
                 new FollowFuturePath(this::getPhenomenallyPerfectPurplePlacePath, drive), // Drive to the spike mark
                 new InstantCommand(purplePixelPlacer::place), // Place the pixel
                 new WaitCommand(DashboardLayout.loadDouble("wait_time_RR", 1000)), // Wait for the pixel to drop
-                new ParallelCommandGroup( // Begin driving away and retract the dropper arm
-                        new SequentialCommandGroup(new WaitCommand(1000), new InstantCommand(purplePixelPlacer::retract)),
-                        new FollowPath(Path.loadPath("to_backdrop_RR"), drive)),
-                new SlideToPosition(slide, Constants.Slide.autoPlacePosition), // Move the slide to the correct position
-                new DelayUntil(slide::atTargetPosition, 2000), // Wait until the slide is close to the correct position
-                new BackdropHome(drive.base, slide, placer, new FutureWaypoint(this::getYellowPlaceWaypoint), 2000, 500), // Home in on the backdrop
-                new InstantCommand(placer::open), // Drop the yellow pixel
-                new WaitCommand(750), // Wait for the pixel to drop
-                new ParallelCommandGroup( // Begin driving away and stow the slide
+                new ParallelCommandGroup(
+                        new FollowPath(Path.loadPath("place_and_park_RR"), drive),
                         new SequentialCommandGroup(
-                                new WaitCommand(750),
-                                new SlideToPosition(slide, Constants.Slide.stowedPosition)
-                        ),
-                        new FollowPath(Path.loadPath("park_RR"), drive)
-                )
-        );
+                                new WaitCommand(1000),
+                                new InstantCommand(() -> purplePixelPlacer.retract())
+                        )
+                ));
     }
 
 }

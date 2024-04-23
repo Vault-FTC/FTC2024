@@ -30,6 +30,7 @@ public class GamepadHelper {
 
     public final Trigger cross;
 
+    public final Trigger gamepadActive;
     public final Trigger options;
     public final DoubleSupplier leftStickX;
     public final DoubleSupplier leftStickY;
@@ -52,6 +53,7 @@ public class GamepadHelper {
         circle = new Trigger(() -> gamepad.circle);
         cross = new Trigger(() -> gamepad.cross);
         options = new Trigger(() -> gamepad.options);
+        gamepadActive = new Trigger(() -> !gamepad.atRest());
         leftStickX = () -> Math.abs(gamepad.left_stick_x) > Constants.joystickDeadZone ? gamepad.left_stick_x : 0;
         leftStickY = () -> Math.abs(gamepad.left_stick_y) > Constants.joystickDeadZone ? gamepad.left_stick_y : 0;
         rightStickX = () -> Math.abs(gamepad.right_stick_x) > Constants.joystickDeadZone ? gamepad.right_stick_x : 0;

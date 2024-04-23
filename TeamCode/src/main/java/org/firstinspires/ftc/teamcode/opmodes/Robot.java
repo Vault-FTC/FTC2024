@@ -80,7 +80,7 @@ public class Robot extends OpMode {
         climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
-        aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
+        //aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
         droneShooter = new DroneShooter(hardwareMap);
         purplePixelPlacer = new PurplePixelPlacer(hardwareMap);
     }

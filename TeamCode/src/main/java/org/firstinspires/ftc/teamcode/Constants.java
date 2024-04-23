@@ -48,8 +48,8 @@ public class Constants {
 
         public static final class StartPositions {
             public static final Pose2d blueLeft = new Pose2d(58.944, 7.916899, new Rotation2d(Math.PI));
-            public static final Pose2d blueRight = new Pose2d(106.0685, 7.916899, new Rotation2d());
-            public static final Pose2d redLeft = new Pose2d(106.0685, fieldLengthIn - 7.916899, new Rotation2d(Math.PI));
+            public static final Pose2d blueRight = new Pose2d(106.0685, 7.916899, new Rotation2d(Math.PI));
+            public static final Pose2d redLeft = new Pose2d(106.0685, fieldLengthIn - 7.916899, new Rotation2d());
             public static final Pose2d redRight = new Pose2d(58.944, fieldLengthIn - 7.916899, new Rotation2d());
         }
 

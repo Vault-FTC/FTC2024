@@ -5,16 +5,11 @@ import static org.firstinspires.ftc.teamcode.Constants.fieldLengthIn;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.commands.BackdropHome;
 import org.firstinspires.ftc.teamcode.commands.FollowFuturePath;
 import org.firstinspires.ftc.teamcode.commands.FollowPath;
-import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
-import org.firstinspires.ftc.teamcode.commandsystem.DelayUntil;
 import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
-import org.firstinspires.ftc.teamcode.commandsystem.ParallelCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
-import org.firstinspires.ftc.teamcode.drive.FutureWaypoint;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
@@ -27,14 +22,14 @@ public class ConfigurableRedLeft extends Auton {
     boolean goToStack;
 
     public ConfigurableRedLeft() {
-        super(Pipeline.Alliance.RED, Constants.Drive.StartPositions.redRight);
+        super(Pipeline.Alliance.RED, Constants.Drive.StartPositions.redLeft);
         goToStack = DashboardLayout.loadBoolean("stack_RL");
     }
 
     Path leftPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(Constants.Drive.StartPositions.redRight.toWaypoint())
             .addWaypoint(Constants.Drive.StartPositions.redRight.x - 6, fieldLengthIn - 24)
-            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redRight.x, fieldLengthIn - 29.5, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-135), 0.7))
+            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redRight.x + 2, fieldLengthIn - 32.5, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-45), 0.7))
             .build();
     Path centerPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(Constants.Drive.StartPositions.redRight.toWaypoint())
@@ -79,10 +74,12 @@ public class ConfigurableRedLeft extends Auton {
     public void init() {
         super.init();
         autonomousCommand = new SequentialCommandGroup(
+                new InstantCommand(() -> aprilTagCamera.disable()),
                 new FollowFuturePath(this::getPhenomenomallyPerfectPurplePlacePath, drive), // Drive to the spike mark
                 new InstantCommand(purplePixelPlacer::place), // Place the pixel
                 new WaitCommand(DashboardLayout.loadDouble("wait_time_RL", 1000)), // Wait for the pixel to drop
-                new ParallelCommandGroup( // Begin driving away and retract the dropper arm
+                new FollowPath(Path.loadPath("back_up"), drive)
+                /*new ParallelCommandGroup( // Begin driving away and retract the dropper arm
                         new SequentialCommandGroup(new WaitCommand(1000), new InstantCommand(purplePixelPlacer::retract)),
                         new FollowPath(Path.loadPath("to_backdrop_RL"), drive)),
                 new SlideToPosition(slide, Constants.Slide.autoPlacePosition), // Move the slide to the correct position
@@ -94,9 +91,9 @@ public class ConfigurableRedLeft extends Auton {
                         new SequentialCommandGroup(
                                 new WaitCommand(750),
                                 new SlideToPosition(slide, Constants.Slide.stowedPosition)
-                        ),
-                        new FollowPath(Path.loadPath("park_RL"), drive)
-                )
+                        )
+                        //new FollowPath(Path.loadPath("park_RL"), drive)
+                )*/
         );
     }
 
