@@ -1,20 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.os.Environment;
-
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 
-import java.io.File;
-
 public class Constants {
-
-    public static final File storageDir = new File(Environment.getExternalStorageDirectory() + "/Download");
     public static final boolean debugMode = false;
     public static final double fieldLengthIn = 141.345;
-
-    public static final double triggerDeadZone = 0.1;
-    public static final double joystickDeadZone = 0.1;
 
     public static final class Intake {
         public static final double defaultSpeed = 0.8;
@@ -42,10 +33,6 @@ public class Constants {
     }
 
     public static final class Drive {
-        public static final double defaultFollowRadius = 8;
-        public static final double trackEndpointHeadingMaxDistance = 12.0;
-        public static final double calculateTargetHeadingMinDistance = 15.0;
-
         public static final class StartPositions {
             public static final Pose2d blueLeft = new Pose2d(58.944, 7.916899, new Rotation2d(Math.PI));
             public static final Pose2d blueRight = new Pose2d(106.0685, 7.916899, new Rotation2d(Math.PI));

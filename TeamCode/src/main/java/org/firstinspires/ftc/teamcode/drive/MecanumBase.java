@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.control.PIDController;
 
 import java.util.function.Supplier;
@@ -26,20 +25,16 @@ public class MecanumBase {
     private double lastTimestamp = 0;
     private double followStartTimestamp;
     private Waypoint[][] segments;
-
     private double lastTargetAngle = 0;
 
     public enum DriveState {
         IDLE,
         FOLLOWING,
-
     }
 
     public DriveState driveState = DriveState.IDLE;
-
     private final Supplier<Pose2d> poseSupplier;
     public final PIDController driveController = new PIDController(0.0, 0.0, 0);
-
     public final PIDController rotController = new PIDController(2.0, 0.0001, 0.6);
 
     public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Supplier<Pose2d> poseSupplier) {
@@ -137,11 +132,11 @@ public class MecanumBase {
 
         boolean canFlip = false;
 
-        if (useEndpointHeading && targetPoint.targetEndRotation != null && botPose.distanceTo(targetPoint) < Constants.Drive.trackEndpointHeadingMaxDistance) {
+        if (useEndpointHeading && targetPoint.targetEndRotation != null && botPose.distanceTo(targetPoint) < DriveConstants.trackEndpointHeadingMaxDistance) {
             targetAngle = targetPoint.targetEndRotation.getAngleRadians();
         } else if (targetPoint.targetFollowRotation != null) {
             targetAngle = targetPoint.targetFollowRotation.getAngleRadians();
-        } else if (relativeTargetVector.magnitude > Constants.Drive.calculateTargetHeadingMinDistance) {
+        } else if (relativeTargetVector.magnitude > DriveConstants.calculateTargetHeadingMinDistance) {
             targetAngle = relativeTargetVector.angle - Math.PI / 2;
             canFlip = true;
         } else {
@@ -166,7 +161,33 @@ public class MecanumBase {
         driveToPosition(targetPoint, true);
     }
 
-    private static Waypoint intersection(Pose2d botPose, Waypoint[] lineSegment, double radius) {
+    private static Waypoint lineIntersection(Pose2d botPose, Waypoint[] lineSegment) {
+        double intersectionX;
+        double intersectionY;
+
+        double m0 = (lineSegment[0].y - lineSegment[1].y) / (lineSegment[0].x - lineSegment[1].x);
+
+        if (m0 == 0) { // If the path segment has a slope of zero
+            intersectionX = botPose.x;
+            intersectionY = lineSegment[0].y;
+        } else if (lineSegment[0].x == lineSegment[1].x) { // If the path segment is vertical
+            intersectionX = lineSegment[0].x;
+            intersectionY = botPose.y;
+        } else {
+            double b0 = lineSegment[0].y - m0 * lineSegment[0].x;
+
+            double m1 = -1 / m0;
+            double b1 = botPose.y - m1 * botPose.x;
+
+            intersectionX = (b0 - b1) / (m0 - m1);
+            intersectionY = m0 * intersectionX + b0;
+
+
+        }
+        return new Waypoint(intersectionX, intersectionY, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation, lineSegment[1].maxVelocity);
+    }
+
+    private static Waypoint lineCircleIntersection(Pose2d botPose, Waypoint[] lineSegment, double radius) {
         double x1;
         double y1;
 
@@ -200,31 +221,23 @@ public class MecanumBase {
         Waypoint point0 = new Waypoint(x1, y1, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation, lineSegment[1].maxVelocity);
         Waypoint point1 = new Waypoint(x2, y2, 0, lineSegment[1].targetFollowRotation, lineSegment[1].targetEndRotation, lineSegment[1].maxVelocity);
 
-        Pair<Waypoint, Double> intersection0 = new Pair<>(point0, getTValue(lineSegment[0], lineSegment[1], point0));
-        Pair<Waypoint, Double> intersection1 = new Pair<>(point1, getTValue(lineSegment[0], lineSegment[1], point1));
-
         Pair<Waypoint, Double> bestIntersection;
 
-        bestIntersection = intersection0.second > intersection1.second ? intersection0 : intersection1;
+        if (point0.equals(Vector2d.undefined)) { // If the first intersection isn't a valid point, neither is the second.  This means the robot is too far away from the path for its bounding circle to intersect it
+            Waypoint intersection = lineIntersection(botPose, lineSegment);
+            bestIntersection = new Pair<>(intersection, getTValue(lineSegment[0], lineSegment[1], intersection));
+        } else {
+            Pair<Waypoint, Double> intersection0 = new Pair<>(point0, getTValue(lineSegment[0], lineSegment[1], point0));
+            Pair<Waypoint, Double> intersection1 = new Pair<>(point1, getTValue(lineSegment[0], lineSegment[1], point1));
+
+            bestIntersection = intersection0.second > intersection1.second ? intersection0 : intersection1;
+        }
 
         if (bestIntersection.second > 1) {
             return null;
         }
 
         return bestIntersection.first;
-    }
-
-    private Waypoint[] closestSegment() {
-        Pose2d botPose = poseSupplier.get();
-        Pair<Waypoint[], Double> shortestDistance = new Pair<>(new Waypoint[]{new Waypoint(Vector2d.undefined, 0), new Waypoint(Vector2d.undefined, 0)}, Double.POSITIVE_INFINITY);
-        for (int i = waypointIndex; i < segments.length; i++) {
-            double distance = new Vector2d(segments[i][1].x - botPose.x, segments[i][1].y - botPose.y).magnitude;
-            if (distance < shortestDistance.second) {
-                shortestDistance = new Pair<>(segments[i], distance);
-                waypointIndex = i;
-            }
-        }
-        return shortestDistance.first;
     }
 
     public void followPath() {
@@ -243,19 +256,17 @@ public class MecanumBase {
                     driveState = DriveState.IDLE;
                 }
 
-                targetPoint = intersection(botPose, segments[waypointIndex], segments[waypointIndex][1].followRadius);
+                targetPoint = lineCircleIntersection(botPose, segments[waypointIndex], segments[waypointIndex][1].followRadius);
 
                 if (targetPoint == null) { // If null is returned, the t value of the target point is greater than 1 or less than 0
                     if (waypointIndex == segments.length - 1) {
-                        targetPoint = segments[segments.length - 1][1];
+                        targetPoint = segments[segments.length - 1][1]; // If the robot is already on the last segment, the target point will be the endpoint of that segment
                         endOfPath = true;
                     } else {
                         waypointIndex++;
                         followPath();
                         return;
                     }
-                } else if (targetPoint.equals(Vector2d.undefined)) { // If there is no valid intersection, follow the endpoint of the current segment
-                    targetPoint = segments[waypointIndex][1];
                 }
 
                 driveToPosition(targetPoint, endOfPath);
@@ -292,7 +303,7 @@ public class MecanumBase {
     }
 
     /**
-     * @return An estimation of the remaining distance the robot will travel before completing the path.
+     * @return An estimation of the remaining distance the robot needs to travel before completing the path.
      */
     public double remainingDistance() {
         if (driveState == DriveState.IDLE) {

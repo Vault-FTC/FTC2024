@@ -1,21 +1,25 @@
 package org.firstinspires.ftc.teamcode.webdashboard;
 
-import static org.firstinspires.ftc.teamcode.Constants.storageDir;
+import static org.firstinspires.ftc.teamcode.webdashboard.Server.storageDir;
 
-import com.qualcomm.robotcore.util.ThreadPool;
+import com.google.gson.JsonParseException;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.java_websocket.WebSocket;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
 import javax.json.Json;
 import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
@@ -25,6 +29,7 @@ public class DashboardLayout {
     private final HashMap<String, Runnable> callbacks = new HashMap<>();
     public ArrayList<DashboardNode> nodes;
     public String id = "";
+    public static final String layoutFilePrefix = "dashboard_layout_";
 
     public DashboardLayout(WebSocket connection) {
         this.connection = connection;
@@ -41,9 +46,9 @@ public class DashboardLayout {
         return type;
     }
 
-    private static JsonObject getNodeData(String id, String value) {
+    private static JsonObject getSendableNodeData(String id, String value) {
         return Json.createObjectBuilder()
-                .add("messageType", "update")
+                .add("messageType", "node update")
                 .add("nodeID", id)
                 .add("state", value)
                 .build();
@@ -57,8 +62,8 @@ public class DashboardLayout {
      */
     public void setMyNodeValue(String id, String value) {
         if (Constants.debugMode) {
-            JsonObject jsonObject = getNodeData(id, value);
-            ThreadPool.getDefaultScheduler().submit(() -> connection.send(jsonObject.toString()));
+            JsonObject jsonObject = getSendableNodeData(id, value);
+            Server.getInstance().sendToConnection(this, jsonObject.toString());
         }
     }
 
@@ -80,8 +85,8 @@ public class DashboardLayout {
      */
     public static void setNodeValue(String id, String value) {
         if (Constants.debugMode) {
-            JsonObject jsonObject = getNodeData(id, value);
-            ThreadPool.getDefaultScheduler().submit(() -> Server.getInstance().broadcast(jsonObject.toString()));
+            JsonObject jsonObject = getSendableNodeData(id, value);
+            Server.getInstance().broadcastJson(jsonObject);
         }
     }
 
@@ -126,7 +131,7 @@ public class DashboardLayout {
                 try {
                     return Double.parseDouble(node.state);
                 } catch (NumberFormatException e) {
-                    Server.getInstance().log(e + "\n + couldn't get double value for id " + id);
+                    Server.getInstance().log(e + "\n + Couldn't get double value for id " + id);
                     return defaultValue;
                 }
             }
@@ -205,7 +210,6 @@ public class DashboardLayout {
     }
 
     public static class DashboardNode {
-
         private final String id;
         private final Type type;
         private String state;
@@ -223,6 +227,8 @@ public class DashboardLayout {
             BOOLEAN_TELEMETRY("boolean telemetry"),
             TEXT_TELEMETRY("text telemetry"),
             TEXT_INPUT("text input"),
+            POSITION_GRAPH("position_graph"),
+            PATH("path"),
             CAMERA_STREAM("camera steam");
 
             private final String name;
@@ -233,10 +239,53 @@ public class DashboardLayout {
         }
     }
 
-    public static String loadString(String fileName) {
+    private JsonArray getLayoutJSON() {
+        JsonArrayBuilder draggableDataBuilder = Json.createArrayBuilder();
+        for (DashboardNode node : nodes) {
+            draggableDataBuilder.add(Json.createObjectBuilder()
+                    .add("id", node.id)
+                    .add("type", node.type.name)
+                    .add("state", node.state)
+                    .build());
+        }
+        return draggableDataBuilder.build();
+    }
+
+    public static boolean isDashboardLayoutFile(String fileName) {
+        return fileName.contains(layoutFilePrefix);
+    }
+
+    public void save() throws IOException {
+        JsonObject data = Json.createObjectBuilder()
+                .add("messageType", "layout state")
+                .add("layout", getLayoutJSON())
+                .add("id", id)
+                .build();
+        String fileName = layoutFilePrefix + id.replace(" ", "_") + ".json";
+        File output = new File(storageDir, fileName);
+        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
+        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
+        writer.write(data.toString());
+        writer.close();
+    }
+
+    public static DashboardLayout loadLayout(String fileName) {
+        String layoutData = loadString(fileName, ".json");
+        DashboardLayout layout = new DashboardLayout(null);
+        try {
+            layout.update(Json.createReader(new StringReader(layoutData)).readObject());
+        } catch (JsonParseException e) {
+            Server.getInstance().log(e.toString());
+            e.printStackTrace();
+        }
+        return layout;
+    }
+
+    public static String loadString(String fileName, String fileExtension) {
+        fileName = fileName.replace(" ", "_");
         StringBuilder data = new StringBuilder();
         try {
-            File filePath = new File(storageDir, fileName + ".json");
+            File filePath = new File(storageDir, fileName + fileExtension);
             FileInputStream input = new FileInputStream(filePath);
 
             int character;
@@ -252,6 +301,9 @@ public class DashboardLayout {
         return "";
     }
 
+    public static String loadString(String fileName) {
+        return loadString(fileName, ".txt");
+    }
 
     public static double loadDouble(String fileName, double defaultValue) {
         try {

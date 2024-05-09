@@ -9,6 +9,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.commandsystem.ParallelCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
@@ -24,17 +25,17 @@ public class RedLeftOnlyPurple extends Auton {
 
     Path leftPath = Path.getBuilder()
             .addWaypoint(Constants.Drive.StartPositions.redLeft.toWaypoint()).setTimeout(3000)
-            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redLeft.x - 12, 30, Constants.Drive.defaultFollowRadius, new Rotation2d(), new Rotation2d(), 0.8))
+            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redLeft.x - 12, 30, DriveConstants.defaultFollowRadius, new Rotation2d(), new Rotation2d(), 0.8))
             .build();
     Path centerPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(Constants.Drive.StartPositions.redLeft.toWaypoint())
-            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redLeft.x, 35.5, Constants.Drive.defaultFollowRadius, new Rotation2d(), new Rotation2d(), 0.7))
+            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redLeft.x, 35.5, DriveConstants.defaultFollowRadius, new Rotation2d(), new Rotation2d(), 0.7))
             .build();
 
     Path rightPath = Path.getBuilder().setTimeout(3000)
             .addWaypoint(Constants.Drive.StartPositions.redLeft.toWaypoint())
-            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redLeft.x - 6, 24, Constants.Drive.defaultFollowRadius, new Rotation2d(), null))
-            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redLeft.x + 6, 32, Constants.Drive.defaultFollowRadius, null, Rotation2d.fromDegrees(-45), 0.8))
+            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redLeft.x - 6, 24, DriveConstants.defaultFollowRadius, new Rotation2d(), null))
+            .addWaypoint(new Waypoint(Constants.Drive.StartPositions.redLeft.x + 6, 32, DriveConstants.defaultFollowRadius, null, Rotation2d.fromDegrees(-45), 0.8))
             .build();
 
     private Path getPhenomenallyPerfectPurplePlacePath() {

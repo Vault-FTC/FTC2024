@@ -6,14 +6,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 
 public class PairedEncoder extends Subsystem implements Encoder {
-
-
     DcMotor pairedMotor;
     private int offset = 0;
     private final int polarity;
     private double lastPosition = 0;
     private double lastTimestamp = 0;
-
     private double velocity = 0;
     ElapsedTime timer = new ElapsedTime();
 

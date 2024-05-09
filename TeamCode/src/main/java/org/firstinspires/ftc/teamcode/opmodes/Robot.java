@@ -4,7 +4,6 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.BackdropHome;
 import org.firstinspires.ftc.teamcode.commands.FlashLights;
 import org.firstinspires.ftc.teamcode.commands.FollowFuturePath;
@@ -17,6 +16,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
@@ -35,12 +35,12 @@ import org.firstinspires.ftc.teamcode.utils.GamepadHelper;
 import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Robot extends OpMode {
     public GamepadHelper driveController;
     public GamepadHelper payloadController;
-
     public Drive drive;
     public Intake intake;
     public Slide slide;
@@ -58,14 +58,19 @@ public class Robot extends OpMode {
 
     public static Alliance alliance = Alliance.BLUE;
 
+    private void setup() {
+        CommandScheduler.getInstance().clearRegistry();
+        CommandScheduler.getInstance().cancelAll();
+        Server.getInstance().start();
+        Server.getInstance().newLog();
+    }
+
     @Override
     public void init() {
+        setup(); // This should always be the first thing called in init()
         if (botPose == null) {
             botPose = new Pose2d(0, 0, new Rotation2d(-Math.PI));
         }
-        CommandScheduler.getInstance().clearRegistry();
-        CommandScheduler.getInstance().cancelAll();
-        Server.getInstance().newLog(); // Initialize the dashboard server
 
         // Instantiate the gamepad helpers
         driveController = new GamepadHelper(gamepad1);
@@ -79,7 +84,7 @@ public class Robot extends OpMode {
         slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
         climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
-        aprilTagCamera = new AprilTagCamera(hardwareMap, drive.odometry::getPose);
+        aprilTagCamera = new AprilTagCamera(hardwareMap);
         //aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
         droneShooter = new DroneShooter(hardwareMap);
         purplePixelPlacer = new PurplePixelPlacer(hardwareMap);
@@ -100,6 +105,13 @@ public class Robot extends OpMode {
     @Override
     public void stop() {
         CommandScheduler.getInstance().clearRegistry();
+        try {
+            Server.getInstance().stop();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private Path getToBackdropPath(Waypoint backdropWaypoint) {
@@ -108,18 +120,18 @@ public class Robot extends OpMode {
         waypoints.add(botPose.toWaypoint());
         double timeout;
         if (botPose.x > 85.0) { // If robot is in front of rigging
-            waypoints.add(new Waypoint(90, 70, Constants.Drive.defaultFollowRadius));
-            waypoints.add(new Waypoint(65, 70, Constants.Drive.defaultFollowRadius));
+            waypoints.add(new Waypoint(90, 70, DriveConstants.defaultFollowRadius));
+            waypoints.add(new Waypoint(65, 70, DriveConstants.defaultFollowRadius));
         }
         timeout = 5000;
         double initialOffset = 20.0;
         if (botPose.x > backdropWaypoint.x + initialOffset) {
-            waypoints.add(new Waypoint(backdropWaypoint.x + initialOffset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)));
+            waypoints.add(new Waypoint(backdropWaypoint.x + initialOffset, backdropWaypoint.y, DriveConstants.defaultFollowRadius, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)));
             timeout += 2000;
         }
         double offset = 6.0;
         if (botPose.x > backdropWaypoint.x + offset) {
-            waypoints.add(new Waypoint(backdropWaypoint.x + offset, backdropWaypoint.y, Constants.Drive.defaultFollowRadius, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)));
+            waypoints.add(new Waypoint(backdropWaypoint.x + offset, backdropWaypoint.y, DriveConstants.defaultFollowRadius, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)));
             timeout += 1000;
         }
         return new Path(timeout, waypoints.toArray(new WaypointGenerator[]{}));

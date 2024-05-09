@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.opmodes.tele.Tele;
@@ -26,7 +26,7 @@ public class DriveToBackboard extends Command {
     @Override
     public void initialize() {
         Pose2d botPose = drive.odometry.getPose();
-        drive.base.setFollowPath(Path.getBuilder().setDefaultRadius(Constants.Drive.defaultFollowRadius)
+        drive.base.setFollowPath(Path.getBuilder().setDefaultRadius(DriveConstants.defaultFollowRadius)
                 .addWaypoint(botPose.x, botPose.y).addWaypoint(Tele.backdropPose.toWaypoint()).build());
         flashLights.schedule();
     }

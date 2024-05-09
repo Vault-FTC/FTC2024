@@ -34,8 +34,7 @@ public class AprilTagCamera extends Subsystem {
     public Runnable onDetect = () -> {
     };
 
-    public AprilTagCamera(HardwareMap hardwareMap, Supplier<Pose2d> poseSupplier) {
-        this.poseSupplier = poseSupplier;
+    public AprilTagCamera(HardwareMap hardwareMap) {
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
         aprilTagProcessor.setDecimation(0);
         aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.OPENCV_IPPE_SQUARE);
@@ -103,9 +102,7 @@ public class AprilTagCamera extends Subsystem {
 
     @Override
     public void periodic() {
-        Pose2d botPose = poseSupplier.get();
-        boolean withinRange = Math.abs(Rotation2d.signed_minusPI_to_PI(botPose.rotation.getAngleRadians() + Math.PI / 2)) < Math.toRadians(Constants.Vision.turnCamOnThresholdDegrees) && botPose.x < Constants.Vision.useAprilTagMaxXIn;
-        if (withinRange && cameraEnabled) {
+        if (cameraEnabled) {
             if (!usingCamera) {
                 usingCamera = true;
                 try {

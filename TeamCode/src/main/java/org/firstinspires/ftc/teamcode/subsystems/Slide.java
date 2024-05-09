@@ -82,7 +82,7 @@ public class Slide extends Subsystem {
     }
 
     private static boolean gamepadActive(double input) {
-        return Math.abs(input) > Constants.joystickDeadZone;
+        return Math.abs(input) > 0.05;
     }
 
     public void setTargetPosition(int targetPosition) {

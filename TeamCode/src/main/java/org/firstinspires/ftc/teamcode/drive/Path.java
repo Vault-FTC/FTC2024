@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive;
 
-import static org.firstinspires.ftc.teamcode.Constants.storageDir;
+import static org.firstinspires.ftc.teamcode.webdashboard.Server.storageDir;
 
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 import java.io.File;
@@ -42,7 +41,7 @@ public class Path {
 
         private final ArrayList<WaypointGenerator> waypoints;
 
-        private double defaultRadiusIn = Constants.Drive.defaultFollowRadius;
+        private double defaultRadiusIn = DriveConstants.defaultFollowRadius;
 
         private double defaultMaxVelocity = Double.POSITIVE_INFINITY;
 
@@ -154,6 +153,7 @@ public class Path {
     }
 
     public static Path loadPath(String fileName) {
+        fileName = fileName.replace(" ", "_");
         StringBuilder data = new StringBuilder();
         Builder pathBuilder = Path.getBuilder();
         try {

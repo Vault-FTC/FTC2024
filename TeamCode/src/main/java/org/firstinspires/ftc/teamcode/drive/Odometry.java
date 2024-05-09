@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 public class Odometry {
 
     public static final class Params {
-        public static final double trackWidth = 13.658011373578302712160979877515;//13.543307086614173228346456692913;
+        public static final double trackWidth = 13.658011373578302712160979877515;
         public static final double horizontalDist = 7.5035;
         public static double inPerTick = 0.002968431495;
     }
