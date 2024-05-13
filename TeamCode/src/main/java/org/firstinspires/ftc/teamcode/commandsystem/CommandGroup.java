@@ -6,4 +6,8 @@ public abstract class CommandGroup extends Command {
     public CommandGroup(Command... commands) {
         this.commands = commands;
     }
+
+    public Command[] getCommands() {
+        return commands;
+    }
 }

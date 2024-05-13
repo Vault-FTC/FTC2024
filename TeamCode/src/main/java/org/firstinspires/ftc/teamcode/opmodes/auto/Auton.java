@@ -1,22 +1,22 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.commandsystem.Command;
+import org.firstinspires.ftc.teamcode.drive.AutonomousCommand;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
+import org.firstinspires.ftc.teamcode.vision.GameElementDetector;
+import org.firstinspires.ftc.teamcode.vision.GameElementDetector.StreamDimension;
 import org.firstinspires.ftc.teamcode.vision.Pipeline;
-import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
+import org.firstinspires.ftc.teamcode.webdashboard.Server;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
-import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 public abstract class Auton extends Robot {
-
-    OpenCvWebcam propCam;
-    Pipeline visionPipeline;
-    Command autonomousCommand;
+    OpenCvWebcam detectorCam;
+    GameElementDetector detectorPipeline;
+    AutonomousCommand autonomousCommand;
 
     private final Pose2d startPosition;
 
@@ -31,46 +31,55 @@ public abstract class Auton extends Robot {
 
         drive.odometry.setPosition(startPosition);
         botPose = startPosition;
-        fieldCentricOffset = new Rotation2d(startPosition.rotation.getAngleRadians() + Math.PI);
+        if (alliance == Alliance.BLUE) {
+            fieldCentricOffset = new Rotation2d();
+        } else {
+            fieldCentricOffset = new Rotation2d(Math.PI);
+        }
 
-        propCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "propCam"));
-        visionPipeline = new Pipeline();
-        propCam.setPipeline(visionPipeline);
-
-        propCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
-            public void onOpened() {
-                propCam.startStreaming(1280, 720, OpenCvCameraRotation.UPRIGHT);
-                telemetry.addData("Camera opened", "");
-            }
-
-            @Override
-            public void onError(int errorCode) {
-                telemetry.addData("Camera failed", "");
-                telemetry.update();
-            }
-        });
-
-
+        initializeDetectorCam("propCam", new StreamDimension(1280, 720));
     }
 
     @Override
     public void init_loop() {
-        telemetry.addData("Wait a few seconds after detection stabilizes to start the program", "");
-        telemetry.addData("prop location: ", visionPipeline.getPropLocation().toString());
+        telemetry.addData("Wait a few seconds after detection stabilizes to start the program.", "");
+        telemetry.addData("prop location: ", detectorPipeline.getElementLocation().toString());
     }
 
 
     @Override
     public void start() {
-        visionPipeline.close();
+        detectorPipeline.close();
         try {
-            propCam.stopStreaming();
-            propCam.closeCameraDevice();
+            detectorCam.stopStreaming();
+            detectorCam.closeCameraDevice();
         } catch (Exception e) {
             e.printStackTrace();
         }
         autonomousCommand.schedule();
     }
 
+    private void initializeDetectorCam(String cameraName, StreamDimension size) {
+        detectorCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, cameraName));
+        detectorPipeline = new Pipeline();
+        detectorCam.setPipeline(detectorPipeline);
+        detectorCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+            @Override
+            public void onOpened() {
+                detectorCam.startStreaming(size.width, size.height);
+                String message = "Camera opened";
+                telemetry.addData(message, "");
+                telemetry.update();
+                Server.log(message);
+            }
+
+            @Override
+            public void onError(int errorCode) {
+                String message = "Camera initialization failed";
+                telemetry.addData(message, "");
+                telemetry.update();
+                Server.log(message);
+            }
+        });
+    }
 }

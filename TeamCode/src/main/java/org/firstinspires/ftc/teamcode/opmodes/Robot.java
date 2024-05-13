@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.commands.BackdropHome;
 import org.firstinspires.ftc.teamcode.commands.FlashLights;
-import org.firstinspires.ftc.teamcode.commands.FollowFuturePath;
-import org.firstinspires.ftc.teamcode.commands.FollowPath;
 import org.firstinspires.ftc.teamcode.commands.SlideDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
@@ -17,11 +15,11 @@ import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.FollowPathCommand;
 import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
-import org.firstinspires.ftc.teamcode.drive.WaypointGenerator;
 import org.firstinspires.ftc.teamcode.subsystems.AprilTagCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
@@ -32,7 +30,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Placer;
 import org.firstinspires.ftc.teamcode.subsystems.PurplePixelPlacer;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
 import org.firstinspires.ftc.teamcode.utils.GamepadHelper;
-import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 import java.io.IOException;
@@ -55,6 +52,17 @@ public class Robot extends OpMode {
     public static Pose2d redBackdropPose = new Pose2d(17.0, 110, new Rotation2d(-Math.PI / 2));
     public static int slidePose = 0;
     public static Rotation2d fieldCentricOffset = new Rotation2d();
+
+    public enum Alliance {
+        BLUE,
+        RED
+    }
+
+    public enum GameElementLocation {
+        LEFT,
+        CENTER,
+        RIGHT
+    }
 
     public static Alliance alliance = Alliance.BLUE;
 
@@ -85,7 +93,7 @@ public class Robot extends OpMode {
         climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
         aprilTagCamera = new AprilTagCamera(hardwareMap);
-        //aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
+        aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedPose());
         droneShooter = new DroneShooter(hardwareMap);
         purplePixelPlacer = new PurplePixelPlacer(hardwareMap);
     }
@@ -107,9 +115,7 @@ public class Robot extends OpMode {
         CommandScheduler.getInstance().clearRegistry();
         try {
             Server.getInstance().stop();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -134,7 +140,7 @@ public class Robot extends OpMode {
             waypoints.add(new Waypoint(backdropWaypoint.x + offset, backdropWaypoint.y, DriveConstants.defaultFollowRadius, Rotation2d.fromDegrees(-90), Rotation2d.fromDegrees(-90)));
             timeout += 1000;
         }
-        return new Path(timeout, waypoints.toArray(new WaypointGenerator[]{}));
+        return new Path(timeout, waypoints.toArray(new Waypoint[]{}));
     }
 
     public Command getAutomaticPlaceCommand(Waypoint backdropWaypoint) {
@@ -142,13 +148,13 @@ public class Robot extends OpMode {
         Command command = new SequentialCommandGroup(
                 new InstantCommand(flashLights::schedule),
                 new InstantCommand(aprilTagCamera::enable),
-                new FollowFuturePath(() -> getToBackdropPath(backdropWaypoint), drive), // Get close to the backdrop
+                new FollowPathCommand(() -> getToBackdropPath(backdropWaypoint), drive), // Get close to the backdrop
                 new SlideToPosition(slide, 1200),
                 new WaitCommand(1500), // Wait for an april tag detection
                 new InstantCommand(aprilTagCamera::disable),
                 new BackdropHome(drive.base, slide, placer, backdropWaypoint, 2000, 500), // Home in on the backdrop
                 new InstantCommand(() -> placer.open()),
-                new FollowPath(Path.getBuilder().addWaypoint(backdropWaypoint).addWaypoint(backdropWaypoint.x + 4.0, backdropWaypoint.y).build(), drive),
+                new FollowPathCommand(Path.getBuilder().addWaypoint(backdropWaypoint).addWaypoint(backdropWaypoint.x + 4.0, backdropWaypoint.y).build(), drive),
                 new InstantCommand(flashLights::cancel));
         new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(command::cancel));
         return command;

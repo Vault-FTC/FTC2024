@@ -33,7 +33,7 @@ import javax.json.JsonReader;
 
 public class Server extends WebSocketServer {
     private static Server instance = null;
-    public static final int port = 5837;
+    public static final int port = 21865;
     public static final File storageDir = new File(Environment.getExternalStorageDirectory() + "/Download");
     private ArrayList<DashboardLayout> layouts = new ArrayList<>();
     private static final DashboardLayout emptyLayout = new EmptyLayout();
@@ -225,16 +225,16 @@ public class Server extends WebSocketServer {
         broadcastJson(message);
     }
 
-    public void log(Object value) {
-        log(value.toString());
+    public static void log(Object value) {
+        getInstance().log(value.toString());
     }
 
-    public void log(String value) {
+    public static void log(String value) {
         JsonObject message = Json.createObjectBuilder()
                 .add("messageType", "log")
-                .add("value", timer.milliseconds() + ": " + value)
+                .add("value", getInstance().timer.milliseconds() + ": " + value)
                 .build();
-        broadcastJson(message);
+        getInstance().broadcastJson(message);
     }
 
     private static void savePath(JsonObject object) throws IOException {

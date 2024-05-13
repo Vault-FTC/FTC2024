@@ -17,12 +17,10 @@ import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
-import org.firstinspires.ftc.teamcode.vision.Pipeline.Alliance;
 
 @TeleOp(name = "TeleOp")
 public class Tele extends Robot {
     public static Pose2d backdropPose = blueBackdropPose;
-
     Command automaticPlace;
 
     @Override

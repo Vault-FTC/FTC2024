@@ -46,6 +46,26 @@ public class Pose2d extends Vector2d {
         return toWaypoint(DriveConstants.defaultFollowRadius);
     }
 
+    public Pose2d translateX(double x) {
+        return translate(x, 0);
+    }
+
+    public Pose2d translateY(double y) {
+        return translate(0, y);
+    }
+
+    public Pose2d translate(double x, double y) {
+        return new Pose2d(x + x, y + y, rotation);
+    }
+
+    public Pose2d rotate(Rotation2d rotation) {
+        return new Pose2d(x, y, rotation.add(rotation));
+    }
+
+    public Pose2d mirror() {
+        return new Pose2d(x, DriveConstants.fieldLengthIn - y, rotation.negate().addRadians(Math.PI));
+    }
+
     @NonNull
     @Override
     public String toString() {

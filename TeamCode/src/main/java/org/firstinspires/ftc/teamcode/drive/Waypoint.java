@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.drive;
 
-public class Waypoint extends Vector2d implements WaypointGenerator {
+import java.util.function.Supplier;
+
+public class Waypoint extends Vector2d implements Supplier<Waypoint> {
     public final double followRadius;
 
     public final Rotation2d targetFollowRotation;
@@ -37,14 +39,33 @@ public class Waypoint extends Vector2d implements WaypointGenerator {
         this(x, y, followRadius, null, null, Double.POSITIVE_INFINITY);
     }
 
-    @Override
-    public Waypoint getWaypoint() {
-        return this;
+    public Waypoint translateX(double x) {
+        return translate(x, 0);
+    }
+
+    public Waypoint translateY(double y) {
+        return translate(0, y);
+    }
+
+    public Waypoint translate(double x, double y) {
+        return new Waypoint(x + x, y + y, followRadius, targetFollowRotation, targetEndRotation, maxVelocity);
+    }
+
+    public Waypoint rotate(Rotation2d rotation) {
+        return new Waypoint(x, y, followRadius, targetFollowRotation.add(rotation), targetEndRotation.add(rotation), maxVelocity);
+    }
+
+    public Waypoint mirror() {
+        return new Waypoint(x, DriveConstants.fieldLengthIn - y, followRadius, targetFollowRotation.negate().addRadians(Math.PI), targetEndRotation.negate().addRadians(Math.PI), maxVelocity);
     }
 
     @Override
     public String toString() {
-        return "x: " + x + " y: " + y + " follow radius: " + followRadius + " target follow rot: " + Rotation2d.stringOf(targetFollowRotation) + " target end rot: " + Rotation2d.stringOf(targetEndRotation) + " max vel: " + maxVelocity;
+        return "x: " + x + " y: " + y + " follow radius: " + followRadius + " target follow rot: " + Rotation2d.getString(targetFollowRotation) + " target end rot: " + Rotation2d.getString(targetEndRotation) + " max vel: " + maxVelocity;
     }
 
+    @Override
+    public Waypoint get() {
+        return this;
+    }
 }

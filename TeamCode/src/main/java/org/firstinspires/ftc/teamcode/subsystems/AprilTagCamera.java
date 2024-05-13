@@ -29,7 +29,6 @@ public class AprilTagCamera extends Subsystem {
     private boolean usingCamera = false;
     AprilTagProcessor aprilTagProcessor;
     Supplier<Pose2d> poseSupplier;
-
     private Pose2d calculatedPose = new Pose2d();
     public Runnable onDetect = () -> {
     };
@@ -52,7 +51,7 @@ public class AprilTagCamera extends Subsystem {
         Pose2d camPose = new Pose2d(
                 tagPose.x - relativeCoordinates.x,
                 tagPose.y - relativeCoordinates.y,
-                Constants.Vision.useAprilTagHeading && Math.abs(detectionYaw) < Constants.Vision.aprilTagHeadingThresholdDegrees || true ? Rotation2d.fromDegrees(tagPose.rotation.getAngleDegrees() - detectionYaw) : new Rotation2d(poseSupplier.get().rotation.getAngleRadians() - Math.PI));
+                Constants.Vision.useAprilTagHeading && Math.abs(detectionYaw) < Constants.Vision.aprilTagHeadingThresholdDegrees ? Rotation2d.fromDegrees(tagPose.rotation.getAngleDegrees() - detectionYaw) : new Rotation2d(poseSupplier.get().rotation.getAngleRadians() - Math.PI));
         Vector2d relativeBotCoordinates = Constants.Vision.camToRobot.rotate(camPose.rotation.getAngleRadians());
         return new Pose2d(camPose.x + relativeBotCoordinates.x, camPose.y + relativeBotCoordinates.y, new Rotation2d(camPose.rotation.getAngleRadians() + Math.PI));
     }

@@ -9,26 +9,27 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.function.Supplier;
 
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-public class Path {
-    public final ArrayList<WaypointGenerator> waypoints;
+public class Path implements Supplier<Path> {
+    public final ArrayList<Supplier<Waypoint>> waypoints;
 
     final double timeout; // In milliseconds
 
-    public Path(double timeout, WaypointGenerator... waypoints) {
+    public Path(double timeout, Supplier<Waypoint>... waypoints) {
         this.waypoints = new ArrayList<>();
-        for (WaypointGenerator waypoint : waypoints) {
+        for (Supplier<Waypoint> waypoint : waypoints) {
             this.waypoints.add(waypoint);
         }
         this.timeout = timeout;
     }
 
-    public Path(WaypointGenerator... waypoints) {
+    public Path(Supplier<Waypoint>... waypoints) {
         this(Double.POSITIVE_INFINITY, waypoints);
     }
 
@@ -39,7 +40,7 @@ public class Path {
 
     public static class Builder {
 
-        private final ArrayList<WaypointGenerator> waypoints;
+        private final ArrayList<Supplier<Waypoint>> waypoints;
 
         private double defaultRadiusIn = DriveConstants.defaultFollowRadius;
 
@@ -51,7 +52,7 @@ public class Path {
             waypoints = new ArrayList<>();
         }
 
-        public Builder addWaypoint(WaypointGenerator waypoint) {
+        public Builder addWaypoint(Supplier<Waypoint> waypoint) {
             waypoints.add(waypoint);
             return this;
         }
@@ -72,7 +73,7 @@ public class Path {
         }
 
         public Builder join(Path path) {
-            path.waypoints.forEach((WaypointGenerator waypoint) -> waypoints.add(waypoint));
+            path.waypoints.forEach((Supplier<Waypoint> waypoint) -> waypoints.add(waypoint));
             return this;
         }
 
@@ -88,14 +89,14 @@ public class Path {
 
     public Waypoint[] generateWaypoints() {
         ArrayList<Waypoint> generatedWaypoints = new ArrayList<>();
-        waypoints.forEach((WaypointGenerator waypoint) -> generatedWaypoints.add(waypoint.getWaypoint()));
+        waypoints.forEach((Supplier<Waypoint> waypoint) -> generatedWaypoints.add(waypoint.get()));
         return generatedWaypoints.toArray(new Waypoint[]{});
     }
 
     public Waypoint[][] generateLineSegments() {
         ArrayList<Waypoint[]> segments = new ArrayList<>();
         for (int i = 0; i < waypoints.size() - 1; i++) {
-            segments.add(new Waypoint[]{waypoints.get(i).getWaypoint(), waypoints.get(i + 1).getWaypoint()});
+            segments.add(new Waypoint[]{waypoints.get(i).get(), waypoints.get(i + 1).get()});
         }
         return segments.toArray(new Waypoint[][]{});
     }
@@ -126,7 +127,7 @@ public class Path {
         }
     }
 
-    public Path appendWaypoint(WaypointGenerator waypoint, double timeout) {
+    public Path appendWaypoint(Supplier<Waypoint> waypoint, double timeout) {
         return join(new Path(timeout, waypoint));
     }
 
@@ -143,10 +144,10 @@ public class Path {
      */
     public Path join(Path path, double timeout) {
         Builder builder = getBuilder().setTimeout(timeout);
-        for (WaypointGenerator waypoint : waypoints) {
+        for (Supplier<Waypoint> waypoint : waypoints) {
             builder.addWaypoint(waypoint);
         }
-        for (WaypointGenerator waypoint : path.waypoints) {
+        for (Supplier<Waypoint> waypoint : path.waypoints) {
             builder.addWaypoint(waypoint);
         }
         return builder.build();
@@ -189,9 +190,38 @@ public class Path {
             Path loaded = pathBuilder.setTimeout(timeout).build();
             return loaded;
         } catch (IOException e) {
-            Server.getInstance().log(e.toString());
+            Server.log(e.toString());
             e.printStackTrace();
         }
         return new Path();
+    }
+
+    public Path translateX(double x) {
+        return translate(x, 0);
+    }
+
+    public Path translateY(double y) {
+        return translate(0, y);
+    }
+
+    public Path translate(double x, double y) {
+        Builder builder = getBuilder().setTimeout(timeout);
+        for (Supplier<Waypoint> waypoint : waypoints) {
+            builder.addWaypoint(new FutureInstance<>(() -> waypoint.get().translate(x, y)));
+        }
+        return builder.build();
+    }
+
+    public Path mirror() {
+        Builder builder = getBuilder().setTimeout(timeout);
+        for (Supplier<Waypoint> waypoint : waypoints) {
+            builder.addWaypoint(new FutureInstance<>(() -> waypoint.get().mirror()));
+        }
+        return builder.build();
+    }
+
+    @Override
+    public Path get() {
+        return this;
     }
 }

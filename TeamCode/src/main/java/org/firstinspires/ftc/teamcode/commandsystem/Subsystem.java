@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.commandsystem;
 
 import java.util.ArrayList;
 
-public class Subsystem {
+public abstract class Subsystem {
 
     ArrayList<Command> requirements = new ArrayList<>();
 

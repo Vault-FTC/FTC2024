@@ -105,8 +105,8 @@ public class Slide extends Subsystem {
         controller.setI(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kI", 0.0));
         controller.setD(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kD", 0.0008));
         feedforward = Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2);
-        Server.getInstance().log(controller.getGains().toString());
-        Server.getInstance().log("feedforward: " + feedforward);
+        Server.log(controller.getGains().toString());
+        Server.log("feedforward: " + feedforward);
         DashboardLayout.setNodeValue("slide pose", encoder.getPosition());
         DashboardLayout.setNodeValue("slide velocity", encoder.getVelocity());
         DashboardLayout.setNodeValue("slide target", targetPosition);

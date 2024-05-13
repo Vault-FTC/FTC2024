@@ -1,19 +1,19 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.opmodes.Robot.GameElementLocation;
 import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvPipeline;
 
 import java.util.ArrayList;
 
-public class Pipeline extends OpenCvPipeline {
+public class Pipeline extends GameElementDetector {
 
-    private PropLocation propLocation = PropLocation.CENTER;
+    private GameElementLocation propLocation = GameElementLocation.LEFT;
     private ArrayList<Integer> locationHistory = new ArrayList<>();
     private boolean processing = true;
 
@@ -47,11 +47,11 @@ public class Pipeline extends OpenCvPipeline {
 
         if (processing) {
             if (circles.empty() || propX > 1240) {
-                propLocation = PropLocation.LEFT;
+                propLocation = GameElementLocation.LEFT;
             } else if (propX < 640) {
-                propLocation = PropLocation.CENTER;
+                propLocation = GameElementLocation.CENTER;
             } else {
-                propLocation = PropLocation.RIGHT;
+                propLocation = GameElementLocation.RIGHT;
             }
 
             locationHistory.add(propLocation.ordinal());
@@ -62,41 +62,13 @@ public class Pipeline extends OpenCvPipeline {
         return frame;
     }
 
-    public enum Alliance {
-        BLUE,
-        RED
-    }
-
-    public enum PropLocation {
-        LEFT(0),
-        CENTER(1),
-        RIGHT(2);
-
-        public final Integer location;
-
-        PropLocation(int location) {
-            this.location = location;
-        }
-
-        @Override
-        public String toString() {
-            switch (location) {
-                case 0:
-                    return "left";
-                case 1:
-                    return "center";
-                case 2:
-                    return "right";
-            }
-            return null;
-        }
-    }
-
-    public PropLocation getPropLocation() {
+    @Override
+    public GameElementLocation getElementLocation() {
         return propLocation;
     }
 
-    public PropLocation close() {
+    @Override
+    public void close() {
         processing = false;
         int sum = 0;
         int i = 0;
@@ -104,8 +76,7 @@ public class Pipeline extends OpenCvPipeline {
             sum += locationHistory.get(locationHistory.size() - i - 1);
             i++;
         }
-        propLocation = PropLocation.values()[Math.round((float) sum / (float) i)];
-        return propLocation;
+        propLocation = GameElementLocation.values()[Math.round((float) sum / (float) i)];
     }
 
 }

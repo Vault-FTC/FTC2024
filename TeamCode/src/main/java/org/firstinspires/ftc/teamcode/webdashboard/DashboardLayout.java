@@ -131,7 +131,7 @@ public class DashboardLayout {
                 try {
                     return Double.parseDouble(node.state);
                 } catch (NumberFormatException e) {
-                    Server.getInstance().log(e + "\n + Couldn't get double value for id " + id);
+                    Server.log(e + "\n + Couldn't get double value for id " + id);
                     return defaultValue;
                 }
             }
@@ -275,7 +275,7 @@ public class DashboardLayout {
         try {
             layout.update(Json.createReader(new StringReader(layoutData)).readObject());
         } catch (JsonParseException e) {
-            Server.getInstance().log(e.toString());
+            Server.log(e.toString());
             e.printStackTrace();
         }
         return layout;
@@ -295,7 +295,7 @@ public class DashboardLayout {
 
             return data.toString();
         } catch (IOException e) {
-            Server.getInstance().log(e.toString());
+            Server.log(e.toString());
             e.printStackTrace();
         }
         return "";
@@ -309,7 +309,7 @@ public class DashboardLayout {
         try {
             return Double.parseDouble(loadString(fileName));
         } catch (NumberFormatException e) {
-            Server.getInstance().log(e.toString());
+            Server.log(e.toString());
             return defaultValue;
         }
     }
@@ -318,7 +318,7 @@ public class DashboardLayout {
         try {
             return Boolean.parseBoolean(loadString(fileName));
         } catch (NumberFormatException e) {
-            Server.getInstance().log(e.toString());
+            Server.log(e.toString());
             return false;
         }
     }

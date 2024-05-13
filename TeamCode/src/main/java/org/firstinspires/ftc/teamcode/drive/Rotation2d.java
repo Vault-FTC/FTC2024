@@ -90,10 +90,31 @@ public class Rotation2d {
         return new Rotation2d(Math.atan2(y, x));
     }
 
-    public static String stringOf(Rotation2d rotation2d) {
+    public Rotation2d add(Rotation2d rotation) {
+        return addRadians(rotation.getAngleRadians());
+    }
+
+    public Rotation2d addRadians(double angleRadians) {
+        return new Rotation2d(angle + angleRadians);
+    }
+
+    public Rotation2d addDegrees(double angleDegrees) {
+        return new Rotation2d(angle + Math.toRadians(angleDegrees));
+    }
+
+    public Rotation2d negate() {
+        return new Rotation2d(-angle);
+    }
+
+    @Override
+    public String toString() {
+        return "angle(" + angle + ")";
+    }
+
+    public static String getString(Rotation2d rotation2d) {
         if (rotation2d == null) {
             return "null";
         }
-        return "angle(" + rotation2d.angle + ")";
+        return rotation2d.toString();
     }
 }

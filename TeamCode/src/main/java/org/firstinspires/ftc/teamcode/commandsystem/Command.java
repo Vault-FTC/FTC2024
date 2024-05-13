@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.ArrayList;
 
-public abstract class Command {
+public class Command {
     ArrayList<Trigger> triggers = new ArrayList<>();
 
     ElapsedTime timer = new ElapsedTime();
@@ -54,7 +54,9 @@ public abstract class Command {
         return timer.milliseconds() - initializedTimestamp;
     }
 
-    public abstract void execute();
+    public void execute() {
+
+    }
 
     public void end(boolean interrupted) {
 
