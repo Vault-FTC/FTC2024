@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
-import org.firstinspires.ftc.teamcode.webdashboard.Server;
+import org.firstinspires.ftc.teamcode.rustboard.Server;
 
 public class DroneShooter extends Subsystem {
 
@@ -17,19 +17,19 @@ public class DroneShooter extends Subsystem {
     }
 
     public void shootAngle() {
-        angleAdjuster.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("shoot angle", 0.38));
+        angleAdjuster.setPosition(Server.getLayout("dashboard_0").getDoubleValue("shoot angle", 0.38));
     }
 
     public void storeAngle() {
-        angleAdjuster.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("store angle", 0.3));
+        angleAdjuster.setPosition(Server.getLayout("dashboard_0").getDoubleValue("store angle", 0.3));
     }
 
     public void releaseAngle() {
-        release.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("release angle", -0.4));
+        release.setPosition(Server.getLayout("dashboard_0").getDoubleValue("release angle", -0.4));
     }
 
     public void stopAngle() {
-        release.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("stop angle", 0.0));
+        release.setPosition(Server.getLayout("dashboard_0").getDoubleValue("stop angle", 0.0));
     }
 
 }

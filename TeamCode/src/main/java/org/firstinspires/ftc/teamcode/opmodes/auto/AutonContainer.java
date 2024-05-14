@@ -16,7 +16,7 @@ import org.firstinspires.ftc.teamcode.drive.Path;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 
 public abstract class AutonContainer extends Auton {
     protected static Pose2d blueLeftStartPosition = new Pose2d(58.944, 7.916899, new Rotation2d(Math.PI));
@@ -27,7 +27,7 @@ public abstract class AutonContainer extends Auton {
             new SequentialCommandGroup(
                     new FollowPathCommand(this::getPurplePlacePath, drive), // Drive to the spike mark
                     new InstantCommand(purplePixelPlacer::place), // Place the pixel
-                    new WaitCommand(DashboardLayout.loadDouble("wait_time_BL", 1000)), // Wait for the pixel to drop
+                    new WaitCommand(RustboardLayout.loadDouble("wait_time_BL", 1000)), // Wait for the pixel to drop
                     new ParallelCommandGroup( // Begin driving away and retract the dropper arm
                             new SequentialCommandGroup(new WaitCommand(1000), new InstantCommand(purplePixelPlacer::retract)),
                             new FollowPathCommand(Path.loadPath("to_backdrop_BL"), drive)),
@@ -50,7 +50,7 @@ public abstract class AutonContainer extends Auton {
                     new InstantCommand(() -> aprilTagCamera.disable()),
                     new FollowPathCommand(this::getPurplePlacePath, drive), // Drive to the spike mark
                     new InstantCommand(purplePixelPlacer::place), // Place the pixel
-                    new WaitCommand(DashboardLayout.loadDouble("wait_time_BR", 1000)), // Wait for the pixel to drop
+                    new WaitCommand(RustboardLayout.loadDouble("wait_time_BR", 1000)), // Wait for the pixel to drop
                     new FollowPathCommand(Path.loadPath("back_up"), drive),
                     new ParallelCommandGroup( // Begin driving away and retract the dropper arm
                             new SequentialCommandGroup(new WaitCommand(1000), new InstantCommand(purplePixelPlacer::retract)),

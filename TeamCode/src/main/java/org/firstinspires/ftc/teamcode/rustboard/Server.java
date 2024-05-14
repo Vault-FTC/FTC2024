@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.webdashboard;
+package org.firstinspires.ftc.teamcode.rustboard;
 
 import android.os.Environment;
 import android.util.Pair;
@@ -35,8 +35,8 @@ public class Server extends WebSocketServer {
     private static Server instance = null;
     public static final int port = 21865;
     public static final File storageDir = new File(Environment.getExternalStorageDirectory() + "/Download");
-    private ArrayList<DashboardLayout> layouts = new ArrayList<>();
-    private static final DashboardLayout emptyLayout = new EmptyLayout();
+    protected ArrayList<RustboardLayout> layouts = new ArrayList<>();
+    private static final RustboardLayout emptyLayout = new EmptyLayout();
     private ArrayList<Pair<String, String>> messageQueue = new ArrayList<>();
     ElapsedTime timer;
 
@@ -57,7 +57,7 @@ public class Server extends WebSocketServer {
 
     @Override
     public void stop() throws IOException, InterruptedException {
-        for (DashboardLayout layout : layouts) {
+        for (RustboardLayout layout : layouts) {
             layout.save();
         }
         super.stop();
@@ -71,11 +71,11 @@ public class Server extends WebSocketServer {
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         log("client " + conn.getRemoteSocketAddress().toString() + " connected to the robot.");
-        layouts.add(new DashboardLayout(conn));
-        HashMap<String, DashboardLayout> duplicates = new HashMap<>();
-        ArrayList<DashboardLayout> toRemove = new ArrayList<>();
-        for (DashboardLayout layout : layouts) { // Check for layouts with the same id and remove a duplicate if its connection is not open.  If a layout has a closed connection but no duplicate, it will be kept.
-            DashboardLayout first = duplicates.get(layout.id);
+        layouts.add(new RustboardLayout(conn));
+        HashMap<String, RustboardLayout> duplicates = new HashMap<>();
+        ArrayList<RustboardLayout> toRemove = new ArrayList<>();
+        for (RustboardLayout layout : layouts) { // Check for layouts with the same id and remove a duplicate if its connection is not open.  If a layout has a closed connection but no duplicate, it will be kept.
+            RustboardLayout first = duplicates.get(layout.id);
             if (first == null) {
                 duplicates.put(layout.id, layout);
             } else { // If this block is reached, then there are two layouts with the same id
@@ -100,7 +100,7 @@ public class Server extends WebSocketServer {
         if (Objects.equals(data, "ping")) {
             conn.send("pong");
         } else {
-            DashboardLayout layout = getLayout(conn);
+            RustboardLayout layout = getLayout(conn);
             assert layout != null;
 
             JsonReader reader = Json.createReader(new StringReader(data));
@@ -119,7 +119,7 @@ public class Server extends WebSocketServer {
                 case "path update":
                     try {
                         savePath(message);
-                        layout.createNotice("Saved path to robot", DashboardLayout.NoticeType.POSITIVE, 8000);
+                        layout.createNotice("Saved path to robot", RustboardLayout.NoticeType.POSITIVE, 8000);
                     } catch (IOException e) {
                         log(e.toString());
                     }
@@ -127,7 +127,7 @@ public class Server extends WebSocketServer {
                 case "value update":
                     try {
                         saveValue(message);
-                        layout.createNotice("Saved value to robot", DashboardLayout.NoticeType.POSITIVE, 8000);
+                        layout.createNotice("Saved value to robot", RustboardLayout.NoticeType.POSITIVE, 8000);
                     } catch (IOException e) {
                         log(e.toString());
                     }
@@ -145,8 +145,8 @@ public class Server extends WebSocketServer {
         log(e);
     }
 
-    public static DashboardLayout getLayout(String id) {
-        for (DashboardLayout layout : getInstance().layouts) {
+    public static RustboardLayout getLayout(String id) {
+        for (RustboardLayout layout : getInstance().layouts) {
             if (Objects.equals(layout.id, id)) {
                 return layout;
             }
@@ -154,8 +154,8 @@ public class Server extends WebSocketServer {
         return emptyLayout;
     }
 
-    private DashboardLayout getLayout(WebSocket conn) {
-        for (DashboardLayout layout : layouts) {
+    private RustboardLayout getLayout(WebSocket conn) {
+        for (RustboardLayout layout : layouts) {
             if (layout.connection == conn) { // In this case the Objects.equals() method is not ideal.  What's important is that the references are the same, not the values of the variables
                 return layout;
             }
@@ -163,11 +163,11 @@ public class Server extends WebSocketServer {
         return emptyLayout;
     }
 
-    private ArrayList<DashboardLayout> loadLayouts() {
-        ArrayList<DashboardLayout> layouts = new ArrayList<>();
+    private ArrayList<RustboardLayout> loadLayouts() {
+        ArrayList<RustboardLayout> layouts = new ArrayList<>();
         for (File file : storageDir.listFiles()) {
-            if (DashboardLayout.isDashboardLayoutFile(file.getName())) {
-                layouts.add(DashboardLayout.loadLayout(file.getName()));
+            if (RustboardLayout.isDashboardLayoutFile(file.getName())) {
+                layouts.add(RustboardLayout.loadLayout(file.getName()));
             }
         }
         return layouts;
@@ -175,7 +175,7 @@ public class Server extends WebSocketServer {
 
     public boolean connected() {
         boolean connected = false;
-        for (DashboardLayout layout : layouts) {
+        for (RustboardLayout layout : layouts) {
             if (layout.connection != null) {
                 connected = true;
             }
@@ -199,7 +199,7 @@ public class Server extends WebSocketServer {
         toRemove.forEach((message) -> messageQueue.remove(message));
     }
 
-    public void sendToConnection(DashboardLayout layout, String message) {
+    public void sendToConnection(RustboardLayout layout, String message) {
         if (connected()) {
             ThreadPool.getDefaultScheduler().submit(() -> layout.connection.send(message));
         } else {

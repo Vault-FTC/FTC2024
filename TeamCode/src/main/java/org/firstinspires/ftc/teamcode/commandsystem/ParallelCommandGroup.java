@@ -54,6 +54,11 @@ public class ParallelCommandGroup extends CommandGroup {
             return this;
         }
 
+        public Builder add(Runnable instantCommand) {
+            add(new InstantCommand(instantCommand));
+            return this;
+        }
+
         public ParallelCommandGroup build() {
             return new ParallelCommandGroup(commands.toArray(new Command[]{}));
         }

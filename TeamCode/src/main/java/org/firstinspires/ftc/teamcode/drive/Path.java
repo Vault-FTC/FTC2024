@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.drive;
 
-import static org.firstinspires.ftc.teamcode.webdashboard.Server.storageDir;
+import static org.firstinspires.ftc.teamcode.rustboard.Server.storageDir;
 
-import org.firstinspires.ftc.teamcode.webdashboard.Server;
+import org.firstinspires.ftc.teamcode.rustboard.Server;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,7 +19,7 @@ import javax.json.JsonReader;
 public class Path implements Supplier<Path> {
     public final ArrayList<Supplier<Waypoint>> waypoints;
 
-    final double timeout; // In milliseconds
+    final double timeout;
 
     public Path(double timeout, Supplier<Waypoint>... waypoints) {
         this.waypoints = new ArrayList<>();
@@ -191,7 +191,6 @@ public class Path implements Supplier<Path> {
             return loaded;
         } catch (IOException e) {
             Server.log(e.toString());
-            e.printStackTrace();
         }
         return new Path();
     }

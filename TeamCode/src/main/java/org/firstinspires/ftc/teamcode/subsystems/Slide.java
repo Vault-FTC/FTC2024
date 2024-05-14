@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.control.PIDController;
+import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
+import org.firstinspires.ftc.teamcode.rustboard.Server;
 import org.firstinspires.ftc.teamcode.utils.PairedEncoder;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
-import org.firstinspires.ftc.teamcode.webdashboard.Server;
 
 public class Slide extends Subsystem {
 
@@ -61,12 +61,12 @@ public class Slide extends Subsystem {
             lastInput = 0;
         }
         calculatedSpeed = applyAccelerationLimits(calculatedSpeed);
-        DashboardLayout.setNodeValue("slide speed", calculatedSpeed);
+        RustboardLayout.setNodeValue("slide speed", calculatedSpeed);
         drive(calculatedSpeed);
     }
 
     private double applyAccelerationLimits(double speed) {
-        double accelMax = Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide accel", 0.5);
+        double accelMax = Server.getLayout("dashboard_0").getDoubleValue("slide accel", 0.5);
         if (speed > 0) {
             speed = Math.min(lastSpeed + accelMax, speed);
         } else {
@@ -101,15 +101,15 @@ public class Slide extends Subsystem {
             targetPosition = Math.max(targetPosition, 0);
         }
 
-        controller.setP(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kP", 0.0014));
-        controller.setI(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kI", 0.0));
-        controller.setD(Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide kD", 0.0008));
-        feedforward = Server.getInstance().getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2);
+        controller.setP(Server.getLayout("dashboard_0").getDoubleValue("slide kP", 0.0014));
+        controller.setI(Server.getLayout("dashboard_0").getDoubleValue("slide kI", 0.0));
+        controller.setD(Server.getLayout("dashboard_0").getDoubleValue("slide kD", 0.0008));
+        feedforward = Server.getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2);
         Server.log(controller.getGains().toString());
         Server.log("feedforward: " + feedforward);
-        DashboardLayout.setNodeValue("slide pose", encoder.getPosition());
-        DashboardLayout.setNodeValue("slide velocity", encoder.getVelocity());
-        DashboardLayout.setNodeValue("slide target", targetPosition);
-        DashboardLayout.setNodeValue("slide limit", limit.isPressed());
+        RustboardLayout.setNodeValue("slide pose", encoder.getPosition());
+        RustboardLayout.setNodeValue("slide velocity", encoder.getVelocity());
+        RustboardLayout.setNodeValue("slide target", targetPosition);
+        RustboardLayout.setNodeValue("slide limit", limit.isPressed());
     }
 }

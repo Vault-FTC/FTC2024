@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.vision;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.opmodes.Robot.GameElementLocation;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;
@@ -57,7 +57,7 @@ public class Pipeline extends GameElementDetector {
             locationHistory.add(propLocation.ordinal());
         }
 
-        DashboardLayout.setNodeValue("prop", propX);
+        RustboardLayout.setNodeValue("prop", propX);
 
         return frame;
     }

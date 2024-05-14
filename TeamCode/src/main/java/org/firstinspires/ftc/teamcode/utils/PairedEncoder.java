@@ -57,5 +57,4 @@ public class PairedEncoder extends Subsystem implements Encoder {
     public void periodic() {
         velocity = calculateVelocity();
     }
-
 }

@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
-import org.firstinspires.ftc.teamcode.webdashboard.Server;
+import org.firstinspires.ftc.teamcode.rustboard.Server;
 
 public class PurplePixelPlacer extends Subsystem {
 
@@ -15,10 +15,10 @@ public class PurplePixelPlacer extends Subsystem {
     }
 
     public void place() {
-        servo.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("purple place", 0.95));
+        servo.setPosition(Server.getLayout("dashboard_0").getDoubleValue("purple place", 0.95));
     }
 
     public void retract() {
-        servo.setPosition(Server.getInstance().getLayout("dashboard_0").getDoubleValue("purple retract", 0.6));
+        servo.setPosition(Server.getLayout("dashboard_0").getDoubleValue("purple retract", 0.6));
     }
 }

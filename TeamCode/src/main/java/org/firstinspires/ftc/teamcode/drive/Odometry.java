@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 import org.firstinspires.ftc.teamcode.utils.Encoder;
 import org.firstinspires.ftc.teamcode.utils.PairedEncoder;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
 
 public class Odometry {
 
@@ -83,9 +83,9 @@ public class Odometry {
     }
 
     public Pose2d update() {
-        DashboardLayout.setNodeValue("encoder0", parallel0.getPosition());
-        DashboardLayout.setNodeValue("encoder1", parallel1.getPosition());
-        DashboardLayout.setNodeValue("encoder2", perpendicular.getPosition());
+        RustboardLayout.setNodeValue("encoder0", parallel0.getPosition());
+        RustboardLayout.setNodeValue("encoder1", parallel1.getPosition());
+        RustboardLayout.setNodeValue("encoder2", perpendicular.getPosition());
         Pose2d delta = delta();
         pose = pose.add(new Pose2d(delta.rotate(pose.rotation.getAngleRadians()), new Rotation2d(delta.rotation.getAngleRadians())));
         return pose;

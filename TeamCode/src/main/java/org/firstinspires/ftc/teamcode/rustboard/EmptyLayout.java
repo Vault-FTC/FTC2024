@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.webdashboard;
+package org.firstinspires.ftc.teamcode.rustboard;
 
-public class EmptyLayout extends DashboardLayout {
+public class EmptyLayout extends RustboardLayout {
     public EmptyLayout() {
         super(null);
     }

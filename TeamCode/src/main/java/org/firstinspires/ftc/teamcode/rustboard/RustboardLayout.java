@@ -1,6 +1,6 @@
-package org.firstinspires.ftc.teamcode.webdashboard;
+package org.firstinspires.ftc.teamcode.rustboard;
 
-import static org.firstinspires.ftc.teamcode.webdashboard.Server.storageDir;
+import static org.firstinspires.ftc.teamcode.rustboard.Server.storageDir;
 
 import com.google.gson.JsonParseException;
 
@@ -13,7 +13,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -23,22 +22,21 @@ import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
-public class DashboardLayout {
-
-    public final WebSocket connection;
+public class RustboardLayout {
+    protected final WebSocket connection;
     private final HashMap<String, Runnable> callbacks = new HashMap<>();
-    public ArrayList<DashboardNode> nodes;
-    public String id = "";
-    public static final String layoutFilePrefix = "dashboard_layout_";
+    protected HashMap<String, RustboardNode> nodes = new HashMap<>();
+    protected String id = "";
+    protected static final String layoutFilePrefix = "dashboard_layout_";
 
-    public DashboardLayout(WebSocket connection) {
+    public RustboardLayout(WebSocket connection) {
         this.connection = connection;
     }
 
-    private static DashboardNode.Type getNodeType(String inputType) {
-        DashboardNode.Type type = null;
-        DashboardNode.Type[] types = DashboardNode.Type.values();
-        for (DashboardNode.Type value : types) {
+    private static RustboardNode.Type getNodeType(String inputType) {
+        RustboardNode.Type type = null;
+        RustboardNode.Type[] types = RustboardNode.Type.values();
+        for (RustboardNode.Type value : types) {
             if (Objects.equals(value.name, inputType)) {
                 type = value;
             }
@@ -61,6 +59,7 @@ public class DashboardLayout {
      * @param value The value to send to the target dashboard node.
      */
     public void setMyNodeValue(String id, String value) {
+        nodes.get(id).state = value;
         if (Constants.debugMode) {
             JsonObject jsonObject = getSendableNodeData(id, value);
             Server.getInstance().sendToConnection(this, jsonObject.toString());
@@ -101,12 +100,13 @@ public class DashboardLayout {
     }
 
     public void update(JsonObject object) {
-        ArrayList<DashboardNode> nodes = new ArrayList<>();
+        HashMap<String, RustboardNode> nodes = new HashMap<>();
         JsonArray jsonValues = object.getJsonArray("layout");
         id = object.getString("id");
         for (JsonValue jsonValue : jsonValues) {
-            JsonObject node = jsonValue.asJsonObject();
-            nodes.add(new DashboardNode(node.getString("id"), getNodeType(node.getString("type")), node.getString("state")));
+            JsonObject nodeJson = jsonValue.asJsonObject();
+            RustboardNode node = new RustboardNode(nodeJson.getString("id"), getNodeType(nodeJson.getString("type")), nodeJson.getString("state"));
+            nodes.put(node.id, node);
         }
         this.nodes = nodes;
     }
@@ -114,65 +114,53 @@ public class DashboardLayout {
     public void updateNode(JsonObject object) {
         JsonObject configuration = object.getJsonObject("configuration");
         String nodeID = configuration.getString("id");
-        for (DashboardNode node : nodes) {
-            if (Objects.equals(node.id, nodeID)) {
-                node.state = Objects.requireNonNull(configuration.getString("state"));
-                return;
+        nodes.get(nodeID).state = Objects.requireNonNull(configuration.getString("state"));
+    }
+
+    private String getNodeState(String id, RustboardNode.Type... requiredTypes) {
+        RustboardNode node = nodes.get(id);
+        if (node != null) {
+            boolean correctType = false;
+            for (RustboardNode.Type requiredType : requiredTypes) {
+                if (node.type == requiredType) {
+                    correctType = true;
+                    break;
+                }
             }
+            if (!correctType) {
+                StringBuilder errMsg = new StringBuilder("The type of the requested node (\"" + node.type.name + "\") does not match any of the required types:\n Required types: ");
+                for (int i = 0; i < requiredTypes.length; i++) {
+                    errMsg.append("\"" + requiredTypes[i].name + "\"");
+                    if (i < requiredTypes.length - 1) {
+                        errMsg.append(", ");
+                    }
+                }
+                throw new IllegalArgumentException(errMsg.toString());
+            }
+            return node.state;
         }
+        return "";
     }
 
     public double getDoubleValue(String id, double defaultValue) {
-        for (DashboardNode node : nodes) {
-            if (Objects.equals(node.id, id)) {
-                if (node.type != DashboardNode.Type.TEXT_INPUT) {
-                    throw new IllegalArgumentException("Requested node is not an input");
-                }
-                try {
-                    return Double.parseDouble(node.state);
-                } catch (NumberFormatException e) {
-                    Server.log(e + "\n + Couldn't get double value for id " + id);
-                    return defaultValue;
-                }
-            }
+        try {
+            return Double.parseDouble(getNodeState(id, RustboardNode.Type.TEXT_INPUT, RustboardNode.Type.TEXT_TELEMETRY));
+        } catch (NumberFormatException e) {
+            Server.log(e + "\n + Couldn't get double value for id " + id);
+            return defaultValue;
         }
-        return defaultValue;
     }
 
     public boolean getBooleanValue(String id) {
-        for (DashboardNode node : nodes) {
-            if (Objects.equals(node.id, id)) {
-                if (!(node.type == DashboardNode.Type.BOOLEAN_TELEMETRY || node.type == DashboardNode.Type.TOGGLE)) {
-                    throw new IllegalArgumentException("Requested node does not use boolean states");
-                }
-                return Boolean.parseBoolean(node.state);
-            }
-        }
-        return false;
+        return Boolean.parseBoolean(getNodeState(id, RustboardNode.Type.BOOLEAN_TELEMETRY, RustboardNode.Type.TOGGLE));
     }
 
     public String getInputValue(String id) {
-        for (DashboardNode node : nodes) {
-            if (Objects.equals(node.id, id)) {
-                if (node.type != DashboardNode.Type.TEXT_INPUT) {
-                    throw new IllegalArgumentException("Requested node is not an input");
-                }
-                return node.state;
-            }
-        }
-        return "";
+        return getNodeState(id, RustboardNode.Type.TEXT_INPUT);
     }
 
     public String getSelectedValue(String id) {
-        for (DashboardNode node : nodes) {
-            if (Objects.equals(node.id, id)) {
-                if (node.type != DashboardNode.Type.SELECTOR) {
-                    throw new IllegalArgumentException("Requested node is not a selector");
-                }
-                return node.state;
-            }
-        }
-        return "";
+        return getNodeState(id, RustboardNode.Type.SELECTOR);
     }
 
     public void buttonClicked(String id) {
@@ -209,12 +197,12 @@ public class DashboardLayout {
         }
     }
 
-    public static class DashboardNode {
+    public static class RustboardNode {
         private final String id;
         private final Type type;
         private String state;
 
-        public DashboardNode(String id, Type type, String state) {
+        public RustboardNode(String id, Type type, String state) {
             this.id = id;
             this.type = type;
             this.state = state;
@@ -241,13 +229,11 @@ public class DashboardLayout {
 
     private JsonArray getLayoutJSON() {
         JsonArrayBuilder draggableDataBuilder = Json.createArrayBuilder();
-        for (DashboardNode node : nodes) {
-            draggableDataBuilder.add(Json.createObjectBuilder()
-                    .add("id", node.id)
-                    .add("type", node.type.name)
-                    .add("state", node.state)
-                    .build());
-        }
+        nodes.forEach((id, node) -> draggableDataBuilder.add(Json.createObjectBuilder()
+                .add("id", node.id)
+                .add("type", node.type.name)
+                .add("state", node.state)
+                .build()));
         return draggableDataBuilder.build();
     }
 
@@ -269,9 +255,9 @@ public class DashboardLayout {
         writer.close();
     }
 
-    public static DashboardLayout loadLayout(String fileName) {
+    public static RustboardLayout loadLayout(String fileName) {
         String layoutData = loadString(fileName, ".json");
-        DashboardLayout layout = new DashboardLayout(null);
+        RustboardLayout layout = new RustboardLayout(null);
         try {
             layout.update(Json.createReader(new StringReader(layoutData)).readObject());
         } catch (JsonParseException e) {
@@ -315,12 +301,6 @@ public class DashboardLayout {
     }
 
     public static boolean loadBoolean(String fileName) {
-        try {
-            return Boolean.parseBoolean(loadString(fileName));
-        } catch (NumberFormatException e) {
-            Server.log(e.toString());
-            return false;
-        }
+        return Boolean.parseBoolean(loadString(fileName));
     }
-
 }

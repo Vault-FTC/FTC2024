@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 
 public class Placer extends Subsystem {
     private final Servo lifter0;
@@ -58,6 +58,6 @@ public class Placer extends Subsystem {
 
     @Override
     public void periodic() {
-        DashboardLayout.setNodeValue("distance", getDistance());
+        RustboardLayout.setNodeValue("distance", getDistance());
     }
 }

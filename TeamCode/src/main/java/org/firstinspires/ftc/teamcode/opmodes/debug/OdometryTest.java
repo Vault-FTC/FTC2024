@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.drive.Odometry;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
-import org.firstinspires.ftc.teamcode.webdashboard.Server;
+import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
+import org.firstinspires.ftc.teamcode.rustboard.Server;
 
 @Disabled
 @TeleOp(name = "odo test")
@@ -23,7 +23,7 @@ public class OdometryTest extends OpMode {
     @Override
     public void loop() {
         odometry.update();
-        DashboardLayout.setNodeValue("pose", odometry.getPose());
+        RustboardLayout.setNodeValue("pose", odometry.getPose());
     }
 
 }

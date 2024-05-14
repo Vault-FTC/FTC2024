@@ -60,6 +60,11 @@ public class SequentialCommandGroup extends CommandGroup {
             return this;
         }
 
+        public Builder add(Runnable instantCommand) {
+            add(new InstantCommand(instantCommand));
+            return this;
+        }
+
         public SequentialCommandGroup build() {
             return new SequentialCommandGroup(commands.toArray(new Command[]{}));
         }

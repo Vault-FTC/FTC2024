@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.commandsystem;
 
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
-
 import java.util.function.BooleanSupplier;
 
 public class Trigger implements BooleanSupplier {

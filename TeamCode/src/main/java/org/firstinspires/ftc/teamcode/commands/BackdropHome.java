@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.commands;
 
 import org.firstinspires.ftc.teamcode.commandsystem.Command;
-import org.firstinspires.ftc.teamcode.control.PIDController;
 import org.firstinspires.ftc.teamcode.drive.MecanumBase;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
@@ -21,8 +20,6 @@ public class BackdropHome extends Command {
     private boolean atWaypoint = false;
     private boolean lastAtWaypoint = false;
     private double timestamp = -1;
-    private PIDController.PIDGains initialBaseGains;
-    private PIDController.PIDGains initialRotGains;
 
     public BackdropHome(MecanumBase base, Slide slide, Placer placer, Supplier<Waypoint> futureBackdropWaypoint, double followTimeout, double endTime) {
         this.futureBackdropWaypoint = futureBackdropWaypoint;
@@ -37,11 +34,7 @@ public class BackdropHome extends Command {
     public void initialize() {
         atWaypoint = false;
         lastAtWaypoint = false;
-        //base.driveController.setGains(0.1, 0.00001, 4);
-        //base.rotController.setGains(0.75, 0.0001, 0.6);
         backdropWaypoint = futureBackdropWaypoint.get();
-        initialBaseGains = base.driveController.getGains();
-        initialRotGains = base.rotController.getGains();
     }
 
     @Override
@@ -63,11 +56,4 @@ public class BackdropHome extends Command {
 
         return atWaypoint && timeSinceInitialized() > timestamp + endTime;
     }
-
-    @Override
-    public void end(boolean interrupted) {
-        base.driveController.setGains(initialBaseGains);
-        base.rotController.setGains(initialRotGains);
-    }
-
 }

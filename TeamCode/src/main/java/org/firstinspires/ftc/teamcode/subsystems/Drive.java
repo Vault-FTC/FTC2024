@@ -9,8 +9,8 @@ import org.firstinspires.ftc.teamcode.control.PIDController;
 import org.firstinspires.ftc.teamcode.drive.MecanumBase;
 import org.firstinspires.ftc.teamcode.drive.Odometry;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
-import org.firstinspires.ftc.teamcode.webdashboard.Server;
+import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
+import org.firstinspires.ftc.teamcode.rustboard.Server;
 
 public class Drive extends Subsystem {
     public final MecanumBase base;
@@ -31,7 +31,7 @@ public class Drive extends Subsystem {
 
     public void drive(double drive, double strafe, double turn, double heading) {
         base.drive(drive * multiplier, strafe * multiplier, turn * multiplier, heading - fieldCentricOffset.getAngleRadians(), false);
-        DashboardLayout.setNodeValue("input", "drive: " + drive + " strafe: " + strafe + " turn: " + turn);
+        RustboardLayout.setNodeValue("input", "drive: " + drive + " strafe: " + strafe + " turn: " + turn);
     }
 
     public void drive(double drive, double strafe, double turn) {
@@ -66,8 +66,8 @@ public class Drive extends Subsystem {
     @Override
     public void periodic() {
         odometry.update();
-        DashboardLayout.setNodeValue("pose", odometry.getPose().toString());
-        DashboardLayout layout = Server.getInstance().getLayout("dashboard_0");
+        RustboardLayout.setNodeValue("pose", odometry.getPose().toString());
+        RustboardLayout layout = Server.getLayout("dashboard_0");
         base.driveController.setGains(new PIDController.PIDGains(
                 layout.getDoubleValue("drive kP", 0.1),
                 layout.getDoubleValue("drive kI", 0.0),

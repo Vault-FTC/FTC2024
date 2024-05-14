@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Vector2d;
-import org.firstinspires.ftc.teamcode.webdashboard.DashboardLayout;
+import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -62,7 +62,7 @@ public class AprilTagCamera extends Subsystem {
         List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
         int i = 0;
         for (AprilTagDetection detection : detections) {
-            DashboardLayout.setNodeValue("follow", detection.id);
+            RustboardLayout.setNodeValue("follow", detection.id);
             if (detection.metadata != null && detection.id >= 1 && detection.id <= 6 && detection.ftcPose.range < Constants.Vision.useAprilTagMaxRangeIn) {
                 Pose2d calculatedPose = calculateBotPose(detection);
                 position = position.add(calculatedPose);
