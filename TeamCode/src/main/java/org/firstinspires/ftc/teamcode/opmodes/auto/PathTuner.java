@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.drive.AutonomousCommand;
+import org.firstinspires.ftc.teamcode.commandsystem.AutonomousCommand;
 import org.firstinspires.ftc.teamcode.drive.FollowPathCommand;
 import org.firstinspires.ftc.teamcode.drive.Path;
 

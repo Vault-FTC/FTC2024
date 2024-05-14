@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.drive.AutonomousCommand;
+import org.firstinspires.ftc.teamcode.commandsystem.AutonomousCommand;
 import org.firstinspires.ftc.teamcode.drive.Pose2d;
 import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;

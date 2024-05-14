@@ -1,9 +1,7 @@
-package org.firstinspires.ftc.teamcode.drive;
+package org.firstinspires.ftc.teamcode.commandsystem;
 
-import org.firstinspires.ftc.teamcode.commandsystem.Command;
-import org.firstinspires.ftc.teamcode.commandsystem.CommandGroup;
-import org.firstinspires.ftc.teamcode.commandsystem.ParallelCommandGroup;
-import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
+import org.firstinspires.ftc.teamcode.drive.FollowPathCommand;
+import org.firstinspires.ftc.teamcode.drive.Path;
 
 import java.util.ArrayList;
 import java.util.function.Supplier;
@@ -46,19 +44,23 @@ public class AutonomousCommand extends Command {
     }
 
     public AutonomousCommand mirrorPaths() {
+        return new AutonomousCommand(recursiveMirror(command));
+    }
+
+    private Command recursiveMirror(Command toMirror) {
         ArrayList<Command> commands = new ArrayList<>();
-        if (command instanceof CommandGroup) {
-            for (Command command : ((CommandGroup) command).getCommands()) {
-                command = mirrorContainedPath(command);
+        if (toMirror instanceof CommandGroup) {
+            for (Command command : ((CommandGroup) toMirror).getCommands()) {
+                command = recursiveMirror(command);
                 commands.add(command);
             }
-            if (command instanceof SequentialCommandGroup) {
-                return new AutonomousCommand(new SequentialCommandGroup(commands.toArray(new Command[]{})));
+            if (toMirror instanceof SequentialCommandGroup) {
+                return new SequentialCommandGroup(commands.toArray(new Command[]{}));
             } else {
-                return new AutonomousCommand(new ParallelCommandGroup(commands.toArray(new Command[]{})));
+                return new ParallelCommandGroup(commands.toArray(new Command[]{}));
             }
         } else {
-            return new AutonomousCommand(mirrorContainedPath(command));
+            return mirrorContainedPath(toMirror);
         }
     }
 
