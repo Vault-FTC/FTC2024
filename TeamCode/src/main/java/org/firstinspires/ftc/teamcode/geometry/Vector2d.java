@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.drive;
+package org.firstinspires.ftc.teamcode.geometry;
 
 import java.util.Objects;
 
@@ -17,7 +17,7 @@ public class Vector2d {
         if (isCartesian) {
             x = var1;
             y = var2;
-            magnitude = calculateMagnitude(var1, var2);
+            magnitude = calculateRadius(var1, var2);
             angle = calculateAngle(var1, var2);
         } else {
             x = var1 * Math.cos(var2);
@@ -35,11 +35,11 @@ public class Vector2d {
         this(0, 0);
     }
 
-    private double calculateMagnitude(double x, double y) {
+    public static double calculateRadius(double x, double y) {
         return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     }
 
-    private double calculateAngle(double x, double y) {
+    public static double calculateAngle(double x, double y) {
         if (x == 0.0) {
             if (y < 0) {
                 return -Math.PI / 2;
@@ -55,6 +55,12 @@ public class Vector2d {
 
     public Vector2d rotate(double angle) {
         return new Vector2d(this.magnitude, this.angle + angle, false);
+    }
+
+    public static double[] rotate(double x, double y, double angle) {
+        double cos = Math.cos(angle);
+        double sin = Math.sin(angle);
+        return new double[]{x * cos - y * sin, x * sin + y * cos};
     }
 
     public double distanceTo(Vector2d vector) {

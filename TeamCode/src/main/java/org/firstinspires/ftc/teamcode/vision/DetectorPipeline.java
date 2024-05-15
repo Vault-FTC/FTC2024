@@ -11,7 +11,7 @@ import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 
-public class Pipeline extends GameElementDetector {
+public class DetectorPipeline extends GameElementDetector {
 
     private GameElementLocation propLocation = GameElementLocation.LEFT;
     private ArrayList<Integer> locationHistory = new ArrayList<>();
@@ -19,7 +19,6 @@ public class Pipeline extends GameElementDetector {
 
     @Override
     public Mat processFrame(Mat frame) {
-
         Imgproc.cvtColor(frame, frame, Imgproc.COLOR_BGR2GRAY);
         Imgproc.medianBlur(frame, frame, 7);
         CLAHE clahe = Imgproc.createCLAHE(5);
@@ -34,13 +33,11 @@ public class Pipeline extends GameElementDetector {
         Imgproc.HoughCircles(frame, circles, Imgproc.HOUGH_GRADIENT, 1, 20, 100, 35, 30, 80);
 
         double xSum = 0;
-        double ySum = 0;
         double propX = 0;
 
         if (!circles.empty()) {
             for (int i = 0; i < circles.cols(); i++) {
                 xSum += circles.get(0, i)[0];
-                ySum += circles.get(0, i)[1];
             }
             propX = xSum / circles.cols(); // Divide by the number of circles detected
         }

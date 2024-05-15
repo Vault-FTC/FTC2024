@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 
 import java.util.function.DoubleSupplier;
 
-public class GamepadHelper {
+public class SuperGamepad {
     private double triggerDeadZone = 0.05;
     private double joystickDeadZone = 0.05;
 
@@ -33,7 +33,7 @@ public class GamepadHelper {
     public final DoubleSupplier rightStickX;
     public final DoubleSupplier rightStickY;
 
-    public GamepadHelper(Gamepad gamepad) {
+    public SuperGamepad(Gamepad gamepad) {
         a = new Trigger(() -> gamepad.a);
         b = new Trigger(() -> gamepad.b);
         x = new Trigger(() -> gamepad.x);
@@ -57,12 +57,12 @@ public class GamepadHelper {
 
     }
 
-    public GamepadHelper setTriggerDeadZone(double triggerDeadZone) {
+    public SuperGamepad setTriggerDeadZone(double triggerDeadZone) {
         this.triggerDeadZone = triggerDeadZone;
         return this;
     }
 
-    public GamepadHelper setJoystickDeadZone(double joystickDeadZone) {
+    public SuperGamepad setJoystickDeadZone(double joystickDeadZone) {
         this.joystickDeadZone = joystickDeadZone;
         return this;
     }

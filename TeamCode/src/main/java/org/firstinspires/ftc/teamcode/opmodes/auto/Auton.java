@@ -2,13 +2,13 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.commandsystem.AutonomousCommand;
-import org.firstinspires.ftc.teamcode.drive.Pose2d;
-import org.firstinspires.ftc.teamcode.drive.Rotation2d;
+import org.firstinspires.ftc.teamcode.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.rustboard.Server;
+import org.firstinspires.ftc.teamcode.vision.DetectorPipeline;
 import org.firstinspires.ftc.teamcode.vision.GameElementDetector;
 import org.firstinspires.ftc.teamcode.vision.GameElementDetector.StreamDimension;
-import org.firstinspires.ftc.teamcode.vision.Pipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvWebcam;
@@ -61,7 +61,7 @@ public abstract class Auton extends Robot {
 
     private void initializeDetectorCam(String cameraName, StreamDimension size) {
         detectorCam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, cameraName));
-        detectorPipeline = new Pipeline();
+        detectorPipeline = new DetectorPipeline();
         detectorCam.setPipeline(detectorPipeline);
         detectorCam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override

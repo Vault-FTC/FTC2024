@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.control.PIDController;
+import org.firstinspires.ftc.teamcode.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.geometry.Vector2d;
 
 import java.util.function.Supplier;
 
@@ -15,12 +18,9 @@ public class MecanumBase {
     public final DcMotor rf;
     public final DcMotor lb;
     public final DcMotor rb;
-
     private int waypointIndex = 0;
-
-    private Path followPath;
+    private Path toFollow;
     private final ElapsedTime timer = new ElapsedTime();
-
     private Pose2d lastPose = new Pose2d();
     private double lastTimestamp = 0;
     private double followStartTimestamp;
@@ -80,9 +80,7 @@ public class MecanumBase {
                 drive - strafe - turn,
                 drive + strafe + turn
         };
-
         double largest = 1.0;
-
         for (double wheelSpeed : wheelSpeeds) {
             if (Math.abs(wheelSpeed) > largest) {
                 largest = Math.abs(wheelSpeed);
@@ -113,12 +111,11 @@ public class MecanumBase {
         return (interpolationPoint.x - point1.x) / (point2.x - point1.x);
     }
 
-
     public void setFollowPath(Path path) {
         waypointIndex = 0;
         driveState = DriveState.IDLE;
-        followPath = path;
-        segments = followPath.generateLineSegments();
+        toFollow = path;
+        segments = toFollow.generateLineSegments();
         followStartTimestamp = timer.milliseconds();
     }
 
@@ -252,7 +249,7 @@ public class MecanumBase {
                 driveState = DriveState.FOLLOWING;
                 setToCoastMode();
             case FOLLOWING:
-                if (timer.milliseconds() > followStartTimestamp + followPath.timeout) {
+                if (timer.milliseconds() > followStartTimestamp + toFollow.timeout) {
                     driveState = DriveState.IDLE;
                 }
 
@@ -275,7 +272,7 @@ public class MecanumBase {
 
     public boolean finishedFollowing() {
         try {
-            if (timer.milliseconds() > followStartTimestamp + followPath.timeout && timer.milliseconds() > followStartTimestamp + 1) {
+            if (timer.milliseconds() > followStartTimestamp + toFollow.timeout && timer.milliseconds() > followStartTimestamp + 1) {
                 return true;
             }
 
@@ -288,7 +285,9 @@ public class MecanumBase {
 
             lastTimestamp = currentTimestamp;
 
-            atEndpoint = speed < 2.0 && botPose.distanceTo(segments[segments.length - 1][1]) < 2.0 && waypointIndex == segments.length - 1;
+            atEndpoint = speed < DriveConstants.maxEndVelocityInPerSec
+                    && botPose.distanceTo(segments[segments.length - 1][1]) < DriveConstants.maxEndpointErr
+                    && waypointIndex == segments.length - 1;
             if (segments[segments.length - 1][1].targetEndRotation == null) {
                 atTargetHeading = true;
             } else {

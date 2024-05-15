@@ -1,6 +1,9 @@
-package org.firstinspires.ftc.teamcode.drive;
+package org.firstinspires.ftc.teamcode.geometry;
 
 import androidx.annotation.NonNull;
+
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.Waypoint;
 
 public class Pose2d extends Vector2d {
     public final Rotation2d rotation;

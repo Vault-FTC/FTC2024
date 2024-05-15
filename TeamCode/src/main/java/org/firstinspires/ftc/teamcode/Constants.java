@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.teamcode.drive.Pose2d;
-import org.firstinspires.ftc.teamcode.drive.Rotation2d;
+import org.firstinspires.ftc.teamcode.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
 
 public class Constants {
     public static final boolean debugMode = false;
@@ -30,16 +30,6 @@ public class Constants {
         public static final double lifter1StoragePosition = 0.5;
         public static final double openPosition = 0.56;
         public static final double closePosition = 0.62;
-    }
-
-    public static final class Drive {
-        public static final class StartPositions {
-            public static final Pose2d blueLeft = new Pose2d(58.944, 7.916899, new Rotation2d(Math.PI));
-            public static final Pose2d blueRight = new Pose2d(106.0685, 7.916899, new Rotation2d(Math.PI));
-            public static final Pose2d redLeft = new Pose2d(106.0685, fieldLengthIn - 7.916899, new Rotation2d());
-            public static final Pose2d redRight = new Pose2d(58.944, fieldLengthIn - 7.916899, new Rotation2d());
-        }
-
     }
 
     public static final class Vision {

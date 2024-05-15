@@ -13,9 +13,9 @@ import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.FollowPathCommand;
 import org.firstinspires.ftc.teamcode.drive.FutureInstance;
 import org.firstinspires.ftc.teamcode.drive.Path;
-import org.firstinspires.ftc.teamcode.drive.Pose2d;
-import org.firstinspires.ftc.teamcode.drive.Rotation2d;
 import org.firstinspires.ftc.teamcode.drive.Waypoint;
+import org.firstinspires.ftc.teamcode.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 
 public abstract class AutonContainer extends Auton {

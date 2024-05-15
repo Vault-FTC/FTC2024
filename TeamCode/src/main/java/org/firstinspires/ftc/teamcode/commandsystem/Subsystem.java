@@ -3,9 +3,7 @@ package org.firstinspires.ftc.teamcode.commandsystem;
 import java.util.ArrayList;
 
 public abstract class Subsystem {
-
     ArrayList<Command> requirements = new ArrayList<>();
-
     Command defaultCommand = null;
 
     public Subsystem() {
@@ -47,5 +45,4 @@ public abstract class Subsystem {
         if (defaultCommand != null) defaultCommand.type = Command.Type.NORMAL;
         defaultCommand = command;
     }
-
 }

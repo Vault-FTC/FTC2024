@@ -46,10 +46,6 @@ public class Command {
 
     }
 
-    public double initializedTimestamp() {
-        return initializedTimestamp;
-    }
-
     public double timeSinceInitialized() {
         return timer.milliseconds() - initializedTimestamp;
     }
@@ -69,10 +65,6 @@ public class Command {
     public void schedule() {
         state = State.QUEUED;
         scheduledTimestamp = CommandScheduler.getInstance().timer.milliseconds();
-    }
-
-    public boolean scheduled() {
-        return state != State.UNSCHEDULED;
     }
 
     public final void cancel() {

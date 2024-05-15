@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.commands.CameraCalibrate;
 import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
-import org.firstinspires.ftc.teamcode.drive.Pose2d;
-import org.firstinspires.ftc.teamcode.drive.Rotation2d;
-import org.firstinspires.ftc.teamcode.drive.Vector2d;
+import org.firstinspires.ftc.teamcode.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.geometry.Vector2d;
 import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class AprilTagCamera extends Subsystem {
-
     public final VisionPortal visionPortal;
     public boolean cameraEnabled = false;
     private boolean usingCamera = false;
@@ -95,7 +94,7 @@ public class AprilTagCamera extends Subsystem {
         cameraEnabled = false;
     }
 
-    public Pose2d getCalculatedPose() {
+    public Pose2d getCalculatedBotPose() {
         return calculatedPose;
     }
 

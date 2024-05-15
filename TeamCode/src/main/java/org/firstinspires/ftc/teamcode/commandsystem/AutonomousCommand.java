@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.function.Supplier;
 
 public class AutonomousCommand extends Command {
-
     private final Command command;
     private boolean timerEnabled = true;
 

@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.control.PIDController;
 import org.firstinspires.ftc.teamcode.drive.MecanumBase;
 import org.firstinspires.ftc.teamcode.drive.Odometry;
-import org.firstinspires.ftc.teamcode.drive.Rotation2d;
+import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 import org.firstinspires.ftc.teamcode.rustboard.Server;
 

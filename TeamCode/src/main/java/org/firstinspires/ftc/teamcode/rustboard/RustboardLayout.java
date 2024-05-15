@@ -59,7 +59,7 @@ public class RustboardLayout {
      * @param value The value to send to the target dashboard node.
      */
     public void setMyNodeValue(String id, String value) {
-        nodes.get(id).state = value;
+        Objects.requireNonNull(nodes.get(id)).state = value;
         if (Constants.debugMode) {
             JsonObject jsonObject = getSendableNodeData(id, value);
             Server.getInstance().sendToConnection(this, jsonObject.toString());

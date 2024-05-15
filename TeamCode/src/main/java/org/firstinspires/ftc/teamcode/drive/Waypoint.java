@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.geometry.Vector2d;
+
 import java.util.function.Supplier;
 
 public class Waypoint extends Vector2d implements Supplier<Waypoint> {

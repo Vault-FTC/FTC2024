@@ -3,18 +3,14 @@ package org.firstinspires.ftc.teamcode.drive;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.drive.DriveConstants.OdometryConstants;
+import org.firstinspires.ftc.teamcode.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 import org.firstinspires.ftc.teamcode.utils.Encoder;
 import org.firstinspires.ftc.teamcode.utils.PairedEncoder;
 
 public class Odometry {
-
-    public static final class Params {
-        public static final double trackWidth = 13.658011373578302712160979877515;
-        public static final double horizontalDist = 7.5035;
-        public static double inPerTick = 0.002968431495;
-    }
-
     public final Encoder parallel0; // right encoder
     public final Encoder parallel1; // left encoder
     public final Encoder perpendicular;
@@ -46,7 +42,7 @@ public class Odometry {
         double par1Delta = currentPar1 - lastPar1;
         double perpendicularDelta = currentPerpendicular - lastPerpendicular;
 
-        double deltaHeading = Params.inPerTick * (par0Delta - par1Delta) / Params.trackWidth;
+        double deltaHeading = OdometryConstants.inPerTick * (par0Delta - par1Delta) / OdometryConstants.trackWidth;
 
         double deltaXDrive;
         double deltaYDrive;
@@ -56,20 +52,20 @@ public class Odometry {
 
         if (deltaHeading == 0.0) {
             deltaXDrive = 0;
-            deltaYDrive = Params.inPerTick * par0Delta;
+            deltaYDrive = OdometryConstants.inPerTick * par0Delta;
 
-            deltaXStrafe = Params.inPerTick * perpendicularDelta;
+            deltaXStrafe = OdometryConstants.inPerTick * perpendicularDelta;
             deltaYStrafe = 0;
         } else {
-            double par0Radius = Params.inPerTick * par0Delta / deltaHeading;
-            double par1Radius = Params.inPerTick * par1Delta / deltaHeading;
+            double par0Radius = OdometryConstants.inPerTick * par0Delta / deltaHeading;
+            double par1Radius = OdometryConstants.inPerTick * par1Delta / deltaHeading;
 
             double driveRadius = (par0Radius + par1Radius) / 2;
 
             deltaXDrive = -driveRadius * (1 - Math.cos(deltaHeading));
             deltaYDrive = driveRadius * Math.sin(deltaHeading);
 
-            double strafeRadius = Params.inPerTick * perpendicularDelta / deltaHeading - Params.horizontalDist;
+            double strafeRadius = OdometryConstants.inPerTick * perpendicularDelta / deltaHeading - OdometryConstants.horizontalDist;
 
             deltaXStrafe = strafeRadius * Math.sin(deltaHeading);
             deltaYStrafe = strafeRadius * (1 - Math.cos(deltaHeading));
