@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.constants;
 
 import org.firstinspires.ftc.teamcode.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
@@ -13,7 +13,6 @@ public class Constants {
 
     public static final class Slide {
         public static final int preparePlacerPosition = 350;
-
         public static final int stowPlacerPosition = 690;
         public static final int maxExtensionPosition = 1000;
         public static final int maxTargetError = 50;

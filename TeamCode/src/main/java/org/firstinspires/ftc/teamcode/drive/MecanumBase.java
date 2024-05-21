@@ -3,9 +3,11 @@ package org.firstinspires.ftc.teamcode.drive;
 import android.util.Pair;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.constants.DriveConstants;
 import org.firstinspires.ftc.teamcode.control.PIDController;
 import org.firstinspires.ftc.teamcode.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
@@ -14,10 +16,10 @@ import org.firstinspires.ftc.teamcode.geometry.Vector2d;
 import java.util.function.Supplier;
 
 public class MecanumBase {
-    public final DcMotor lf;
-    public final DcMotor rf;
-    public final DcMotor lb;
-    public final DcMotor rb;
+    private final DcMotor lf;
+    private final DcMotor rf;
+    private final DcMotor lb;
+    private final DcMotor rb;
     private int waypointIndex = 0;
     private Path toFollow;
     private final ElapsedTime timer = new ElapsedTime();
@@ -37,16 +39,149 @@ public class MecanumBase {
     public final PIDController driveController = new PIDController(0.0, 0.0, 0);
     public final PIDController rotController = new PIDController(2.0, 0.0001, 0.6);
 
-    public MecanumBase(DcMotor leftFront, DcMotor rightFront, DcMotor leftBack, DcMotor rightBack, Supplier<Pose2d> poseSupplier) {
-        lf = leftFront;
-        rf = rightFront;
-        lb = leftBack;
-        rb = rightBack;
-        setToCoastMode();
-        this.poseSupplier = poseSupplier;
-        driveController.resetIntegralOnSetPointChange = true;
-        rotController.resetIntegralOnSetPointChange = true;
-        timer.startTime();
+    private MecanumBase(Builder builder) {
+        lf = builder.leftFront;
+        rf = builder.rightFront;
+        lb = builder.leftBack;
+        rb = builder.rightBack;
+        poseSupplier = builder.poseSupplier;
+    }
+
+    public interface LeftFront {
+        RightFront defineLeftFront(DcMotor motor, boolean reversed);
+
+        RightFront defineLeftFront(DcMotor motor);
+    }
+
+    public interface RightFront {
+        LeftBack defineRightFront(DcMotor motor, boolean reversed);
+
+        LeftBack defineRightFront(DcMotor motor);
+    }
+
+    public interface LeftBack {
+        RightBack defineLeftBack(DcMotor motor, boolean reversed);
+
+        RightBack defineLeftBack(DcMotor motor);
+    }
+
+    public interface RightBack {
+        Pose defineRightBack(DcMotor motor, boolean reversed);
+
+        Pose defineRightBack(DcMotor motor);
+    }
+
+    public interface Pose {
+        Builder setPoseSupplier(Supplier<Pose2d> poseSupplier);
+    }
+
+    public static class Builder implements LeftFront, RightFront, LeftBack, RightBack, Pose {
+        private DcMotor leftFront;
+        private DcMotor rightFront;
+        private DcMotor leftBack;
+        private DcMotor rightBack;
+        private Supplier<Pose2d> poseSupplier;
+        private double maxEndpointErr = 0.5;
+        private double trackEndpointHeadingMaxDistance;
+        private double calculateTargetHeadingMinDistance;
+        private double maxFinalVelocityInPerSec;
+
+        private Builder() {
+
+        }
+
+        private void reverseIf(DcMotor motor, boolean reversed) {
+            if (reversed) {
+                motor.setDirection(DcMotorSimple.Direction.REVERSE);
+            } else {
+                motor.setDirection(DcMotorSimple.Direction.FORWARD);
+            }
+        }
+
+        @Override
+        public RightFront defineLeftFront(DcMotor motor, boolean reversed) {
+            leftFront = motor;
+            reverseIf(motor, reversed);
+            return this;
+        }
+
+        @Override
+        public RightFront defineLeftFront(DcMotor motor) {
+            defineLeftFront(motor, false);
+            return this;
+        }
+
+        @Override
+        public LeftBack defineRightFront(DcMotor motor, boolean reversed) {
+            rightFront = motor;
+            reverseIf(motor, reversed);
+            return this;
+        }
+
+        @Override
+        public LeftBack defineRightFront(DcMotor motor) {
+            defineRightFront(motor, false);
+            return this;
+        }
+
+        @Override
+        public RightBack defineLeftBack(DcMotor motor, boolean reversed) {
+            leftBack = motor;
+            reverseIf(motor, reversed);
+            return this;
+        }
+
+        @Override
+        public RightBack defineLeftBack(DcMotor motor) {
+            defineLeftBack(motor, false);
+            return this;
+        }
+
+        @Override
+        public Pose defineRightBack(DcMotor motor, boolean reversed) {
+            rightBack = motor;
+            reverseIf(motor, reversed);
+            return this;
+        }
+
+        @Override
+        public Pose defineRightBack(DcMotor motor) {
+            defineRightBack(motor, false);
+            return this;
+        }
+
+        @Override
+        public Builder setPoseSupplier(Supplier<Pose2d> poseSupplier) {
+            return null;
+        }
+
+        public Builder setMaxEndpointErr(double maxErr) {
+            maxEndpointErr = maxErr;
+            return this;
+        }
+
+        public Builder setUseEndpointHeadingDistance(double distance) {
+            trackEndpointHeadingMaxDistance = distance;
+            return this;
+        }
+
+        public Builder setTargetHeadingCalculationDistance(double distance) {
+            calculateTargetHeadingMinDistance = distance;
+            return this;
+        }
+
+        public Builder setMaxFinalVelocity(double velocity) {
+            maxFinalVelocityInPerSec = velocity;
+            return this;
+        }
+
+        public MecanumBase build() {
+            return new MecanumBase(this);
+        }
+    }
+
+    public static LeftFront getBuilder() {
+        return new Builder();
     }
 
     public void setToBrakeMode() {
@@ -72,7 +207,7 @@ public class MecanumBase {
         double originalDrive = drive;
         drive = strafe * Math.sin(-botHeading) + drive * Math.cos(-botHeading);
         strafe = strafe * Math.cos(-botHeading) - originalDrive * Math.sin(-botHeading);
-        strafe *= 1.41;
+        strafe *= 1.414;
 
         double[] wheelSpeeds = { // Order: lf, rf, lb, rb
                 drive + strafe - turn,
@@ -285,7 +420,7 @@ public class MecanumBase {
 
             lastTimestamp = currentTimestamp;
 
-            atEndpoint = speed < DriveConstants.maxEndVelocityInPerSec
+            atEndpoint = speed < DriveConstants.maxFinalVelocityInPerSec
                     && botPose.distanceTo(segments[segments.length - 1][1]) < DriveConstants.maxEndpointErr
                     && waypointIndex == segments.length - 1;
             if (segments[segments.length - 1][1].targetEndRotation == null) {

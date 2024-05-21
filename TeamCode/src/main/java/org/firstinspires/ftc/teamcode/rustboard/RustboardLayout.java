@@ -4,11 +4,11 @@ import static org.firstinspires.ftc.teamcode.rustboard.Server.storageDir;
 
 import com.google.gson.JsonParseException;
 
-import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.core.Loader;
 import org.java_websocket.WebSocket;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -247,7 +247,7 @@ public class RustboardLayout {
                 .add("layout", getLayoutJSON())
                 .add("id", id)
                 .build();
-        String fileName = layoutFilePrefix + id.replace(" ", "_") + ".json";
+        String fileName = layoutFilePrefix + id.replace(" ", "_") + "json";
         File output = new File(storageDir, fileName);
         FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
         OutputStreamWriter writer = new OutputStreamWriter(fileOut);
@@ -256,7 +256,7 @@ public class RustboardLayout {
     }
 
     public static RustboardLayout loadLayout(String fileName) {
-        String layoutData = loadString(fileName, ".json");
+        String layoutData = Loader.loadString(fileName, "json");
         RustboardLayout layout = new RustboardLayout(null);
         try {
             layout.update(Json.createReader(new StringReader(layoutData)).readObject());
@@ -267,33 +267,9 @@ public class RustboardLayout {
         return layout;
     }
 
-    public static String loadString(String fileName, String fileExtension) {
-        fileName = fileName.replace(" ", "_");
-        StringBuilder data = new StringBuilder();
-        try {
-            File filePath = new File(storageDir, fileName + fileExtension);
-            FileInputStream input = new FileInputStream(filePath);
-
-            int character;
-            while ((character = input.read()) != -1) {
-                data.append((char) character);
-            }
-
-            return data.toString();
-        } catch (IOException e) {
-            Server.log(e.toString());
-            e.printStackTrace();
-        }
-        return "";
-    }
-
-    public static String loadString(String fileName) {
-        return loadString(fileName, ".txt");
-    }
-
     public static double loadDouble(String fileName, double defaultValue) {
         try {
-            return Double.parseDouble(loadString(fileName));
+            return Double.parseDouble(Loader.loadString(fileName));
         } catch (NumberFormatException e) {
             Server.log(e.toString());
             return defaultValue;
@@ -301,6 +277,6 @@ public class RustboardLayout {
     }
 
     public static boolean loadBoolean(String fileName) {
-        return Boolean.parseBoolean(loadString(fileName));
+        return Boolean.parseBoolean(Loader.loadString(fileName));
     }
 }

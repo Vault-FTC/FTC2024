@@ -1,0 +1,17 @@
+package org.firstinspires.ftc.teamcode.constants;
+
+public class DriveConstants extends Constants {
+    public static double fieldLengthIn = 141.167;
+    public static double tileLengthIn = 23.4270833;
+    public static double maxEndpointErr = 0.5;
+    public static double defaultFollowRadius = 8;
+    public static double trackEndpointHeadingMaxDistance = 12.0;
+    public static double calculateTargetHeadingMinDistance = 15.0;
+    public static double maxFinalVelocityInPerSec = 1.0; // TODO: use suppliers instead
+
+    public static class OdometryConstants {
+        public static double trackWidth = 13.658011373578302712160979877515;
+        public static double verticalDistance = 7.5035;
+        public static double inPerTick = 0.002968431495;
+    }
+}

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.vision;
 
-import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.constants.Constants;
 import org.firstinspires.ftc.teamcode.opmodes.Robot.GameElementLocation;
 import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
 import org.opencv.core.Mat;
