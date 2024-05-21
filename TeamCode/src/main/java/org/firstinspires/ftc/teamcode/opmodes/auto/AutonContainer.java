@@ -2,21 +2,21 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import org.firstinspires.ftc.teamcode.commands.BackdropHome;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
-import org.firstinspires.ftc.teamcode.commandsystem.AutonomousCommand;
-import org.firstinspires.ftc.teamcode.commandsystem.DelayUntil;
-import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
-import org.firstinspires.ftc.teamcode.commandsystem.ParallelCommandGroup;
-import org.firstinspires.ftc.teamcode.commandsystem.SequentialCommandGroup;
-import org.firstinspires.ftc.teamcode.commandsystem.WaitCommand;
 import org.firstinspires.ftc.teamcode.constants.Constants;
 import org.firstinspires.ftc.teamcode.constants.DriveConstants;
-import org.firstinspires.ftc.teamcode.drive.FollowPathCommand;
-import org.firstinspires.ftc.teamcode.drive.FutureInstance;
-import org.firstinspires.ftc.teamcode.drive.Path;
-import org.firstinspires.ftc.teamcode.drive.Waypoint;
-import org.firstinspires.ftc.teamcode.geometry.Pose2d;
-import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
-import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.AutonomousCommand;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.DelayUntil;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.ParallelCommandGroup;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.SequentialCommandGroup;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.WaitCommand;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.FollowPathCommand;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.FutureInstance;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.Path;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.Waypoint;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
 
 public abstract class AutonContainer extends Auton {
     protected static Pose2d blueLeftStartPosition = new Pose2d(58.944, 7.916899, new Rotation2d(Math.PI));

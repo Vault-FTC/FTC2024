@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 
-import org.firstinspires.ftc.teamcode.commandsystem.Command;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.subsystems.Lights;
 
 public class FlashLights extends Command {

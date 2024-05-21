@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.commandsystem.AutonomousCommand;
-import org.firstinspires.ftc.teamcode.drive.FollowPathCommand;
-import org.firstinspires.ftc.teamcode.drive.Path;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.AutonomousCommand;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.FollowPathCommand;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.Path;
 
 @Disabled
 @Autonomous(name = "Path Tuner")

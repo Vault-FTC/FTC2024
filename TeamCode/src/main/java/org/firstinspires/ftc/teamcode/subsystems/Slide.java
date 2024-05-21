@@ -5,14 +5,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.teamcode.commandsystem.InstantCommand;
-import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
-import org.firstinspires.ftc.teamcode.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.constants.Constants;
-import org.firstinspires.ftc.teamcode.control.PIDController;
-import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
-import org.firstinspires.ftc.teamcode.rustboard.Server;
-import org.firstinspires.ftc.teamcode.utils.PairedEncoder;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Trigger;
+import org.firstinspires.ftc.teamcode.org.rustlib.control.PIDController;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
+import org.firstinspires.ftc.teamcode.org.rustlib.utils.PairedEncoder;
 
 public class Slide extends Subsystem {
 

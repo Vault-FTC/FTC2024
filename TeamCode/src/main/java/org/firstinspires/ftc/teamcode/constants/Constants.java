@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.constants;
 
-import org.firstinspires.ftc.teamcode.geometry.Pose2d;
-import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 
 public class Constants {
     public static final boolean debugMode = false;

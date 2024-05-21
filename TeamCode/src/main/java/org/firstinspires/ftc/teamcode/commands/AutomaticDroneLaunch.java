@@ -2,9 +2,9 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 
-import org.firstinspires.ftc.teamcode.commandsystem.Command;
-import org.firstinspires.ftc.teamcode.drive.Waypoint;
-import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Command;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.Waypoint;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
 public class AutomaticDroneLaunch extends Command {

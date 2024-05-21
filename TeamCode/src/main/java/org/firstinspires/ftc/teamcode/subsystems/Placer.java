@@ -6,9 +6,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.constants.Constants;
-import org.firstinspires.ftc.teamcode.rustboard.RustboardLayout;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
 
 public class Placer extends Subsystem {
     private final Servo lifter0;

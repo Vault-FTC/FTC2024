@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import org.firstinspires.ftc.teamcode.commandsystem.Command;
-import org.firstinspires.ftc.teamcode.drive.MecanumBase;
-import org.firstinspires.ftc.teamcode.drive.Waypoint;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Command;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.MecanumBase;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.subsystems.Placer;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
 

@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.opmodes.debug;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.commandsystem.CommandScheduler;
-import org.firstinspires.ftc.teamcode.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
-import org.firstinspires.ftc.teamcode.rustboard.Server;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.CommandScheduler;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
 
 @Disabled
 @TeleOp(name = "drive to position test")

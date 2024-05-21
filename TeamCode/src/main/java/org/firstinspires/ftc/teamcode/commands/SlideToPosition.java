@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.commands;
 
-import org.firstinspires.ftc.teamcode.commandsystem.Command;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.subsystems.Slide;
 
 public class SlideToPosition extends Command {
