@@ -190,7 +190,7 @@ public class Path implements Supplier<Path> {
         return translate(0, y);
     }
 
-    public Path translate(double x, double y) {
+    public Path translate(double x, double y) { // TODO: FutureInstances can regenerate, and this method does not take that into account
         Builder builder = getBuilder().setTimeout(timeout);
         for (Supplier<Waypoint> waypoint : waypoints) {
             builder.addWaypoint(new FutureInstance<>(() -> waypoint.get().translate(x, y)));

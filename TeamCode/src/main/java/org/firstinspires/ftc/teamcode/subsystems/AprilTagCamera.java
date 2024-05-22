@@ -14,6 +14,8 @@ import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Vector2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
+import org.firstinspires.ftc.teamcode.org.rustlib.vision.CameraActivationZone;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -25,14 +27,15 @@ import java.util.concurrent.TimeUnit;
 public class AprilTagCamera extends Subsystem {
     public final VisionPortal visionPortal;
     public boolean cameraEnabled = false;
-    private boolean usingCamera = false;
+    private boolean streaming = false;
     AprilTagProcessor aprilTagProcessor;
     Supplier<Pose2d> poseSupplier;
     private Pose2d calculatedPose = new Pose2d();
     public Runnable onDetect = () -> {
     };
+    private final CameraActivationZone[] activationZones;
 
-    public AprilTagCamera(HardwareMap hardwareMap) {
+    public AprilTagCamera(HardwareMap hardwareMap, CameraActivationZone... activationZones) {
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
         aprilTagProcessor.setDecimation(0);
         aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.OPENCV_IPPE_SQUARE);
@@ -40,6 +43,7 @@ public class AprilTagCamera extends Subsystem {
                 .setCamera(hardwareMap.get(WebcamName.class, "backCam"))
                 .addProcessor(aprilTagProcessor)
                 .build();
+        this.activationZones = activationZones;
         CommandScheduler.getInstance().schedule(new CameraCalibrate(this));
     }
 
@@ -98,25 +102,49 @@ public class AprilTagCamera extends Subsystem {
         return calculatedPose;
     }
 
+    private void resumeStream() {
+        try {
+            visionPortal.resumeStreaming();
+            streaming = true;
+        } catch (RuntimeException e) {
+            Server.log(e);
+        }
+    }
+
+    private void stopStream() {
+        try {
+            visionPortal.stopStreaming();
+            streaming = false;
+        } catch (RuntimeException e) {
+            Server.log(e);
+        }
+    }
+
+    boolean withinZone() {
+        boolean withinRange;
+        if (activationZones.length == 0) {
+            withinRange = true;
+        } else {
+            withinRange = false;
+        }
+        for (CameraActivationZone activationZone : activationZones) {
+            if (activationZone.withinZone()) {
+                withinRange = true;
+                break;
+            }
+        }
+        return withinRange;
+    }
+
     @Override
     public void periodic() {
         if (cameraEnabled) {
-            if (!usingCamera) {
-                usingCamera = true;
-                try {
-                    visionPortal.resumeStreaming();
-                } catch (RuntimeException e) {
-                    e.printStackTrace();
-                }
+            if (!streaming) {
+                resumeStream();
             }
             adjustBotPose();
-        } else if (usingCamera) {
-            usingCamera = false;
-            try {
-                visionPortal.stopStreaming();
-            } catch (RuntimeException e) {
-                e.printStackTrace();
-            }
+        } else if (streaming) {
+            stopStream();
         }
     }
 
