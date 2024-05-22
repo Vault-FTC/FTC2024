@@ -16,7 +16,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public abstract class Auton extends Robot {
     OpenCvWebcam detectorCam;
     GameElementDetector detectorPipeline;
-    AutonomousCommand autonomousCommand;
+    protected AutonomousCommand autonomousCommand;
 
     private final Pose2d startPosition;
 

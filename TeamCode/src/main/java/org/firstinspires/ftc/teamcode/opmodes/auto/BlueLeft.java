@@ -3,16 +3,16 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "Blue Left")
-public class ConfigurableBlueRight extends AutonContainer {
+public class BlueLeft extends AutonContainer {
 
-    public ConfigurableBlueRight() {
-        super(Alliance.BLUE, blueRightStartPosition);
+    public BlueLeft() {
+        super(Alliance.BLUE, blueLeftStartPosition);
     }
 
     @Override
     public void init() {
         super.init();
-        autonomousCommand = blueRightCommand;
+        autonomousCommand = blueLeftCommand;
     }
 
 }

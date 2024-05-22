@@ -3,9 +3,9 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous(name = "Red Right")
-public class ConfigurableRedRight extends AutonContainer {
+public class RedRight extends AutonContainer {
 
-    public ConfigurableRedRight() {
+    public RedRight() {
         super(Alliance.RED, redRightStartPosition);
     }
 
