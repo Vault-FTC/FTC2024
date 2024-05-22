@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ThreadPool;
 
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.robotcore.internal.opmode.RegisteredOpModes;
-import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
@@ -50,7 +50,7 @@ public class Server extends WebSocketServer {
     public void start() {
         messageQueue.clear();
         layouts.addAll(loadLayouts());
-        if (Constants.debugMode) {
+        if (SubsystemConstants.debugMode) {
             super.start();
         }
     }

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.org.rustlib.rustboard;
 
 import com.google.gson.JsonParseException;
 
-import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
 import org.java_websocket.WebSocket;
 
@@ -56,7 +56,7 @@ public class RustboardLayout {
      */
     public void setMyNodeValue(String id, String value) {
         Objects.requireNonNull(nodes.get(id)).state = value;
-        if (Constants.debugMode) {
+        if (SubsystemConstants.debugMode) {
             JsonObject jsonObject = getSendableNodeData(id, value);
             Server.getInstance().sendToConnection(this, jsonObject.toString());
         }
@@ -79,7 +79,7 @@ public class RustboardLayout {
      * @param value The value to send to the target dashboard nodes.
      */
     public static void setNodeValue(String id, String value) {
-        if (Constants.debugMode) {
+        if (SubsystemConstants.debugMode) {
             JsonObject jsonObject = getSendableNodeData(id, value);
             Server.getInstance().broadcastJson(jsonObject);
         }

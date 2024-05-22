@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
 
@@ -34,22 +34,22 @@ public class Placer extends Subsystem {
     }
 
     public void placePosition() {
-        lifter0.setPosition(Constants.Placer.lifter0PlacePosition);
-        lifter1.setPosition(Constants.Placer.lifter1PlacePosition);
+        lifter0.setPosition(SubsystemConstants.Placer.lifter0PlacePosition);
+        lifter1.setPosition(SubsystemConstants.Placer.lifter1PlacePosition);
     }
 
     public void storagePosition() {
-        lifter0.setPosition(Constants.Placer.lifter0StoragePosition);
-        lifter1.setPosition(Constants.Placer.lifter1StoragePosition);
-        placer.setPosition(Constants.Placer.closePosition);
+        lifter0.setPosition(SubsystemConstants.Placer.lifter0StoragePosition);
+        lifter1.setPosition(SubsystemConstants.Placer.lifter1StoragePosition);
+        placer.setPosition(SubsystemConstants.Placer.closePosition);
     }
 
     public void open() {
-        placer.setPosition(Constants.Placer.openPosition);
+        placer.setPosition(SubsystemConstants.Placer.openPosition);
     }
 
     public void close() {
-        placer.setPosition(Constants.Placer.closePosition);
+        placer.setPosition(SubsystemConstants.Placer.closePosition);
     }
 
     public double getDistance() {

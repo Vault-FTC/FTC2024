@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.commands.FlashLights;
 import org.firstinspires.ftc.teamcode.commands.SlideDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.constants.DriveConstants;
+import org.firstinspires.ftc.teamcode.constants.VisionConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
@@ -21,6 +22,7 @@ import org.firstinspires.ftc.teamcode.org.rustlib.drive.FollowPathCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.drive.Path;
 import org.firstinspires.ftc.teamcode.org.rustlib.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose3d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
@@ -39,7 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Robot extends OpMode {
+public abstract class Robot extends OpMode {
     public LynxModule controlHub;
     public LynxModule expansionHub;
     public SuperGamepad driveController;
@@ -89,8 +91,12 @@ public class Robot extends OpMode {
         slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
         climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
-        aprilTagCamera = new AprilTagCamera(hardwareMap);
-        aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedBotPose());
+        aprilTagCamera = AprilTagCamera.getBuilder()
+                .setHardwareMap(hardwareMap)
+                .setRelativePose(new Pose3d())
+                .addTags(VisionConstants.aprilTags)
+                .onDetect(() -> drive.odometry.setPosition(aprilTagCamera.getCalculatedBotPose()))
+                .build();
         droneShooter = new DroneShooter(hardwareMap);
         purplePixelPlacer = new PurplePixelPlacer(hardwareMap);
     }
@@ -178,5 +184,4 @@ public class Robot extends OpMode {
         new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(command::cancel));
         return command;
     }
-
 }

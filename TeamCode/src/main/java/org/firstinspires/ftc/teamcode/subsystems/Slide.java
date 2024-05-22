@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Trigger;
@@ -41,13 +41,13 @@ public class Slide extends Subsystem {
         controller = new PIDController(0.0017, 0.0000008, 0.000003);
         controller.resetIntegralOnSetPointChange = true;
 
-        new Trigger(() -> encoder.getPosition() > Constants.Slide.preparePlacerPosition && encoder.getVelocity() > 0).onTrue(new InstantCommand(placer::placePosition));
-        new Trigger(() -> encoder.getPosition() < Constants.Slide.stowPlacerPosition && targetPosition < 10 || encoder.getVelocity() < -400).onTrue(new InstantCommand(placer::storagePosition));
+        new Trigger(() -> encoder.getPosition() > SubsystemConstants.Slide.preparePlacerPosition && encoder.getVelocity() > 0).onTrue(new InstantCommand(placer::placePosition));
+        new Trigger(() -> encoder.getPosition() < SubsystemConstants.Slide.stowPlacerPosition && targetPosition < 10 || encoder.getVelocity() < -400).onTrue(new InstantCommand(placer::storagePosition));
     }
 
     public void mizoom(double input) {
         double calculatedSpeed;
-        if (gamepadActive(input) && !(input > 0 && encoder.getPosition() > Constants.Slide.maxExtensionPosition)) { // If manual control is both requested and allowed
+        if (gamepadActive(input) && !(input > 0 && encoder.getPosition() > SubsystemConstants.Slide.maxExtensionPosition)) { // If manual control is both requested and allowed
             calculatedSpeed = input + feedforward;
             lastInput = input;
         } else { // If automatic control is requested or manual control is not allowed
@@ -86,11 +86,11 @@ public class Slide extends Subsystem {
     }
 
     public void setTargetPosition(int targetPosition) {
-        this.targetPosition = Math.min(targetPosition, Constants.Slide.maxExtensionPosition);
+        this.targetPosition = Math.min(targetPosition, SubsystemConstants.Slide.maxExtensionPosition);
     }
 
     public boolean atTargetPosition() {
-        return Math.abs(targetPosition - encoder.getPosition()) < Constants.Slide.maxTargetError;
+        return Math.abs(targetPosition - encoder.getPosition()) < SubsystemConstants.Slide.maxTargetError;
     }
 
     @Override

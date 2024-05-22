@@ -21,5 +21,4 @@ public class PathTuner extends AutonContainer {
         super.init();
         autonomousCommand = new AutonomousCommand(new FollowPathCommand(Path.loadPath("red sample path"), drive));
     }
-
 }

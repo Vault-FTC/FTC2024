@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.vision;
 
-import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.constants.VisionConstants;
 import org.firstinspires.ftc.teamcode.opmodes.Robot.GameElementLocation;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
 import org.firstinspires.ftc.teamcode.org.rustlib.vision.GameElementDetector;
@@ -70,7 +70,7 @@ public class DetectorPipeline extends GameElementDetector {
         processing = false;
         int sum = 0;
         int i = 0;
-        while (i < locationHistory.size() && i < Constants.Vision.lookBehindFrames) {
+        while (i < locationHistory.size() && i < VisionConstants.elementDetectionLookBehindFrames) {
             sum += locationHistory.get(locationHistory.size() - i - 1);
             i++;
         }

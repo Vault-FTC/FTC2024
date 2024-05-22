@@ -69,6 +69,18 @@ public class Pose2d extends Vector2d {
         return new Pose2d(x, DriveConstants.fieldLengthIn - y, rotation.negate().addRadians(Math.PI));
     }
 
+    public static Pose2d average(Pose2d... poses) {
+        double xSum = 0;
+        double ySum = 0;
+        Rotation2d[] rotations = new Rotation2d[poses.length];
+        for (int i = 0; i < poses.length; i++) {
+            xSum += poses[i].x;
+            ySum += poses[i].y;
+            rotations[i] = poses[i].rotation;
+        }
+        return new Pose2d(xSum / poses.length, ySum / poses.length, Rotation2d.averageRotations(rotations));
+    }
+
     @NonNull
     @Override
     public String toString() {
