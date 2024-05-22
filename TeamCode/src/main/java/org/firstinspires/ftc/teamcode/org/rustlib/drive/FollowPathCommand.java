@@ -6,7 +6,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import java.util.function.Supplier;
 
 public class FollowPathCommand extends Command {
-
     public final Supplier<Path> pathSupplier;
     public final Drive driveSubsystem;
 
@@ -33,7 +32,7 @@ public class FollowPathCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        driveSubsystem.base.setToBrakeMode();
+        driveSubsystem.base.enableBraking();
         if (!interrupted) driveSubsystem.drive(0, 0, 0);
     }
 }

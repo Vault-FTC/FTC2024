@@ -1,27 +1,32 @@
 package org.firstinspires.ftc.teamcode.org.rustlib.drive;
 
-import org.firstinspires.ftc.teamcode.constants.DriveConstants.OdometryConstants;
+import org.firstinspires.ftc.teamcode.constants.DriveConstants;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
 import org.firstinspires.ftc.teamcode.org.rustlib.utils.Encoder;
 import org.firstinspires.ftc.teamcode.org.rustlib.utils.PairedEncoder;
 
-public class Odometry {
+import java.util.function.DoubleSupplier;
+
+public class Odometry extends Subsystem {
     public final Encoder rightEncoder;
     public final Encoder leftEncoder;
     public final Encoder backEncoder;
     private int lastRight = 0;
     private int lastLeft = 0;
     private int lastBack = 0;
-
+    private double lastIMUHeading = 0;
     private Pose2d pose;
+    private final DoubleSupplier imuHeading;
 
     public Odometry(Builder builder) {
         pose = new Pose2d();
         rightEncoder = builder.rightEncoder;
         leftEncoder = builder.leftEncoder;
         backEncoder = builder.backEncoder;
+        imuHeading = builder.imuHeading;
         resetEncoders();
     }
 
@@ -56,6 +61,7 @@ public class Odometry {
         private double trackWidth;
         private double verticalDistance;
         private double inPerTick;
+        private DoubleSupplier imuHeading = null;
 
         private Builder() {
 
@@ -97,6 +103,11 @@ public class Odometry {
             return this;
         }
 
+        public Builder useIMU(DoubleSupplier imuHeading) {
+            this.imuHeading = imuHeading;
+            return this;
+        }
+
         public Odometry build() {
             return new Odometry(this);
         }
@@ -119,7 +130,14 @@ public class Odometry {
         double deltaLeft = currentLeftTicks - lastLeft;
         double deltaBack = currentBackTicks - lastBack;
 
-        double deltaHeading = OdometryConstants.inPerTick * (deltaRight - deltaLeft) / OdometryConstants.trackWidth;
+        double deltaHeading;
+        if (imuHeading == null) {
+            deltaHeading = DriveConstants.Odometry.inPerTick * (deltaRight - deltaLeft) / DriveConstants.Odometry.trackWidth;
+        } else {
+            double currentHeading = imuHeading.getAsDouble();
+            deltaHeading = currentHeading - lastIMUHeading;
+            lastIMUHeading = currentHeading;
+        }
 
         double deltaXDrive;
         double deltaYDrive;
@@ -129,36 +147,34 @@ public class Odometry {
 
         if (deltaHeading == 0.0) {
             deltaXDrive = 0;
-            deltaYDrive = OdometryConstants.inPerTick * deltaRight;
+            deltaYDrive = DriveConstants.Odometry.inPerTick * deltaRight;
 
-            deltaXStrafe = OdometryConstants.inPerTick * deltaBack;
+            deltaXStrafe = DriveConstants.Odometry.inPerTick * deltaBack;
             deltaYStrafe = 0;
         } else {
-            double par0Radius = OdometryConstants.inPerTick * deltaRight / deltaHeading;
-            double par1Radius = OdometryConstants.inPerTick * deltaLeft / deltaHeading;
+            double par0Radius = DriveConstants.Odometry.inPerTick * deltaRight / deltaHeading;
+            double par1Radius = DriveConstants.Odometry.inPerTick * deltaLeft / deltaHeading;
 
             double driveRadius = (par0Radius + par1Radius) / 2;
 
             deltaXDrive = -driveRadius * (1 - Math.cos(deltaHeading));
             deltaYDrive = driveRadius * Math.sin(deltaHeading);
 
-            double strafeRadius = OdometryConstants.inPerTick * deltaBack / deltaHeading - OdometryConstants.verticalDistance;
+            double strafeRadius = DriveConstants.Odometry.inPerTick * deltaBack / deltaHeading - DriveConstants.Odometry.verticalDistance;
 
             deltaXStrafe = strafeRadius * Math.sin(deltaHeading);
             deltaYStrafe = strafeRadius * (1 - Math.cos(deltaHeading));
         }
-
         lastRight = currentRightTicks;
         lastLeft = currentLeftTicks;
         lastBack = currentBackTicks;
-
         return new Pose2d(deltaXDrive + deltaXStrafe, deltaYDrive + deltaYStrafe, new Rotation2d(deltaHeading));
     }
 
     public Pose2d update() {
-        RustboardLayout.setNodeValue("encoder0", rightEncoder.getPosition());
-        RustboardLayout.setNodeValue("encoder1", leftEncoder.getPosition());
-        RustboardLayout.setNodeValue("encoder2", backEncoder.getPosition());
+        RustboardLayout.setNodeValue("right odometry encoder", rightEncoder.getPosition());
+        RustboardLayout.setNodeValue("left odometry encoder", leftEncoder.getPosition());
+        RustboardLayout.setNodeValue("back odometry encoder", backEncoder.getPosition());
         Pose2d delta = delta();
         pose = pose.add(new Pose2d(delta.rotate(pose.rotation.getAngleRadians()), new Rotation2d(delta.rotation.getAngleRadians())));
         return pose;
@@ -174,4 +190,8 @@ public class Odometry {
         return pose;
     }
 
+    @Override
+    public void periodic() {
+        update();
+    }
 }

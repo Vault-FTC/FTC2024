@@ -10,14 +10,13 @@ import com.qualcomm.robotcore.util.ThreadPool;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.robotcore.internal.opmode.RegisteredOpModes;
 import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -30,14 +29,15 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-
 public class Server extends WebSocketServer {
     private static Server instance = null;
     public static final int port = 21865;
-    public static final File storageDir = new File(Environment.getExternalStorageDirectory() + "/Download");
+    private static final File storageDir = new File(Environment.getExternalStorageDirectory() + "\\Download");
+    public static final File timeCalibration = new File(Loader.defaultStorageDirectory + "\\.Time\\.time_offset.txt");
     protected ArrayList<RustboardLayout> layouts = new ArrayList<>();
     private static final RustboardLayout emptyLayout = new EmptyLayout();
     private ArrayList<Pair<String, String>> messageQueue = new ArrayList<>();
+    private long timeOffset = 0;
     ElapsedTime timer;
 
     private Server(int port) throws UnknownHostException {
@@ -101,14 +101,14 @@ public class Server extends WebSocketServer {
             conn.send("pong");
         } else {
             RustboardLayout layout = getLayout(conn);
-            assert layout != null;
-
             JsonReader reader = Json.createReader(new StringReader(data));
             JsonObject object = reader.readObject();
             JsonObject message = object.getJsonObject("message");
             String messageType = message.getString("messageType");
-
             switch (messageType) {
+                case "calibrate time":
+                    setTimeOffset(message);
+                    break;
                 case "layout state":
                     layout.update(message);
                     layout.id = message.getString("id");
@@ -136,13 +136,38 @@ public class Server extends WebSocketServer {
                     layout.buttonClicked(message.getString("nodeID"));
                     break;
             }
-
         }
     }
 
     @Override
     public void onError(WebSocket conn, Exception e) {
         log(e);
+    }
+
+    private void calibrateTime() {
+        if (timeCalibration.exists()) {
+            timeOffset = Long.parseLong(Loader.loadString(timeCalibration));
+        } else {
+            try {
+                Loader.writeString(timeCalibration, "0");
+            } catch (IOException e) {
+                log(e);
+            }
+        }
+    }
+
+    private void setTimeOffset(JsonObject object) {
+        String offset = object.getString("offset");
+        timeOffset = Long.parseLong(offset);
+        try {
+            Loader.writeString(timeCalibration, offset);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected long getUTCTime() {
+        return System.currentTimeMillis() + timeOffset;
     }
 
     public static RustboardLayout getLayout(String id) {
@@ -156,7 +181,7 @@ public class Server extends WebSocketServer {
 
     private RustboardLayout getLayout(WebSocket conn) {
         for (RustboardLayout layout : layouts) {
-            if (layout.connection == conn) { // In this case the Objects.equals() method is not ideal.  What's important is that the references are the same, not the values of the variables
+            if (layout.connection == conn) {
                 return layout;
             }
         }
@@ -237,26 +262,20 @@ public class Server extends WebSocketServer {
         getInstance().broadcastJson(message);
     }
 
-    private static void savePath(JsonObject object) throws IOException {
+    private static void saveValue(JsonObject object, String fileExtension) throws IOException {
         JsonObject configuration = object.getJsonObject("configuration");
-        JsonObject path = configuration.getJsonObject("path");
-        String fileName = configuration.getString("id").replace(" ", "_") + ".json";
+        String value = configuration.getString("input");
+        String fileName = configuration.getString("id").replace(" ", "_") + "." + fileExtension;
         File output = new File(storageDir, fileName);
-        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
-        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
-        writer.write(path.toString());
-        writer.close();
+        Loader.writeString(output, value);
     }
 
     private static void saveValue(JsonObject object) throws IOException {
-        JsonObject configuration = object.getJsonObject("configuration");
-        String value = configuration.getString("input");
-        String fileName = configuration.getString("id").replace(" ", "_") + ".txt";
-        File output = new File(storageDir, fileName);
-        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
-        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
-        writer.write(value);
-        writer.close();
+        saveValue(object, "txt");
+    }
+
+    private static void savePath(JsonObject object) throws IOException {
+        saveValue(object, "json");
     }
 
     private static void clearStorage() {
@@ -287,5 +306,4 @@ public class Server extends WebSocketServer {
         }
         return instance;
     }
-
 }

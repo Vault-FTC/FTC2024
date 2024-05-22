@@ -6,9 +6,9 @@ import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.AutonomousComman
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
-import org.firstinspires.ftc.teamcode.org.rustlib.vision.DetectorPipeline;
 import org.firstinspires.ftc.teamcode.org.rustlib.vision.GameElementDetector;
 import org.firstinspires.ftc.teamcode.org.rustlib.vision.GameElementDetector.StreamDimension;
+import org.firstinspires.ftc.teamcode.vision.DetectorPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvWebcam;

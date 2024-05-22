@@ -6,14 +6,16 @@ import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 
 public class Loader {
-    public static final File defaultStorageDirectory = new File(Environment.getExternalStorageDirectory() + "/Download");
+    public static final File defaultStorageDirectory = new File(Environment.getExternalStorageDirectory() + "\\Download");
 
     public static String loadString(File filePath) {
         StringBuilder data = new StringBuilder();
@@ -64,5 +66,12 @@ public class Loader {
 
     public static JsonObject getJsonObject(String jsonString) {
         return Json.createReader(new StringReader(jsonString)).readObject();
+    }
+
+    public static void writeString(File output, String string) throws IOException {
+        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
+        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
+        writer.write(string);
+        writer.close();
     }
 }

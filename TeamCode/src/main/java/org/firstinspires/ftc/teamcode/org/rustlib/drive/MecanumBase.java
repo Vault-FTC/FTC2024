@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.constants.DriveConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.control.PIDController;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
@@ -20,6 +19,10 @@ public class MecanumBase {
     private final DcMotor rf;
     private final DcMotor lb;
     private final DcMotor rb;
+    private final double maxEndpointErr;
+    private final double trackEndpointHeadingMaxDistance;
+    private final double calculateTargetHeadingMinDistance;
+    private final double maxFinalVelocityInPerSec;
     private int waypointIndex = 0;
     private Path toFollow;
     private final ElapsedTime timer = new ElapsedTime();
@@ -36,8 +39,8 @@ public class MecanumBase {
 
     public DriveState driveState = DriveState.IDLE;
     private final Supplier<Pose2d> poseSupplier;
-    public final PIDController driveController = new PIDController(0.0, 0.0, 0);
-    public final PIDController rotController = new PIDController(2.0, 0.0001, 0.6);
+    public final PIDController driveController = new PIDController();
+    public final PIDController rotController = new PIDController();
 
     private MecanumBase(Builder builder) {
         lf = builder.leftFront;
@@ -45,6 +48,12 @@ public class MecanumBase {
         lb = builder.leftBack;
         rb = builder.rightBack;
         poseSupplier = builder.poseSupplier;
+        maxEndpointErr = builder.maxEndpointErr;
+        trackEndpointHeadingMaxDistance = builder.trackEndpointHeadingMaxDistance;
+        calculateTargetHeadingMinDistance = builder.calculateTargetHeadingMinDistance;
+        maxFinalVelocityInPerSec = builder.maxFinalVelocityInPerSec;
+        driveController.setGains(builder.driveGains);
+        rotController.setGains(builder.rotGains);
     }
 
     public interface LeftFront {
@@ -82,9 +91,11 @@ public class MecanumBase {
         private DcMotor rightBack;
         private Supplier<Pose2d> poseSupplier;
         private double maxEndpointErr = 0.5;
-        private double trackEndpointHeadingMaxDistance;
-        private double calculateTargetHeadingMinDistance;
-        private double maxFinalVelocityInPerSec;
+        private double trackEndpointHeadingMaxDistance = 12.0;
+        private double calculateTargetHeadingMinDistance = 15.0;
+        private double maxFinalVelocityInPerSec = 1.0;
+        private PIDController.PIDGains driveGains = new PIDController.PIDGains(0.1, 0.002, 0.00001);
+        private PIDController.PIDGains rotGains = new PIDController.PIDGains(1.0, 0, 0);
 
         private Builder() {
 
@@ -151,8 +162,9 @@ public class MecanumBase {
         }
 
         @Override
-        public Builder setPoseSupplier(Supplier<Pose2d> poseSupplier) {
-            return null;
+        public Builder setPoseSupplier(Supplier<Pose2d> supplier) {
+            poseSupplier = supplier;
+            return this;
         }
 
         public Builder setMaxEndpointErr(double maxErr) {
@@ -175,6 +187,16 @@ public class MecanumBase {
             return this;
         }
 
+        public Builder setDriveGains(PIDController.PIDGains gains) {
+            driveGains = gains;
+            return this;
+        }
+
+        public Builder setRotGains(PIDController.PIDGains gains) {
+            rotGains = gains;
+            return this;
+        }
+
         public MecanumBase build() {
             return new MecanumBase(this);
         }
@@ -184,14 +206,14 @@ public class MecanumBase {
         return new Builder();
     }
 
-    public void setToBrakeMode() {
+    public void enableBraking() {
         lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
-    public void setToCoastMode() {
+    public void disableBraking() {
         lf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         rf.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         lb.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -264,11 +286,11 @@ public class MecanumBase {
 
         boolean canFlip = false;
 
-        if (useEndpointHeading && targetPoint.targetEndRotation != null && botPose.distanceTo(targetPoint) < DriveConstants.trackEndpointHeadingMaxDistance) {
+        if (useEndpointHeading && targetPoint.targetEndRotation != null && botPose.distanceTo(targetPoint) < trackEndpointHeadingMaxDistance) {
             targetAngle = targetPoint.targetEndRotation.getAngleRadians();
         } else if (targetPoint.targetFollowRotation != null) {
             targetAngle = targetPoint.targetFollowRotation.getAngleRadians();
-        } else if (relativeTargetVector.magnitude > DriveConstants.calculateTargetHeadingMinDistance) {
+        } else if (relativeTargetVector.magnitude > calculateTargetHeadingMinDistance) {
             targetAngle = relativeTargetVector.angle - Math.PI / 2;
             canFlip = true;
         } else {
@@ -382,7 +404,7 @@ public class MecanumBase {
                 if (waypointIndex != 0) return;
                 followStartTimestamp = timer.milliseconds();
                 driveState = DriveState.FOLLOWING;
-                setToCoastMode();
+                disableBraking();
             case FOLLOWING:
                 if (timer.milliseconds() > followStartTimestamp + toFollow.timeout) {
                     driveState = DriveState.IDLE;
@@ -420,8 +442,8 @@ public class MecanumBase {
 
             lastTimestamp = currentTimestamp;
 
-            atEndpoint = speed < DriveConstants.maxFinalVelocityInPerSec
-                    && botPose.distanceTo(segments[segments.length - 1][1]) < DriveConstants.maxEndpointErr
+            atEndpoint = speed < maxFinalVelocityInPerSec
+                    && botPose.distanceTo(segments[segments.length - 1][1]) < maxEndpointErr
                     && waypointIndex == segments.length - 1;
             if (segments[segments.length - 1][1].targetEndRotation == null) {
                 atTargetHeading = true;

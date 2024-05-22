@@ -23,9 +23,9 @@ public class Drive extends Subsystem {
                 .defineLeftEncoder(new PairedEncoder(hardwareMap.get(DcMotor.class, "rb"), true))
                 .defineRightEncoder(new PairedEncoder(hardwareMap.get(DcMotor.class, "lb"), true))
                 .defineBackEncoder(new PairedEncoder(hardwareMap.get(DcMotor.class, "climbMotor")))
-                .setTrackWidth(DriveConstants.OdometryConstants.trackWidth)
-                .setVerticalDistance(DriveConstants.OdometryConstants.verticalDistance)
-                .setInPerTick(DriveConstants.OdometryConstants.inPerTick)
+                .setTrackWidth(DriveConstants.Odometry.trackWidth)
+                .setVerticalDistance(DriveConstants.Odometry.verticalDistance)
+                .setInPerTick(DriveConstants.Odometry.inPerTick)
                 .build();
         base = MecanumBase.getBuilder()
                 .defineLeftFront(hardwareMap.get(DcMotor.class, "lf"), true)
@@ -33,10 +33,12 @@ public class Drive extends Subsystem {
                 .defineLeftBack(hardwareMap.get(DcMotor.class, "lb"), true)
                 .defineRightBack(hardwareMap.get(DcMotor.class, "rb"))
                 .setPoseSupplier(odometry::getPose)
-                .setMaxEndpointErr(0.5)
-                .setUseEndpointHeadingDistance(12)
-                .setTargetHeadingCalculationDistance(15)
-                .setMaxFinalVelocity(1.0)
+                .setMaxEndpointErr(DriveConstants.maxEndpointErr)
+                .setUseEndpointHeadingDistance(DriveConstants.trackEndpointHeadingMaxDistance)
+                .setTargetHeadingCalculationDistance(DriveConstants.calculateTargetHeadingMinDistance)
+                .setMaxFinalVelocity(DriveConstants.maxFinalVelocityInPerSec)
+                .setDriveGains(DriveConstants.driveGains)
+                .setRotGains(DriveConstants.rotGains)
                 .build();
     }
 
@@ -76,7 +78,6 @@ public class Drive extends Subsystem {
 
     @Override
     public void periodic() {
-        odometry.update();
         RustboardLayout.setNodeValue("pose", odometry.getPose().toString());
         RustboardLayout layout = Server.getLayout("dashboard_0");
         base.driveController.setGains(new PIDController.PIDGains(

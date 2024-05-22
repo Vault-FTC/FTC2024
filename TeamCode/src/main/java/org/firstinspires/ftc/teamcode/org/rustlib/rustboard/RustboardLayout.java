@@ -7,9 +7,7 @@ import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
 import org.java_websocket.WebSocket;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Objects;
@@ -103,7 +101,7 @@ public class RustboardLayout {
         id = object.getString("id");
         for (JsonValue jsonValue : jsonValues) {
             JsonObject nodeJson = jsonValue.asJsonObject();
-            RustboardNode node = new RustboardNode(nodeJson.getString("id"), getNodeType(nodeJson.getString("type")), nodeJson.getString("state"));
+            RustboardNode node = new RustboardNode(nodeJson.getString("id"), getNodeType(nodeJson.getString("type")), nodeJson.getString("state"), Server.getInstance().getUTCTime());
             nodes.put(node.id, node);
         }
         this.nodes = nodes;
@@ -199,11 +197,13 @@ public class RustboardLayout {
         private final String id;
         private final Type type;
         private String state;
+        private long lastUpdated;
 
-        public RustboardNode(String id, Type type, String state) {
+        public RustboardNode(String id, Type type, String state, long lastUpdated) {
             this.id = id;
             this.type = type;
             this.state = state;
+            this.lastUpdated = lastUpdated;
         }
 
         public enum Type {
@@ -246,11 +246,8 @@ public class RustboardLayout {
                 .add("id", id)
                 .build();
         String fileName = layoutFilePrefix + id.replace(" ", "_") + "json";
-        File output = new File(Server.storageDir, fileName);
-        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
-        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
-        writer.write(data.toString());
-        writer.close();
+        File output = new File(Loader.defaultStorageDirectory, fileName);
+        Loader.writeString(output, data.toString());
     }
 
     public static RustboardLayout loadLayout(String fileName) {

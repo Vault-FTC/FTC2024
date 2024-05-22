@@ -7,7 +7,6 @@ import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
 
 public class DroneShooter extends Subsystem {
-
     public final Servo angleAdjuster;
     public final Servo release;
 

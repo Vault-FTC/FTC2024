@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 
 public class PairedEncoder extends Subsystem implements Encoder {
     DcMotor pairedMotor;
+    private int position = 0;
     private int offset = 0;
     private final int polarity;
     private double lastPosition = 0;
@@ -23,6 +24,10 @@ public class PairedEncoder extends Subsystem implements Encoder {
 
     public PairedEncoder(DcMotor pairedMotor) {
         this(pairedMotor, false);
+    }
+
+    private int calculatePosition() {
+        return position;
     }
 
     @Override
@@ -55,6 +60,7 @@ public class PairedEncoder extends Subsystem implements Encoder {
 
     @Override
     public void periodic() {
+        position = calculatePosition(); // This is done to ensure that the encoder value is being read in every loop, which allows the hubs to do bulk hardware reading
         velocity = calculateVelocity();
     }
 }

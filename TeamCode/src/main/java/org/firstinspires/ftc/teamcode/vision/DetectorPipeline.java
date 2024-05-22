@@ -1,8 +1,9 @@
-package org.firstinspires.ftc.teamcode.org.rustlib.vision;
+package org.firstinspires.ftc.teamcode.vision;
 
 import org.firstinspires.ftc.teamcode.constants.Constants;
 import org.firstinspires.ftc.teamcode.opmodes.Robot.GameElementLocation;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
+import org.firstinspires.ftc.teamcode.org.rustlib.vision.GameElementDetector;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Scalar;

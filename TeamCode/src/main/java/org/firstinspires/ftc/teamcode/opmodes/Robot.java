@@ -77,7 +77,7 @@ public class Robot extends OpMode {
             botPose = new Pose2d(0, 0, new Rotation2d(-Math.PI));
         }
 
-        // Instantiate the gamepad helpers
+        // Instantiate the super gamepads
         driveController = new SuperGamepad(gamepad1);
         payloadController = new SuperGamepad(gamepad2);
 
@@ -96,6 +96,7 @@ public class Robot extends OpMode {
     }
 
 
+    // Do not edit this method!  Anything you want to run when the robot initializes should be in the setup method
     @Override
     public void init() {
         CommandScheduler.getInstance().clearRegistry();
@@ -110,6 +111,8 @@ public class Robot extends OpMode {
             controlHub = hubs.get(1);
             expansionHub = hubs.get(0);
         }
+        controlHub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO); // Using bulk caching mode will significantly decrease loop times.  See https://ftc-tech-toolbox.vercel.app/docs/Getting%20Started/lynx
+        expansionHub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         setup();
     }
 

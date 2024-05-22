@@ -5,7 +5,6 @@ import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 
 public class Constants {
     public static final boolean debugMode = false;
-    public static final double fieldLengthIn = 141.345;
 
     public static final class Intake {
         public static final double defaultSpeed = 0.8;
