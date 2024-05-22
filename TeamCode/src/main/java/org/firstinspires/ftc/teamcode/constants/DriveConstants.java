@@ -9,7 +9,7 @@ public class DriveConstants {
     public static double defaultFollowRadius = 8;
     public static double trackEndpointHeadingMaxDistance = 12.0;
     public static double calculateTargetHeadingMinDistance = 15.0;
-    public static double maxFinalVelocityInPerSec = 1.0; // TODO: use suppliers instead
+    public static double maxFinalVelocityInPerSec = 1.0;
     public static PIDController.PIDGains driveGains = new PIDController.PIDGains(0.1, 0.002, 0.0001);
     public static PIDController.PIDGains rotGains = new PIDController.PIDGains(1.0, 0, 0);
 

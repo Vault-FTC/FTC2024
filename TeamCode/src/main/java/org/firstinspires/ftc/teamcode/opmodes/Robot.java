@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
 import org.firstinspires.ftc.teamcode.org.rustlib.utils.SuperGamepad;
-import org.firstinspires.ftc.teamcode.subsystems.AprilTagCamera;
+import org.firstinspires.ftc.teamcode.org.rustlib.vision.AprilTagCamera;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.DroneShooter;

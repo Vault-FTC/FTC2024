@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.org.rustlib.vision;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Vector2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
-import org.firstinspires.ftc.teamcode.org.rustlib.vision.CameraActivationZone;
+import org.firstinspires.ftc.teamcode.subsystems.AprilTag;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;

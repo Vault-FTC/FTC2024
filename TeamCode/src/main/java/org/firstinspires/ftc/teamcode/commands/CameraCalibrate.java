@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.commands;
 
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Command;
-import org.firstinspires.ftc.teamcode.subsystems.AprilTagCamera;
+import org.firstinspires.ftc.teamcode.org.rustlib.vision.AprilTagCamera;
 import org.firstinspires.ftc.vision.VisionPortal;
 
 public class CameraCalibrate extends Command {
