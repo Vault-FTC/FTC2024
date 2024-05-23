@@ -10,8 +10,7 @@ public class BlueLeft extends AutonContainer {
     }
 
     @Override
-    public void init() {
-        super.init();
+    public void setup() {
         autonomousCommand = blueLeftCommand;
     }
 

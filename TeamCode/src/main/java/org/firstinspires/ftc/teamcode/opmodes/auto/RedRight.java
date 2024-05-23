@@ -9,10 +9,8 @@ public class RedRight extends AutonContainer {
         super(Alliance.RED, redRightStartPosition);
     }
 
-
     @Override
-    public void init() {
-        super.init();
+    public void setup() {
         autonomousCommand = redRightCommand;
     }
 

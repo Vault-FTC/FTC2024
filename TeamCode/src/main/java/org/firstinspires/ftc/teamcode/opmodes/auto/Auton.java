@@ -27,8 +27,6 @@ public abstract class Auton extends Robot {
 
     @Override
     public void setup() {
-        super.init();
-
         drive.odometry.setPosition(startPosition);
         botPose = startPosition;
         if (alliance == Alliance.BLUE) {
