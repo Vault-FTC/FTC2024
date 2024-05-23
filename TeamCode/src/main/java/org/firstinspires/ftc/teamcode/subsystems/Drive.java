@@ -9,9 +9,9 @@ import org.firstinspires.ftc.teamcode.org.rustlib.control.PIDController;
 import org.firstinspires.ftc.teamcode.org.rustlib.drive.MecanumBase;
 import org.firstinspires.ftc.teamcode.org.rustlib.drive.Odometry;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.hardware.PairedEncoder;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
-import org.firstinspires.ftc.teamcode.org.rustlib.utils.PairedEncoder;
 
 public class Drive extends Subsystem {
     public final MecanumBase base;
@@ -79,7 +79,7 @@ public class Drive extends Subsystem {
     @Override
     public void periodic() {
         RustboardLayout.setNodeValue("pose", odometry.getPose().toString());
-        RustboardLayout layout = Server.getLayout("dashboard_0");
+        RustboardLayout layout = Rustboard.getLayout("dashboard_0");
         base.driveController.setGains(new PIDController.PIDGains(
                 layout.getDoubleValue("drive kP", 0.1),
                 layout.getDoubleValue("drive kI", 0.0),

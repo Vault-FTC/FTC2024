@@ -58,7 +58,7 @@ public class RustboardLayout {
         Objects.requireNonNull(nodes.get(id)).state = value;
         if (SubsystemConstants.debugMode) {
             JsonObject jsonObject = getSendableNodeData(id, value);
-            Server.getInstance().sendToConnection(this, jsonObject.toString());
+            Rustboard.getInstance().sendToConnection(this, jsonObject.toString());
         }
     }
 
@@ -81,7 +81,7 @@ public class RustboardLayout {
     public static void setNodeValue(String id, String value) {
         if (SubsystemConstants.debugMode) {
             JsonObject jsonObject = getSendableNodeData(id, value);
-            Server.getInstance().broadcastJson(jsonObject);
+            Rustboard.getInstance().broadcastJson(jsonObject);
         }
     }
 
@@ -101,7 +101,7 @@ public class RustboardLayout {
         id = object.getString("id");
         for (JsonValue jsonValue : jsonValues) {
             JsonObject nodeJson = jsonValue.asJsonObject();
-            RustboardNode node = new RustboardNode(nodeJson.getString("id"), getNodeType(nodeJson.getString("type")), nodeJson.getString("state"), Server.getInstance().getUTCTime());
+            RustboardNode node = new RustboardNode(nodeJson.getString("id"), getNodeType(nodeJson.getString("type")), nodeJson.getString("state"), Rustboard.getInstance().getUTCTime());
             nodes.put(node.id, node);
         }
         this.nodes = nodes;
@@ -142,7 +142,7 @@ public class RustboardLayout {
         try {
             return Double.parseDouble(getNodeState(id, RustboardNode.Type.TEXT_INPUT, RustboardNode.Type.TEXT_TELEMETRY));
         } catch (NumberFormatException e) {
-            Server.log(e + "\n + Couldn't get double value for id " + id);
+            Rustboard.log(e + "\n + Couldn't get double value for id " + id);
             return defaultValue;
         }
     }
@@ -256,7 +256,7 @@ public class RustboardLayout {
         try {
             layout.update(Json.createReader(new StringReader(layoutData)).readObject());
         } catch (JsonParseException e) {
-            Server.log(e.toString());
+            Rustboard.log(e.toString());
             e.printStackTrace();
         }
         return layout;
@@ -266,7 +266,7 @@ public class RustboardLayout {
         try {
             return Double.parseDouble(Loader.loadString(fileName));
         } catch (NumberFormatException e) {
-            Server.log(e.toString());
+            Rustboard.log(e.toString());
             return defaultValue;
         }
     }

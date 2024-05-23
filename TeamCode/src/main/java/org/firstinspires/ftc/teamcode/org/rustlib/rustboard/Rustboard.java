@@ -29,8 +29,8 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 
-public class Server extends WebSocketServer {
-    private static Server instance = null;
+public class Rustboard extends WebSocketServer {
+    private static Rustboard instance = null;
     public static final int port = 21865;
     private static final File storageDir = new File(Environment.getExternalStorageDirectory() + "\\Download");
     public static final File timeCalibration = new File(Loader.defaultStorageDirectory + "\\.Time\\.time_offset.txt");
@@ -40,7 +40,7 @@ public class Server extends WebSocketServer {
     private long timeOffset = 0;
     ElapsedTime timer;
 
-    private Server(int port) throws UnknownHostException {
+    private Rustboard(int port) throws UnknownHostException {
         super(new InetSocketAddress(port));
         setReuseAddr(true);
         timer = new ElapsedTime();
@@ -295,10 +295,10 @@ public class Server extends WebSocketServer {
         return RegisteredOpModes.getInstance().getOpModes();
     }
 
-    public static Server getInstance() {
+    public static Rustboard getInstance() {
         if (instance == null) {
             try {
-                instance = new Server(port);
+                instance = new Rustboard(port);
                 RobotLog.v("dashboard server started");
             } catch (UnknownHostException e) {
                 e.printStackTrace();

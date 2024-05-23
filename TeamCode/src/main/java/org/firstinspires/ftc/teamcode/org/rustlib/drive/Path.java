@@ -5,7 +5,8 @@ import com.google.gson.JsonParseException;
 import org.firstinspires.ftc.teamcode.constants.DriveConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
+import org.firstinspires.ftc.teamcode.org.rustlib.utils.FutureInstance;
 
 import java.util.ArrayList;
 import java.util.function.Supplier;
@@ -15,7 +16,6 @@ import javax.json.JsonObject;
 
 public class Path implements Supplier<Path> {
     public final ArrayList<Supplier<Waypoint>> waypoints;
-
     final double timeout;
 
     public Path(double timeout, Supplier<Waypoint>... waypoints) {
@@ -36,7 +36,6 @@ public class Path implements Supplier<Path> {
     }
 
     public static class Builder {
-
         private final ArrayList<Supplier<Waypoint>> waypoints;
 
         private double defaultRadiusIn = DriveConstants.defaultFollowRadius;
@@ -177,7 +176,7 @@ public class Path implements Supplier<Path> {
             Path loaded = pathBuilder.setTimeout(timeout).build();
             return loaded;
         } catch (JsonParseException e) {
-            Server.log(e.toString());
+            Rustboard.log(e.toString());
         }
         return new Path();
     }
@@ -190,7 +189,7 @@ public class Path implements Supplier<Path> {
         return translate(0, y);
     }
 
-    public Path translate(double x, double y) { // TODO: FutureInstances can regenerate, and this method does not take that into account
+    public Path translate(double x, double y) {
         Builder builder = getBuilder().setTimeout(timeout);
         for (Supplier<Waypoint> waypoint : waypoints) {
             builder.addWaypoint(new FutureInstance<>(() -> waypoint.get().translate(x, y)));

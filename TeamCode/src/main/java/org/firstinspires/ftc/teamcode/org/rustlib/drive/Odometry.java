@@ -4,9 +4,9 @@ import org.firstinspires.ftc.teamcode.constants.DriveConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.org.rustlib.hardware.PairedEncoder;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
-import org.firstinspires.ftc.teamcode.org.rustlib.utils.Encoder;
-import org.firstinspires.ftc.teamcode.org.rustlib.utils.PairedEncoder;
 
 import java.util.function.DoubleSupplier;
 
@@ -172,9 +172,9 @@ public class Odometry extends Subsystem {
     }
 
     public Pose2d update() {
-        RustboardLayout.setNodeValue("right odometry encoder", rightEncoder.getPosition());
-        RustboardLayout.setNodeValue("left odometry encoder", leftEncoder.getPosition());
-        RustboardLayout.setNodeValue("back odometry encoder", backEncoder.getPosition());
+        RustboardLayout.setNodeValue(".right odometry encoder", rightEncoder.getPosition());
+        RustboardLayout.setNodeValue(".left odometry encoder", leftEncoder.getPosition());
+        RustboardLayout.setNodeValue(".back odometry encoder", backEncoder.getPosition());
         Pose2d delta = delta();
         pose = pose.add(new Pose2d(delta.rotate(pose.rotation.getAngleRadians()), new Rotation2d(delta.rotation.getAngleRadians())));
         return pose;

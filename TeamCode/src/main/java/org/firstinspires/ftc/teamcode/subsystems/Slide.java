@@ -10,9 +10,9 @@ import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.org.rustlib.control.PIDController;
+import org.firstinspires.ftc.teamcode.org.rustlib.hardware.PairedEncoder;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
-import org.firstinspires.ftc.teamcode.org.rustlib.utils.PairedEncoder;
 
 public class Slide extends Subsystem {
 
@@ -66,7 +66,7 @@ public class Slide extends Subsystem {
     }
 
     private double applyAccelerationLimits(double speed) {
-        double accelMax = Server.getLayout("dashboard_0").getDoubleValue("slide accel", 0.5);
+        double accelMax = Rustboard.getLayout("dashboard_0").getDoubleValue("slide accel", 0.5);
         if (speed > 0) {
             speed = Math.min(lastSpeed + accelMax, speed);
         } else {
@@ -101,12 +101,12 @@ public class Slide extends Subsystem {
             targetPosition = Math.max(targetPosition, 0);
         }
 
-        controller.setP(Server.getLayout("dashboard_0").getDoubleValue("slide kP", 0.0014));
-        controller.setI(Server.getLayout("dashboard_0").getDoubleValue("slide kI", 0.0));
-        controller.setD(Server.getLayout("dashboard_0").getDoubleValue("slide kD", 0.0008));
-        feedforward = Server.getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2);
-        Server.log(controller.getGains().toString());
-        Server.log("feedforward: " + feedforward);
+        controller.setP(Rustboard.getLayout("dashboard_0").getDoubleValue("slide kP", 0.0014));
+        controller.setI(Rustboard.getLayout("dashboard_0").getDoubleValue("slide kI", 0.0));
+        controller.setD(Rustboard.getLayout("dashboard_0").getDoubleValue("slide kD", 0.0008));
+        feedforward = Rustboard.getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2);
+        Rustboard.log(controller.getGains().toString());
+        Rustboard.log("feedforward: " + feedforward);
         RustboardLayout.setNodeValue("slide pose", encoder.getPosition());
         RustboardLayout.setNodeValue("slide velocity", encoder.getVelocity());
         RustboardLayout.setNodeValue("slide target", targetPosition);

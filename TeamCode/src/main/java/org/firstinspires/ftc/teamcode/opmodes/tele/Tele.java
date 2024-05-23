@@ -23,7 +23,8 @@ public class Tele extends Robot {
     public static Pose2d backdropPose = blueBackdropPose;
     Command automaticPlace;
 
-    public void initialize() {
+    @Override
+    public void setup() {
         aprilTagCamera.enable();
         if (alliance == Alliance.RED) {
             backdropPose = redBackdropPose;
@@ -78,30 +79,14 @@ public class Tele extends Robot {
         payloadController.leftBumper.onTrue(new SlideToPosition(slide, -100));
     }
 
-    /**
-     * Do NOT edit this method!  Edit the initialize method instead.
-     */
     @Override
-    public void init() {
-        super.init();
-        initialize();
-    }
-
-    public void start() {
+    public void onStart() {
         droneShooter.storeAngle();
     }
 
+    @Override
     public void mainLoop() {
         telemetry.addData("servo pose", droneShooter.angleAdjuster.getPosition());
         telemetry.addData("heading", drive.odometry.getPose().rotation.getAngleDegrees());
     }
-
-    /**
-     * Do NOT edit this method!  Edit the mainLoop method instead.
-     */
-    public void loop() {
-        super.loop();
-        mainLoop();
-    }
-
 }

@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.constants;
 import org.firstinspires.ftc.teamcode.org.rustlib.control.PIDController;
 
 public class DriveConstants {
-    public static double fieldLengthIn = 141.167;
-    public static double tileLengthIn = 23.4270833;
     public static double maxEndpointErr = 0.5;
     public static double defaultFollowRadius = 8;
     public static double trackEndpointHeadingMaxDistance = 12.0;

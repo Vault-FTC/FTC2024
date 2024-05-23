@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.org.rustlib.core;
 
 import android.os.Environment;
 
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,7 +29,7 @@ public class Loader {
 
             return data.toString();
         } catch (IOException e) {
-            Server.log(e.toString());
+            Rustboard.log(e.toString());
             e.printStackTrace();
         }
         return "";

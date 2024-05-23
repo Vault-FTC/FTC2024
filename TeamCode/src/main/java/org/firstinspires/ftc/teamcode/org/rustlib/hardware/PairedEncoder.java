@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.org.rustlib.utils;
+package org.firstinspires.ftc.teamcode.org.rustlib.hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;

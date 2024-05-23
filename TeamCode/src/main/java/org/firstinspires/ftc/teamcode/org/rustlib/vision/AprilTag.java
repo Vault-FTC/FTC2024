@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.org.rustlib.vision;
 
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose3d;
 

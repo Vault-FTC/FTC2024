@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.AutonomousCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.teamcode.org.rustlib.vision.GameElementDetector;
 import org.firstinspires.ftc.teamcode.org.rustlib.vision.GameElementDetector.StreamDimension;
 import org.firstinspires.ftc.teamcode.vision.DetectorPipeline;
@@ -26,7 +26,7 @@ public abstract class Auton extends Robot {
     }
 
     @Override
-    public void init() {
+    public void setup() {
         super.init();
 
         drive.odometry.setPosition(startPosition);
@@ -41,14 +41,14 @@ public abstract class Auton extends Robot {
     }
 
     @Override
-    public void init_loop() {
+    public void setupLoop() {
         telemetry.addData("Wait a few seconds after detection stabilizes to start the program.", "");
         telemetry.addData("prop location: ", detectorPipeline.getElementLocation().toString());
     }
 
 
     @Override
-    public void start() {
+    public void onStart() {
         detectorPipeline.close();
         try {
             detectorCam.stopStreaming();
@@ -70,7 +70,7 @@ public abstract class Auton extends Robot {
                 String message = "Camera opened";
                 telemetry.addData(message, "");
                 telemetry.update();
-                Server.log(message);
+                Rustboard.log(message);
             }
 
             @Override
@@ -78,7 +78,7 @@ public abstract class Auton extends Robot {
                 String message = "Camera initialization failed";
                 telemetry.addData(message, "");
                 telemetry.update();
-                Server.log(message);
+                Rustboard.log(message);
             }
         });
     }

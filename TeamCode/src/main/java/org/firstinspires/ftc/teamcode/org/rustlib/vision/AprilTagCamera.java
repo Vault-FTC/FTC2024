@@ -5,48 +5,43 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.GainControl;
-import org.firstinspires.ftc.teamcode.commands.CameraCalibrate;
-import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.CommandScheduler;
+import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose3d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
-import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Vector2d;
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
-import org.firstinspires.ftc.teamcode.subsystems.AprilTag;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation3d;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Vector3d;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class AprilTagCamera extends Subsystem {
     private final Pose3d pose;
-    private final AprilTag[] tags;
     public final VisionPortal visionPortal;
     public boolean cameraEnabled = false;
     private boolean streaming = false;
     AprilTagProcessor aprilTagProcessor;
-    private Pose2d calculatedPose = new Pose2d();
+    private Pose2d calculatedBotPose = new Pose2d();
     private final Runnable onDetect;
     private final CameraActivationZone[] activationZones;
 
     private AprilTagCamera(Builder builder) {
         pose = builder.pose;
-        tags = builder.tags;
         onDetect = builder.onDetect;
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
-        aprilTagProcessor.setDecimation(0);
-        aprilTagProcessor.setPoseSolver(AprilTagProcessor.PoseSolver.OPENCV_IPPE_SQUARE);
+        aprilTagProcessor.setDecimation(builder.decimation);
         visionPortal = new VisionPortal.Builder()
                 .setCamera(builder.hardwareMap.get(WebcamName.class, "backCam"))
                 .addProcessor(aprilTagProcessor)
                 .build();
         activationZones = builder.activationZones;
-        CommandScheduler.getInstance().schedule(new CameraCalibrate(this));
+        new InstantCommand(() -> setExposure(builder.exposureMS, builder.exposureGain)).scheduleOn(() -> visionPortal.getCameraState() == VisionPortal.CameraState.CAMERA_DEVICE_READY);
     }
 
     public interface SetHardwareMap {
@@ -54,20 +49,19 @@ public class AprilTagCamera extends Subsystem {
     }
 
     public interface SetRelativePose {
-        AddTags setRelativePose(Pose3d pose);
+        Builder setRelativePose(Pose3d pose);
     }
 
-    public interface AddTags {
-        Builder addTags(AprilTag... tags);
-    }
-
-    public static class Builder implements SetHardwareMap, SetRelativePose, AddTags {
+    public static class Builder implements SetHardwareMap, SetRelativePose {
         private HardwareMap hardwareMap;
         private Pose3d pose;
         private AprilTag[] tags;
         private CameraActivationZone[] activationZones = {};
         private Runnable onDetect = () -> {
         };
+        private int exposureMS = 6;
+        private int exposureGain = 250;
+        private int decimation = 2;
 
         private Builder() {
 
@@ -80,14 +74,8 @@ public class AprilTagCamera extends Subsystem {
         }
 
         @Override
-        public AddTags setRelativePose(Pose3d pose) {
+        public Builder setRelativePose(Pose3d pose) {
             this.pose = pose;
-            return this;
-        }
-
-        @Override
-        public Builder addTags(AprilTag... tags) {
-            this.tags = tags;
             return this;
         }
 
@@ -101,6 +89,21 @@ public class AprilTagCamera extends Subsystem {
             return this;
         }
 
+        public Builder setExposureTime(int exposureMS) {
+            this.exposureMS = exposureMS;
+            return this;
+        }
+
+        public Builder setExposureGain(int exposureGain) {
+            this.exposureGain = exposureGain;
+            return this;
+        }
+
+        public Builder setDecimation(int decimation) {
+            this.decimation = decimation;
+            return this;
+        }
+
         public AprilTagCamera build() {
             return new AprilTagCamera(this);
         }
@@ -110,36 +113,38 @@ public class AprilTagCamera extends Subsystem {
         return new Builder();
     }
 
-    private Pose3d getCameraPose(AprilTagDetection... detections) {
-        for (AprilTagDetection detection : detections) {
-            // TODO: finish writing this and test it
-        }
-        return new Pose3d();
-    }
-
-    private Pose2d calculateBotPose(AprilTagDetection detection) { // The provided angles are intrinsic and in degrees
-        return new Pose2d();
-    }
-
-    private void adjustBotPose() {
-        Vector2d position = new Vector2d();
-        ArrayList<Rotation2d> rotations = new ArrayList<>();
-        List<AprilTagDetection> detections = aprilTagProcessor.getDetections();
-        int i = 0;
-        for (AprilTagDetection detection : detections) {
-            RustboardLayout.setNodeValue("follow", detection.id);
-            if (detection.metadata != null && AprilTag.getTag(detection.id) != null) {
-                Pose2d calculatedPose = calculateBotPose(detection);
-                position = position.add(calculatedPose);
-                rotations.add(calculatedPose.rotation);
-                i++;
-            }
-        }
-        if (i == 0) { // If none of the desired tags are detected, do nothing
+    private void calculateBotPose() {
+        ArrayList<AprilTagDetection> detections = aprilTagProcessor.getFreshDetections();
+        if (detections == null) {
             return;
         }
-        calculatedPose = new Pose2d(position.multiply((double) 1 / i), Rotation2d.averageRotations(rotations.toArray(new Rotation2d[]{})));
-        onDetect.run();
+        ArrayList<Pose3d> calculatedCamPoses = new ArrayList<>();
+        boolean validDetection = false;
+        for (AprilTagDetection detection : detections) {
+            if (detection.metadata != null && AprilTag.getTag(detection.id) != null) {
+                validDetection = true;
+                AprilTagPoseFtc relativeTagPose = detection.ftcPose;
+                AprilTag tag = AprilTag.getTag(detection.id);
+                Pose3d relativeCamPose = new Pose3d(-relativeTagPose.x, -relativeTagPose.y, -relativeTagPose.z, new Rotation2d(relativeTagPose.pitch), new Rotation2d(relativeTagPose.roll), new Rotation2d(relativeTagPose.yaw));
+                calculatedCamPoses.add(
+                        new Pose3d(
+                                relativeCamPose
+                                        .rotate(tag.pose.rotation.pitch.getAngleRadians(), Vector3d.Axis.Y)
+                                        .rotate(tag.pose.rotation.roll.getAngleRadians(), Vector3d.Axis.Z)
+                                        .rotate(tag.pose.rotation.yaw.getAngleRadians(), Vector3d.Axis.X),
+                                new Rotation3d(
+                                        new Rotation2d(tag.pose.rotation.pitch.getAngleRadians() - relativeTagPose.pitch),
+                                        new Rotation2d(tag.pose.rotation.roll.getAngleRadians() - relativeTagPose.roll),
+                                        new Rotation2d(tag.pose.rotation.yaw.getAngleRadians() - relativeTagPose.yaw))
+                        )
+                );
+            }
+        }
+        if (validDetection) {
+            Pose3d camPose = Pose3d.average(calculatedCamPoses.toArray(new Pose3d[]{}));
+            calculatedBotPose = camPose.toPose2d(); // TODO: add code to calculate bot pose from cam pose
+            onDetect.run();
+        }
     }
 
     public void setExposure(int exposureMS, int gain) {
@@ -161,7 +166,7 @@ public class AprilTagCamera extends Subsystem {
     }
 
     public Pose2d getCalculatedBotPose() {
-        return calculatedPose;
+        return calculatedBotPose;
     }
 
     private void resumeStream() {
@@ -169,7 +174,7 @@ public class AprilTagCamera extends Subsystem {
             visionPortal.resumeStreaming();
             streaming = true;
         } catch (RuntimeException e) {
-            Server.log(e);
+            Rustboard.log(e);
         }
     }
 
@@ -178,7 +183,7 @@ public class AprilTagCamera extends Subsystem {
             visionPortal.stopStreaming();
             streaming = false;
         } catch (RuntimeException e) {
-            Server.log(e);
+            Rustboard.log(e);
         }
     }
 
@@ -199,7 +204,9 @@ public class AprilTagCamera extends Subsystem {
             if (!streaming) {
                 resumeStream();
             }
-            adjustBotPose();
+            if (withinZone()) {
+                calculateBotPose();
+            }
         } else if (streaming) {
             stopStream();
         }

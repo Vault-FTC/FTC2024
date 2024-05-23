@@ -13,7 +13,6 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 
 public class DetectorPipeline extends GameElementDetector {
-
     private GameElementLocation propLocation = GameElementLocation.LEFT;
     private ArrayList<Integer> locationHistory = new ArrayList<>();
     private boolean processing = true;
@@ -55,7 +54,7 @@ public class DetectorPipeline extends GameElementDetector {
             locationHistory.add(propLocation.ordinal());
         }
 
-        RustboardLayout.setNodeValue("prop", propX);
+        RustboardLayout.setNodeValue("prop x", propX);
 
         return frame;
     }
@@ -76,5 +75,4 @@ public class DetectorPipeline extends GameElementDetector {
         }
         propLocation = GameElementLocation.values()[Math.round((float) sum / (float) i)];
     }
-
 }

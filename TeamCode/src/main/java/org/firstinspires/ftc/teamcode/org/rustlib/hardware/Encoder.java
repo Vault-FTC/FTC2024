@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.org.rustlib.utils;
+package org.firstinspires.ftc.teamcode.org.rustlib.hardware;
 
 public interface Encoder {
     int getPosition();

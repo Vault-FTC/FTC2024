@@ -8,12 +8,9 @@ import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 
 public class AutomaticDroneLaunch extends Command {
-
     private final Drive drive;
     private final Command shootDrone;
-
     private final Gamepad gamepad;
-
     private Waypoint target;
 
     public AutomaticDroneLaunch(Drive drive, Command shootDrone, Gamepad gamepad) {
