@@ -45,21 +45,21 @@ public class Loader {
         return getJsonObject(loadString(parentDir, child, fileExtension));
     }
 
-    public static String loadString(String fileName, String fileExtension) {
-        fileName = fileName.replace(" ", "_");
-        return loadString(new File(defaultStorageDirectory, fileName + "." + fileExtension));
+    public static String loadString(String filePath, String fileExtension) {
+        filePath = filePath.replace(" ", "_");
+        return loadString(new File(filePath + "." + fileExtension));
     }
 
-    public static JsonObject loadJsonObject(String fileName, String fileExtension) {
-        return getJsonObject(loadString(fileName, fileExtension));
+    public static JsonObject loadJsonObject(String filePath, String fileExtension) {
+        return getJsonObject(loadString(filePath, fileExtension));
     }
 
-    public static String loadString(String fileName) {
-        return loadString(fileName, ".txt");
+    public static String loadString(String filePath) {
+        return loadString(filePath, ".txt");
     }
 
-    public static JsonObject loadJsonObject(String fileName) {
-        return getJsonObject(loadString(fileName));
+    public static JsonObject loadJsonObject(String filePath) {
+        return getJsonObject(loadString(filePath));
     }
 
     public static JsonObject getJsonObject(String jsonString) {

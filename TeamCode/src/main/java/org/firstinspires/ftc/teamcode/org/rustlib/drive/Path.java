@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.org.rustlib.drive;
 
 import static org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server.storageDir;
 
+import com.google.gson.JsonParseException;
+
 import org.firstinspires.ftc.teamcode.constants.DriveConstants;
+import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
 
@@ -157,19 +160,9 @@ public class Path implements Supplier<Path> {
 
     public static Path loadPath(String fileName) {
         fileName = fileName.replace(" ", "_");
-        StringBuilder data = new StringBuilder();
         Builder pathBuilder = Path.getBuilder();
         try {
-            File filePath = new File(storageDir, fileName + ".json");
-            FileInputStream input = new FileInputStream(filePath);
-
-            int character;
-            while ((character = input.read()) != -1) {
-                data.append((char) character);
-            }
-
-            JsonReader reader = Json.createReader(new StringReader(data.toString()));
-            JsonObject path = reader.readObject();
+            JsonObject path = Loader.loadJsonObject(Loader.defaultStorageDirectory.getPath(), fileName, "json");
             double timeout = parseTimeout(path.getString("timeout"));
             JsonArray array = path.getJsonArray("points");
             for (int i = 0; i < array.size(); i++) {
@@ -191,7 +184,7 @@ public class Path implements Supplier<Path> {
             }
             Path loaded = pathBuilder.setTimeout(timeout).build();
             return loaded;
-        } catch (IOException e) {
+        } catch (JsonParseException e) {
             Server.log(e.toString());
         }
         return new Path();

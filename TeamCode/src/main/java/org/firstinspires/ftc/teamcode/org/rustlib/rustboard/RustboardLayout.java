@@ -254,7 +254,7 @@ public class RustboardLayout {
     }
 
     public static RustboardLayout loadLayout(String fileName) {
-        String layoutData = Loader.loadString(fileName, "json");
+        String layoutData = Loader.loadString(Loader.defaultStorageDirectory.getPath(), fileName, "json");
         RustboardLayout layout = new RustboardLayout(null);
         try {
             layout.update(Json.createReader(new StringReader(layoutData)).readObject());
@@ -267,7 +267,7 @@ public class RustboardLayout {
 
     public static double loadDouble(String fileName, double defaultValue) {
         try {
-            return Double.parseDouble(Loader.loadString(fileName));
+            return Double.parseDouble(Loader.loadString(Loader.defaultStorageDirectory.getPath(), fileName));
         } catch (NumberFormatException e) {
             Server.log(e.toString());
             return defaultValue;
@@ -275,6 +275,6 @@ public class RustboardLayout {
     }
 
     public static boolean loadBoolean(String fileName) {
-        return Boolean.parseBoolean(Loader.loadString(fileName));
+        return Boolean.parseBoolean(Loader.loadString(Loader.defaultStorageDirectory.getPath(), fileName));
     }
 }

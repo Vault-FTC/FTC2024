@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.org.rustlib.rustboard;
 
-import android.os.Environment;
 import android.util.Pair;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,6 +9,7 @@ import com.qualcomm.robotcore.util.ThreadPool;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.robotcore.internal.opmode.RegisteredOpModes;
 import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
@@ -32,18 +32,81 @@ import javax.json.JsonReader;
 
 
 public class Server extends WebSocketServer {
-    private static Server instance = null;
     public static final int port = 21865;
-    public static final File storageDir = new File(Environment.getExternalStorageDirectory() + "/Download");
-    protected ArrayList<RustboardLayout> layouts = new ArrayList<>();
     private static final RustboardLayout emptyLayout = new EmptyLayout();
-    private ArrayList<Pair<String, String>> messageQueue = new ArrayList<>();
+    private static Server instance = null;
+    protected ArrayList<RustboardLayout> layouts = new ArrayList<>();
     ElapsedTime timer;
+    private ArrayList<Pair<String, String>> messageQueue = new ArrayList<>();
 
     private Server(int port) throws UnknownHostException {
         super(new InetSocketAddress(port));
         setReuseAddr(true);
         timer = new ElapsedTime();
+    }
+
+    public static RustboardLayout getLayout(String id) {
+        for (RustboardLayout layout : getInstance().layouts) {
+            if (Objects.equals(layout.id, id)) {
+                return layout;
+            }
+        }
+        return emptyLayout;
+    }
+
+    public static void log(Object value) {
+        getInstance().log(value.toString());
+    }
+
+    public static void log(String value) {
+        JsonObject message = Json.createObjectBuilder()
+                .add("messageType", "log")
+                .add("value", getInstance().timer.milliseconds() + ": " + value)
+                .build();
+        getInstance().broadcastJson(message);
+    }
+
+    private static void savePath(JsonObject object) throws IOException {
+        JsonObject configuration = object.getJsonObject("configuration");
+        JsonObject path = configuration.getJsonObject("path");
+        String fileName = configuration.getString("id").replace(" ", "_") + ".json";
+        File output = new File(Loader.defaultStorageDirectory, fileName);
+        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
+        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
+        writer.write(path.toString());
+        writer.close();
+    }
+
+    private static void saveValue(JsonObject object) throws IOException {
+        JsonObject configuration = object.getJsonObject("configuration");
+        String value = configuration.getString("input");
+        String fileName = configuration.getString("id").replace(" ", "_") + ".txt";
+        File output = new File(Loader.defaultStorageDirectory, fileName);
+        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
+        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
+        writer.write(value);
+        writer.close();
+    }
+
+    private static void clearStorage() {
+        File[] files = Loader.defaultStorageDirectory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                file.delete();
+            }
+        }
+    }
+
+    public static Server getInstance() {
+        if (instance == null) {
+            try {
+                instance = new Server(port);
+                RobotLog.v("dashboard server started");
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }
+        return instance;
     }
 
     @Override
@@ -145,15 +208,6 @@ public class Server extends WebSocketServer {
         log(e);
     }
 
-    public static RustboardLayout getLayout(String id) {
-        for (RustboardLayout layout : getInstance().layouts) {
-            if (Objects.equals(layout.id, id)) {
-                return layout;
-            }
-        }
-        return emptyLayout;
-    }
-
     private RustboardLayout getLayout(WebSocket conn) {
         for (RustboardLayout layout : layouts) {
             if (layout.connection == conn) { // In this case the Objects.equals() method is not ideal.  What's important is that the references are the same, not the values of the variables
@@ -165,7 +219,7 @@ public class Server extends WebSocketServer {
 
     private ArrayList<RustboardLayout> loadLayouts() {
         ArrayList<RustboardLayout> layouts = new ArrayList<>();
-        for (File file : storageDir.listFiles()) {
+        for (File file : Loader.defaultStorageDirectory.listFiles()) {
             if (RustboardLayout.isDashboardLayoutFile(file.getName())) {
                 layouts.add(RustboardLayout.loadLayout(file.getName()));
             }
@@ -174,13 +228,12 @@ public class Server extends WebSocketServer {
     }
 
     public boolean connected() {
-        boolean connected = false;
         for (RustboardLayout layout : layouts) {
             if (layout.connection != null) {
-                connected = true;
+                return true;
             }
         }
-        return connected;
+        return false;
     }
 
     private void sendQueuedMessages() {
@@ -225,67 +278,12 @@ public class Server extends WebSocketServer {
         broadcastJson(message);
     }
 
-    public static void log(Object value) {
-        getInstance().log(value.toString());
-    }
-
-    public static void log(String value) {
-        JsonObject message = Json.createObjectBuilder()
-                .add("messageType", "log")
-                .add("value", getInstance().timer.milliseconds() + ": " + value)
-                .build();
-        getInstance().broadcastJson(message);
-    }
-
-    private static void savePath(JsonObject object) throws IOException {
-        JsonObject configuration = object.getJsonObject("configuration");
-        JsonObject path = configuration.getJsonObject("path");
-        String fileName = configuration.getString("id").replace(" ", "_") + ".json";
-        File output = new File(storageDir, fileName);
-        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
-        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
-        writer.write(path.toString());
-        writer.close();
-    }
-
-    private static void saveValue(JsonObject object) throws IOException {
-        JsonObject configuration = object.getJsonObject("configuration");
-        String value = configuration.getString("input");
-        String fileName = configuration.getString("id").replace(" ", "_") + ".txt";
-        File output = new File(storageDir, fileName);
-        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
-        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
-        writer.write(value);
-        writer.close();
-    }
-
-    private static void clearStorage() {
-        File[] files = storageDir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                file.delete();
-            }
-        }
-    }
-
     public void startOpMode(String opModeName) {
         RegisteredOpModes.getInstance().getOpMode(opModeName).init();
     }
 
     public List<OpModeMeta> getRegisteredOpModes() {
         return RegisteredOpModes.getInstance().getOpModes();
-    }
-
-    public static Server getInstance() {
-        if (instance == null) {
-            try {
-                instance = new Server(port);
-                RobotLog.v("dashboard server started");
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
-        }
-        return instance;
     }
 
 }
