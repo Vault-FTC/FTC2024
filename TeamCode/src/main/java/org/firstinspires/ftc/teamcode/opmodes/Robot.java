@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.VoltageUnit;
@@ -12,20 +10,23 @@ import org.firstinspires.ftc.teamcode.commands.SlideDefault;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
 import org.firstinspires.ftc.teamcode.constants.DriveConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Command;
-import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.CommandScheduler;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.SequentialCommandGroup;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.WaitCommand;
+import org.firstinspires.ftc.teamcode.org.rustlib.core.RobotBase;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.Field;
 import org.firstinspires.ftc.teamcode.org.rustlib.drive.FollowPathCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.drive.Path;
 import org.firstinspires.ftc.teamcode.org.rustlib.drive.Waypoint;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose3d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
 import org.firstinspires.ftc.teamcode.org.rustlib.utils.SuperGamepad;
-import org.firstinspires.ftc.teamcode.subsystems.AprilTagCamera;
+import org.firstinspires.ftc.teamcode.org.rustlib.vision.AprilTagCamera;
+import org.firstinspires.ftc.teamcode.org.rustlib.vision.CameraCameraActivationBox;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drive;
 import org.firstinspires.ftc.teamcode.subsystems.DroneShooter;
@@ -37,11 +38,8 @@ import org.firstinspires.ftc.teamcode.subsystems.Slide;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
-public class Robot extends OpMode {
-    public LynxModule controlHub;
-    public LynxModule expansionHub;
+public abstract class Robot extends RobotBase {
     public SuperGamepad driveController;
     public SuperGamepad payloadController;
     public Drive drive;
@@ -72,14 +70,11 @@ public class Robot extends OpMode {
 
     public static Alliance alliance = Alliance.BLUE;
 
-    private void setup() {
+    @Override
+    public void setup() {
         if (botPose == null) {
             botPose = new Pose2d(0, 0, new Rotation2d(-Math.PI));
         }
-
-        // Instantiate the gamepad helpers
-        driveController = new SuperGamepad(gamepad1);
-        payloadController = new SuperGamepad(gamepad2);
 
         // Instantiate subsystems
         drive = new Drive(hardwareMap);
@@ -89,48 +84,30 @@ public class Robot extends OpMode {
         slide.setDefaultCommand(new SlideDefault(slide, () -> -payloadController.rightStickY.getAsDouble()));
         climber = new Climber(hardwareMap);
         lights = new Lights(hardwareMap.get(RevBlinkinLedDriver.class, "lights"));
-        aprilTagCamera = new AprilTagCamera(hardwareMap);
-        aprilTagCamera.onDetect = () -> drive.odometry.setPosition(aprilTagCamera.getCalculatedBotPose());
+        aprilTagCamera = AprilTagCamera.getBuilder()
+                .setHardwareMap(hardwareMap)
+                .setRelativePose(new Pose3d())
+                .setCameraActivationZones(new CameraCameraActivationBox(Field.topLeftCorner, Field.topLeftCorner.translateX(50), Field.bottomLeftCorner.translateX(50), Field.bottomLeftCorner, drive.odometry::getPose))
+                .onDetect(() -> drive.odometry.setPosition(aprilTagCamera.getCalculatedBotPose()))
+                .setExposureTime(6)
+                .setExposureGain(250)
+                .setDecimation(2)
+                .build();
         droneShooter = new DroneShooter(hardwareMap);
         purplePixelPlacer = new PurplePixelPlacer(hardwareMap);
     }
 
-
     @Override
-    public void init() {
-        CommandScheduler.getInstance().clearRegistry();
-        CommandScheduler.getInstance().cancelAll();
-        Server.getInstance().start();
-        Server.getInstance().newLog();
-        List<LynxModule> hubs = hardwareMap.getAll(LynxModule.class);
-        if (hubs.get(0).isParent()) {
-            controlHub = hubs.get(0);
-            expansionHub = hubs.get(1);
-        } else {
-            controlHub = hubs.get(1);
-            expansionHub = hubs.get(0);
-        }
-        setup();
-    }
-
-    @Override
-    public void init_loop() {
-        CommandScheduler.getInstance().run();
-    }
-
-    @Override
-    public void loop() {
-        CommandScheduler.getInstance().run();
+    public void mainLoop() {
         RustboardLayout.setNodeValue("battery voltage", controlHub.getInputVoltage(VoltageUnit.VOLTS));
         botPose = drive.odometry.getPose();
         slidePose = slide.encoder.getPosition();
     }
 
     @Override
-    public void stop() {
-        CommandScheduler.getInstance().clearRegistry();
+    public void onStop() {
         try {
-            Server.getInstance().stop();
+            Rustboard.getInstance().stop();
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
@@ -175,5 +152,4 @@ public class Robot extends OpMode {
         new Trigger(() -> !gamepad1.atRest()).onTrue(new InstantCommand(command::cancel));
         return command;
     }
-
 }

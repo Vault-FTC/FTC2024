@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.org.rustlib.geometry;
 import androidx.annotation.NonNull;
 
 import org.firstinspires.ftc.teamcode.constants.DriveConstants;
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.Field;
 import org.firstinspires.ftc.teamcode.org.rustlib.drive.Waypoint;
 
 public class Pose2d extends Vector2d {
@@ -66,7 +67,19 @@ public class Pose2d extends Vector2d {
     }
 
     public Pose2d mirror() {
-        return new Pose2d(x, DriveConstants.fieldLengthIn - y, rotation.negate().addRadians(Math.PI));
+        return new Pose2d(x, Field.fieldLengthIn - y, rotation.negate().addRadians(Math.PI));
+    }
+
+    public static Pose2d average(Pose2d... poses) {
+        double xSum = 0;
+        double ySum = 0;
+        Rotation2d[] rotations = new Rotation2d[poses.length];
+        for (int i = 0; i < poses.length; i++) {
+            xSum += poses[i].x;
+            ySum += poses[i].y;
+            rotations[i] = poses[i].rotation;
+        }
+        return new Pose2d(xSum / poses.length, ySum / poses.length, Rotation2d.averageRotations(rotations));
     }
 
     @NonNull
@@ -74,5 +87,4 @@ public class Pose2d extends Vector2d {
     public String toString() {
         return "x:" + x + "y:" + y + "heading:" + rotation.getAngleRadians();
     }
-
 }

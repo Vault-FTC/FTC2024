@@ -9,12 +9,9 @@ import java.util.function.DoubleSupplier;
 public class SuperGamepad {
     private double triggerDeadZone = 0.05;
     private double joystickDeadZone = 0.05;
-
     public Trigger a;
     public Trigger b;
-
     public Trigger x;
-
     public Trigger y;
     public final Trigger leftBumper;
     public final Trigger rightBumper;
@@ -54,7 +51,6 @@ public class SuperGamepad {
         leftStickY = () -> Math.abs(gamepad.left_stick_y) > joystickDeadZone ? gamepad.left_stick_y : 0;
         rightStickX = () -> Math.abs(gamepad.right_stick_x) > joystickDeadZone ? gamepad.right_stick_x : 0;
         rightStickY = () -> Math.abs(gamepad.right_stick_y) > joystickDeadZone ? gamepad.right_stick_y : 0;
-
     }
 
     public SuperGamepad setTriggerDeadZone(double triggerDeadZone) {
@@ -66,5 +62,4 @@ public class SuperGamepad {
         this.joystickDeadZone = joystickDeadZone;
         return this;
     }
-
 }

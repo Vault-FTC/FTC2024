@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.org.rustlib.geometry;
 
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.Field;
+
+import java.util.Objects;
+
 public class Vector3d {
     public final double x;
     public final double y;
@@ -41,10 +45,41 @@ public class Vector3d {
         throw new RuntimeException("Could not rotate vector");
     }
 
+    public Vector3d translateX(double x) {
+        return translate(x, 0, 0);
+    }
+
+    public Vector3d translateY(double y) {
+        return translate(0, y, 0);
+    }
+
+    public Vector3d translateZ(double z) {
+        return translate(0, 0, z);
+    }
+
+    public Vector3d translate(double x, double y, double z) {
+        return new Vector3d(this.x + x, this.y + y, this.z + z);
+    }
+
+    public Vector3d mirror() {
+        return new Vector3d(x, Field.fieldLengthIn - y, z);
+    }
+
+    @Override
+    public boolean equals(Object vector) {
+        if (vector instanceof Vector3d) {
+            Vector3d toCompare = (Vector3d) vector;
+            if (!(Double.isFinite(toCompare.x) && Double.isFinite(toCompare.y) && Double.isFinite(toCompare.z)) && !(Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z))) {
+                return true;
+            }
+            return Objects.equals(x, toCompare.x) && Objects.equals(y, toCompare.y);
+        }
+        return false;
+    }
+
     public enum Axis {
         X,
         Y,
         Z
     }
-
 }

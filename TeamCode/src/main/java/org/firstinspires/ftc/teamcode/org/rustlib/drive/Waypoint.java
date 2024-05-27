@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.org.rustlib.drive;
 
-import org.firstinspires.ftc.teamcode.constants.DriveConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Vector2d;
 
@@ -29,6 +28,10 @@ public class Waypoint extends Vector2d implements Supplier<Waypoint> {
 
     public Waypoint(double x, double y, double followRadius, Rotation2d targetFollowRotation, Rotation2d targetEndRotation, double maxVelocity) {
         this(new Vector2d(x, y), followRadius, targetFollowRotation, targetEndRotation, maxVelocity);
+    }
+
+    public Waypoint(double x, double y, double followRadius, Rotation2d targetEndRotation, double maxVelocity) {
+        this(new Vector2d(x, y), followRadius, null, targetEndRotation, maxVelocity);
     }
 
     public Waypoint(double x, double y, double followRadius, Rotation2d targetFollowRotation, Rotation2d targetEndRotation) {
@@ -60,7 +63,7 @@ public class Waypoint extends Vector2d implements Supplier<Waypoint> {
     }
 
     public Waypoint mirror() {
-        return new Waypoint(x, DriveConstants.fieldLengthIn - y, followRadius, targetFollowRotation.negate().addRadians(Math.PI), targetEndRotation.negate().addRadians(Math.PI), maxVelocity);
+        return new Waypoint(x, Field.fieldLengthIn - y, followRadius, targetFollowRotation.negate().addRadians(Math.PI), targetEndRotation.negate().addRadians(Math.PI), maxVelocity);
     }
 
     @Override

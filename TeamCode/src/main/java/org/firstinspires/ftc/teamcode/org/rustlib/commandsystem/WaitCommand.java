@@ -18,11 +18,6 @@ public class WaitCommand extends Command {
     }
 
     @Override
-    public void execute() {
-
-    }
-
-    @Override
     public boolean isFinished() {
         return timer.milliseconds() > startTimestamp + waitTimeMilliseconds;
     }

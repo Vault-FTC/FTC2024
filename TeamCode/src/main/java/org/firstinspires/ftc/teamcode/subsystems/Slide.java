@@ -5,14 +5,14 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Trigger;
 import org.firstinspires.ftc.teamcode.org.rustlib.control.PIDController;
+import org.firstinspires.ftc.teamcode.org.rustlib.hardware.PairedEncoder;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
-import org.firstinspires.ftc.teamcode.org.rustlib.utils.PairedEncoder;
 
 public class Slide extends Subsystem {
 
@@ -41,13 +41,13 @@ public class Slide extends Subsystem {
         controller = new PIDController(0.0017, 0.0000008, 0.000003);
         controller.resetIntegralOnSetPointChange = true;
 
-        new Trigger(() -> encoder.getPosition() > Constants.Slide.preparePlacerPosition && encoder.getVelocity() > 0).onTrue(new InstantCommand(placer::placePosition));
-        new Trigger(() -> encoder.getPosition() < Constants.Slide.stowPlacerPosition && targetPosition < 10 || encoder.getVelocity() < -400).onTrue(new InstantCommand(placer::storagePosition));
+        new Trigger(() -> encoder.getPosition() > SubsystemConstants.Slide.preparePlacerPosition && encoder.getVelocity() > 0).onTrue(new InstantCommand(placer::placePosition));
+        new Trigger(() -> encoder.getPosition() < SubsystemConstants.Slide.stowPlacerPosition && targetPosition < 10 || encoder.getVelocity() < -400).onTrue(new InstantCommand(placer::storagePosition));
     }
 
     public void mizoom(double input) {
         double calculatedSpeed;
-        if (gamepadActive(input) && !(input > 0 && encoder.getPosition() > Constants.Slide.maxExtensionPosition)) { // If manual control is both requested and allowed
+        if (gamepadActive(input) && !(input > 0 && encoder.getPosition() > SubsystemConstants.Slide.maxExtensionPosition)) { // If manual control is both requested and allowed
             calculatedSpeed = input + feedforward;
             lastInput = input;
         } else { // If automatic control is requested or manual control is not allowed
@@ -66,7 +66,7 @@ public class Slide extends Subsystem {
     }
 
     private double applyAccelerationLimits(double speed) {
-        double accelMax = Server.getLayout("dashboard_0").getDoubleValue("slide accel", 0.5);
+        double accelMax = Rustboard.getLayout("dashboard_0").getDoubleValue("slide accel", 0.5);
         if (speed > 0) {
             speed = Math.min(lastSpeed + accelMax, speed);
         } else {
@@ -86,11 +86,11 @@ public class Slide extends Subsystem {
     }
 
     public void setTargetPosition(int targetPosition) {
-        this.targetPosition = Math.min(targetPosition, Constants.Slide.maxExtensionPosition);
+        this.targetPosition = Math.min(targetPosition, SubsystemConstants.Slide.maxExtensionPosition);
     }
 
     public boolean atTargetPosition() {
-        return Math.abs(targetPosition - encoder.getPosition()) < Constants.Slide.maxTargetError;
+        return Math.abs(targetPosition - encoder.getPosition()) < SubsystemConstants.Slide.maxTargetError;
     }
 
     @Override
@@ -101,12 +101,12 @@ public class Slide extends Subsystem {
             targetPosition = Math.max(targetPosition, 0);
         }
 
-        controller.setP(Server.getLayout("dashboard_0").getDoubleValue("slide kP", 0.0014));
-        controller.setI(Server.getLayout("dashboard_0").getDoubleValue("slide kI", 0.0));
-        controller.setD(Server.getLayout("dashboard_0").getDoubleValue("slide kD", 0.0008));
-        feedforward = Server.getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2);
-        Server.log(controller.getGains().toString());
-        Server.log("feedforward: " + feedforward);
+        controller.setP(Rustboard.getLayout("dashboard_0").getDoubleValue("slide kP", 0.0014));
+        controller.setI(Rustboard.getLayout("dashboard_0").getDoubleValue("slide kI", 0.0));
+        controller.setD(Rustboard.getLayout("dashboard_0").getDoubleValue("slide kD", 0.0008));
+        feedforward = Rustboard.getLayout("dashboard_0").getDoubleValue("slide feedforward", 0.2);
+        Rustboard.log(controller.getGains().toString());
+        Rustboard.log("feedforward: " + feedforward);
         RustboardLayout.setNodeValue("slide pose", encoder.getPosition());
         RustboardLayout.setNodeValue("slide velocity", encoder.getVelocity());
         RustboardLayout.setNodeValue("slide target", targetPosition);

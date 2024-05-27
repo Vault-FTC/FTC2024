@@ -12,7 +12,6 @@ public class PIDController {
     private double minIntegralErr = 0;
     private double maxIntegralErr = Double.POSITIVE_INFINITY;
     public boolean resetIntegralOnSetPointChange = false;
-
     private final ElapsedTime timer;
     private double lastTimestamp = 0;
 
@@ -26,6 +25,10 @@ public class PIDController {
 
     public PIDController(PIDGains pidGains) {
         this(pidGains.kP, pidGains.kI, pidGains.kD);
+    }
+
+    public PIDController() {
+        this(0, 0, 0);
     }
 
     public void setP(double kP) {

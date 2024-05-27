@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.org.rustlib.commandsystem;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.ArrayList;
+import java.util.function.BooleanSupplier;
 
 public class Command {
     ArrayList<Trigger> triggers = new ArrayList<>();
@@ -79,10 +80,28 @@ public class Command {
         state = State.UNSCHEDULED;
     }
 
+    public final Command scheduleOn(Trigger trigger) {
+        trigger.onTrue(new InstantCommand(this::schedule));
+        return this;
+    }
+
+    public final Command scheduleOn(BooleanSupplier condition) {
+        return scheduleOn(new Trigger(condition));
+    }
+
+    public final Command cancelOn(Trigger trigger) {
+        trigger.onTrue(new InstantCommand(this::cancel));
+        return this;
+    }
+
+    public final Command cancelOn(BooleanSupplier condition) {
+        cancelOn(new Trigger(condition));
+        return this;
+    }
+
     protected final void addRequirements(Subsystem... subsystems) {
         for (Subsystem subsystem : subsystems) {
             subsystem.requirements.add(this);
         }
     }
-
 }

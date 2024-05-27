@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.commands.IntakeDefault;
 import org.firstinspires.ftc.teamcode.commands.RunIntake;
 import org.firstinspires.ftc.teamcode.commands.SlideCalibrate;
 import org.firstinspires.ftc.teamcode.commands.SlideToPosition;
-import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
 import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
@@ -24,8 +24,7 @@ public class Tele extends Robot {
     Command automaticPlace;
 
     @Override
-    public void init() {
-        super.init();
+    public void setup() {
         aprilTagCamera.enable();
         if (alliance == Alliance.RED) {
             backdropPose = redBackdropPose;
@@ -49,8 +48,8 @@ public class Tele extends Robot {
         drive.setFieldCentricOffset(fieldCentricOffset);
 
         intake.setDefaultCommand(new IntakeDefault(intake, lights, drive.odometry::getPose)); // Runs the intake automatically when the robot is in the right spot
-        payloadController.rightTrigger.or(driveController.rightTrigger).whileTrue(new RunIntake(intake, Constants.Intake.defaultSpeed));
-        payloadController.leftTrigger.or(driveController.leftTrigger).whileTrue(new RunIntake(intake, -Constants.Intake.defaultSpeed));
+        payloadController.rightTrigger.or(driveController.rightTrigger).whileTrue(new RunIntake(intake, SubsystemConstants.Intake.defaultSpeed));
+        payloadController.leftTrigger.or(driveController.leftTrigger).whileTrue(new RunIntake(intake, -SubsystemConstants.Intake.defaultSpeed));
 
         Command shootDrone = new SequentialCommandGroup(
                 new InstantCommand(() -> droneShooter.shootAngle()),
@@ -60,7 +59,7 @@ public class Tele extends Robot {
                 })
         );
 
-        payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
+        payloadController.rightBumper.onTrue(new SlideToPosition(slide, SubsystemConstants.Slide.defaultPlacePosition));
         payloadController.options.whileTrue(new SlideCalibrate(slide));
         payloadController.options.and(payloadController.b).onTrue(new InstantCommand(() -> slide.encoder.reset()));
         slide.encoder.setPosition(slidePose); // Set the slide position to the last slide position in autonomous
@@ -70,24 +69,24 @@ public class Tele extends Robot {
 
         climber.setDefaultCommand(new ClimbDefault(climber, payloadController.leftStickY));
         payloadController.dpadRight.onTrue(new InstantCommand(() -> climber.deliverHook()));
-        payloadController.dpadLeft.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
+        payloadController.dpadLeft.onTrue(new SlideToPosition(slide, SubsystemConstants.Slide.defaultPlacePosition));
 
         payloadController.dpadDown.onTrue(new InstantCommand(() -> placer.storagePosition()));
         payloadController.dpadUp.onTrue(new InstantCommand(() -> placer.placePosition()));
 
         payloadController.y.onTrue(shootDrone);
-        payloadController.rightBumper.onTrue(new SlideToPosition(slide, Constants.Slide.defaultPlacePosition));
+        payloadController.rightBumper.onTrue(new SlideToPosition(slide, SubsystemConstants.Slide.defaultPlacePosition));
         payloadController.leftBumper.onTrue(new SlideToPosition(slide, -100));
     }
 
-    public void start() {
+    @Override
+    public void onStart() {
         droneShooter.storeAngle();
     }
 
-    public void loop() {
-        super.loop();
+    @Override
+    public void mainLoop() {
         telemetry.addData("servo pose", droneShooter.angleAdjuster.getPosition());
         telemetry.addData("heading", drive.odometry.getPose().rotation.getAngleDegrees());
     }
-
 }

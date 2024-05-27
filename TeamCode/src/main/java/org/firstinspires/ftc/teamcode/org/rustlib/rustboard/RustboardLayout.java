@@ -2,14 +2,12 @@ package org.firstinspires.ftc.teamcode.org.rustlib.rustboard;
 
 import com.google.gson.JsonParseException;
 
-import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
 import org.java_websocket.WebSocket;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Objects;
@@ -58,9 +56,9 @@ public class RustboardLayout {
      */
     public void setMyNodeValue(String id, String value) {
         Objects.requireNonNull(nodes.get(id)).state = value;
-        if (Constants.debugMode) {
+        if (SubsystemConstants.debugMode) {
             JsonObject jsonObject = getSendableNodeData(id, value);
-            Server.getInstance().sendToConnection(this, jsonObject.toString());
+            Rustboard.getInstance().sendToConnection(this, jsonObject.toString());
         }
     }
 
@@ -81,9 +79,9 @@ public class RustboardLayout {
      * @param value The value to send to the target dashboard nodes.
      */
     public static void setNodeValue(String id, String value) {
-        if (Constants.debugMode) {
+        if (SubsystemConstants.debugMode) {
             JsonObject jsonObject = getSendableNodeData(id, value);
-            Server.getInstance().broadcastJson(jsonObject);
+            Rustboard.getInstance().broadcastJson(jsonObject);
         }
     }
 
@@ -103,7 +101,7 @@ public class RustboardLayout {
         id = object.getString("id");
         for (JsonValue jsonValue : jsonValues) {
             JsonObject nodeJson = jsonValue.asJsonObject();
-            RustboardNode node = new RustboardNode(nodeJson.getString("id"), getNodeType(nodeJson.getString("type")), nodeJson.getString("state"));
+            RustboardNode node = new RustboardNode(nodeJson.getString("id"), getNodeType(nodeJson.getString("type")), nodeJson.getString("state"), Rustboard.getInstance().getUTCTime());
             nodes.put(node.id, node);
         }
         this.nodes = nodes;
@@ -144,7 +142,7 @@ public class RustboardLayout {
         try {
             return Double.parseDouble(getNodeState(id, RustboardNode.Type.TEXT_INPUT, RustboardNode.Type.TEXT_TELEMETRY));
         } catch (NumberFormatException e) {
-            Server.log(e + "\n + Couldn't get double value for id " + id);
+            Rustboard.log(e + "\n + Couldn't get double value for id " + id);
             return defaultValue;
         }
     }
@@ -199,11 +197,13 @@ public class RustboardLayout {
         private final String id;
         private final Type type;
         private String state;
+        private long lastUpdated;
 
-        public RustboardNode(String id, Type type, String state) {
+        public RustboardNode(String id, Type type, String state, long lastUpdated) {
             this.id = id;
             this.type = type;
             this.state = state;
+            this.lastUpdated = lastUpdated;
         }
 
         public enum Type {
@@ -246,11 +246,8 @@ public class RustboardLayout {
                 .add("id", id)
                 .build();
         String fileName = layoutFilePrefix + id.replace(" ", "_") + "json";
-        File output = new File(Server.storageDir, fileName);
-        FileOutputStream fileOut = new FileOutputStream(output.getAbsolutePath());
-        OutputStreamWriter writer = new OutputStreamWriter(fileOut);
-        writer.write(data.toString());
-        writer.close();
+        File output = new File(Loader.defaultStorageDirectory, fileName);
+        Loader.writeString(output, data.toString());
     }
 
     public static RustboardLayout loadLayout(String fileName) {
@@ -259,7 +256,7 @@ public class RustboardLayout {
         try {
             layout.update(Json.createReader(new StringReader(layoutData)).readObject());
         } catch (JsonParseException e) {
-            Server.log(e.toString());
+            Rustboard.log(e.toString());
             e.printStackTrace();
         }
         return layout;
@@ -269,7 +266,7 @@ public class RustboardLayout {
         try {
             return Double.parseDouble(Loader.loadString(Loader.defaultStorageDirectory.getPath(), fileName));
         } catch (NumberFormatException e) {
-            Server.log(e.toString());
+            Rustboard.log(e.toString());
             return defaultValue;
         }
     }

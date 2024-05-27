@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.commands;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 
-import org.firstinspires.ftc.teamcode.constants.Constants;
+import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Command;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.subsystems.Intake;
@@ -30,7 +30,7 @@ public class IntakeDefault extends Command {
     public void execute() {
         Pose2d botPose = poseSupplier.get();
         if (botPose.x > 95.0 && Math.abs(botPose.y - 70) > 50 && Math.sin(botPose.rotation.getAngleRadians()) < 0.3) {
-            intake.run(Constants.Intake.defaultSpeed);
+            intake.run(SubsystemConstants.Intake.defaultSpeed);
             flashLights.execute();
         } else {
             intake.run(0);

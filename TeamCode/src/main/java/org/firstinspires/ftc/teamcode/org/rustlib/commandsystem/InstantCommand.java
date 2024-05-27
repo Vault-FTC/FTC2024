@@ -23,5 +23,4 @@ public class InstantCommand extends Command {
     public void execute() {
         toRun.run();
     }
-
 }

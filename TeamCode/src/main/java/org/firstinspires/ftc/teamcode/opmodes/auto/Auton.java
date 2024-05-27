@@ -5,10 +5,10 @@ import org.firstinspires.ftc.teamcode.opmodes.Robot;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.AutonomousCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
-import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Server;
-import org.firstinspires.ftc.teamcode.org.rustlib.vision.DetectorPipeline;
+import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.teamcode.org.rustlib.vision.GameElementDetector;
 import org.firstinspires.ftc.teamcode.org.rustlib.vision.GameElementDetector.StreamDimension;
+import org.firstinspires.ftc.teamcode.vision.DetectorPipeline;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvWebcam;
@@ -16,7 +16,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public abstract class Auton extends Robot {
     OpenCvWebcam detectorCam;
     GameElementDetector detectorPipeline;
-    AutonomousCommand autonomousCommand;
+    protected AutonomousCommand autonomousCommand;
 
     private final Pose2d startPosition;
 
@@ -26,9 +26,7 @@ public abstract class Auton extends Robot {
     }
 
     @Override
-    public void init() {
-        super.init();
-
+    public void setup() {
         drive.odometry.setPosition(startPosition);
         botPose = startPosition;
         if (alliance == Alliance.BLUE) {
@@ -41,14 +39,14 @@ public abstract class Auton extends Robot {
     }
 
     @Override
-    public void init_loop() {
+    public void setupLoop() {
         telemetry.addData("Wait a few seconds after detection stabilizes to start the program.", "");
         telemetry.addData("prop location: ", detectorPipeline.getElementLocation().toString());
     }
 
 
     @Override
-    public void start() {
+    public void onStart() {
         detectorPipeline.close();
         try {
             detectorCam.stopStreaming();
@@ -70,7 +68,7 @@ public abstract class Auton extends Robot {
                 String message = "Camera opened";
                 telemetry.addData(message, "");
                 telemetry.update();
-                Server.log(message);
+                Rustboard.log(message);
             }
 
             @Override
@@ -78,7 +76,7 @@ public abstract class Auton extends Robot {
                 String message = "Camera initialization failed";
                 telemetry.addData(message, "");
                 telemetry.update();
-                Server.log(message);
+                Rustboard.log(message);
             }
         });
     }

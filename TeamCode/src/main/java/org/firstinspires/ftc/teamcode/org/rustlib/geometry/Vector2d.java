@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.org.rustlib.geometry;
 
+import org.firstinspires.ftc.teamcode.org.rustlib.drive.Field;
+
 import java.util.Objects;
 
 public class Vector2d {
@@ -77,9 +79,7 @@ public class Vector2d {
 
     @Override
     public boolean equals(Object vector) {
-        if (vector == null) {
-            return false;
-        } else if (vector instanceof Vector2d) {
+        if (vector instanceof Vector2d) {
             Vector2d toCompare = (Vector2d) vector;
             if (!(Double.isFinite(toCompare.x) && Double.isFinite(toCompare.y)) && !(Double.isFinite(x) && Double.isFinite(y))) {
                 return true;
@@ -87,6 +87,22 @@ public class Vector2d {
             return Objects.equals(x, toCompare.x) && Objects.equals(y, toCompare.y);
         }
         return false;
+    }
+
+    public Vector2d translateX(double x) {
+        return translate(x, 0);
+    }
+
+    public Vector2d translateY(double y) {
+        return translate(0, y);
+    }
+
+    public Vector2d translate(double x, double y) {
+        return new Vector2d(x + x, y + y);
+    }
+
+    public Vector2d mirror() {
+        return new Vector2d(x, Field.fieldLengthIn - y);
     }
 
     @Override
