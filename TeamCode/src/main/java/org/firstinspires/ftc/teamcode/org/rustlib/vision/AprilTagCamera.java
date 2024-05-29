@@ -9,9 +9,6 @@ import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.InstantCommand;
 import org.firstinspires.ftc.teamcode.org.rustlib.commandsystem.Subsystem;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose3d;
-import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
-import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation3d;
-import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Vector3d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
@@ -22,7 +19,7 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class AprilTagCamera extends Subsystem {
-    private final Pose3d pose;
+    private final Pose3d camPose;
     public final VisionPortal visionPortal;
     public boolean cameraEnabled = false;
     private boolean streaming = false;
@@ -32,7 +29,7 @@ public class AprilTagCamera extends Subsystem {
     private final CameraActivationZone[] activationZones;
 
     private AprilTagCamera(Builder builder) {
-        pose = builder.pose;
+        camPose = builder.pose;
         onDetect = builder.onDetect;
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
         aprilTagProcessor.setDecimation(builder.decimation);
@@ -125,24 +122,13 @@ public class AprilTagCamera extends Subsystem {
                 validDetection = true;
                 AprilTagPoseFtc relativeTagPose = detection.ftcPose;
                 AprilTag tag = AprilTag.getTag(detection.id);
-                Pose3d relativeCamPose = new Pose3d(-relativeTagPose.x, -relativeTagPose.y, -relativeTagPose.z, new Rotation2d(relativeTagPose.pitch), new Rotation2d(relativeTagPose.roll), new Rotation2d(relativeTagPose.yaw));
-                calculatedCamPoses.add(
-                        new Pose3d(
-                                relativeCamPose
-                                        .rotate(tag.pose.rotation.pitch.getAngleRadians(), Vector3d.Axis.Y)
-                                        .rotate(tag.pose.rotation.roll.getAngleRadians(), Vector3d.Axis.Z)
-                                        .rotate(tag.pose.rotation.yaw.getAngleRadians(), Vector3d.Axis.X),
-                                new Rotation3d(
-                                        new Rotation2d(tag.pose.rotation.pitch.getAngleRadians() - relativeTagPose.pitch),
-                                        new Rotation2d(tag.pose.rotation.roll.getAngleRadians() - relativeTagPose.roll),
-                                        new Rotation2d(tag.pose.rotation.yaw.getAngleRadians() - relativeTagPose.yaw))
-                        )
-                );
+                Pose3d relativeCamPose = Pose3d.toPose3d(detection.ftcPose).negate();
+                calculatedCamPoses.add(relativeCamPose.relativeTo(tag.pose));
             }
         }
         if (validDetection) {
             Pose3d camPose = Pose3d.average(calculatedCamPoses.toArray(new Pose3d[]{}));
-            calculatedBotPose = camPose.toPose2d(); // TODO: add code to calculate bot pose from cam pose
+            calculatedBotPose = camPose.relativeTo(this.camPose).toPose2d();
             onDetect.run();
         }
     }

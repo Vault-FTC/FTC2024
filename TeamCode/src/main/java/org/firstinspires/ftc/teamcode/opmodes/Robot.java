@@ -24,7 +24,6 @@ import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Pose3d;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.RustboardLayout;
-import org.firstinspires.ftc.teamcode.org.rustlib.utils.SuperGamepad;
 import org.firstinspires.ftc.teamcode.org.rustlib.vision.AprilTagCamera;
 import org.firstinspires.ftc.teamcode.org.rustlib.vision.CameraCameraActivationBox;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
@@ -40,8 +39,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public abstract class Robot extends RobotBase {
-    public SuperGamepad driveController;
-    public SuperGamepad payloadController;
     public Drive drive;
     public Intake intake;
     public Slide slide;

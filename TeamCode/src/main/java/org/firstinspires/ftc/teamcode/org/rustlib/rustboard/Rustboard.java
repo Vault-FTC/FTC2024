@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.util.ThreadPool;
 import org.firstinspires.ftc.robotcore.internal.opmode.OpModeMeta;
 import org.firstinspires.ftc.robotcore.internal.opmode.RegisteredOpModes;
 import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
-import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
+import org.firstinspires.ftc.teamcode.org.rustlib.config.Loader;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;

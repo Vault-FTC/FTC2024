@@ -1,8 +1,10 @@
-package org.firstinspires.ftc.teamcode.org.rustlib.core;
+package org.firstinspires.ftc.teamcode.org.rustlib.config;
 
 import android.os.Environment;
 
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,6 +15,9 @@ import java.io.StringReader;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class Loader {
     public static final File defaultStorageDirectory = new File(Environment.getExternalStorageDirectory() + "\\Download");
@@ -73,5 +78,18 @@ public class Loader {
         OutputStreamWriter writer = new OutputStreamWriter(fileOut);
         writer.write(string);
         writer.close();
+    }
+
+    public static Document readXML(File file) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setValidating(true);
+            factory.setIgnoringElementContentWhitespace(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(file);
+            return document;
+        } catch (IOException | SAXException | ParserConfigurationException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -45,6 +45,18 @@ public class Vector3d {
         throw new RuntimeException("Could not rotate vector");
     }
 
+    public Vector3d pitch(double angleRadians) {
+        return rotate(angleRadians, Axis.Y);
+    }
+
+    public Vector3d roll(double angleRadians) {
+        return rotate(angleRadians, Axis.X);
+    }
+
+    public Vector3d yaw(double angleRadians) {
+        return rotate(angleRadians, Axis.Z);
+    }
+
     public Vector3d translateX(double x) {
         return translate(x, 0, 0);
     }

@@ -59,7 +59,7 @@ public class Pose2d extends Vector2d {
     }
 
     public Pose2d translate(double x, double y) {
-        return new Pose2d(x + x, y + y, rotation);
+        return new Pose2d(super.translate(x, y), rotation);
     }
 
     public Pose2d rotate(Rotation2d rotation) {
@@ -68,6 +68,10 @@ public class Pose2d extends Vector2d {
 
     public Pose2d mirror() {
         return new Pose2d(x, Field.fieldLengthIn - y, rotation.negate().addRadians(Math.PI));
+    }
+
+    public Pose2d negate() {
+        return new Pose2d(-x, -y, rotation.negate());
     }
 
     public static Pose2d average(Pose2d... poses) {

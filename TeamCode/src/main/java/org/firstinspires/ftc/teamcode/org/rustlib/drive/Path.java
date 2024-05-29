@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.org.rustlib.drive;
 import com.google.gson.JsonParseException;
 
 import org.firstinspires.ftc.teamcode.constants.DriveConstants;
-import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
+import org.firstinspires.ftc.teamcode.org.rustlib.config.Loader;
 import org.firstinspires.ftc.teamcode.org.rustlib.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.org.rustlib.rustboard.Rustboard;
 import org.firstinspires.ftc.teamcode.org.rustlib.utils.FutureInstance;

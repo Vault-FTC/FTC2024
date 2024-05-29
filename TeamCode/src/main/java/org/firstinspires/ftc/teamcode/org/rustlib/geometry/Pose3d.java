@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.org.rustlib.geometry;
 
+import org.firstinspires.ftc.vision.apriltag.AprilTagPoseFtc;
+
 public class Pose3d extends Vector3d {
     public final Rotation3d rotation;
 
@@ -52,6 +54,45 @@ public class Pose3d extends Vector3d {
             yaw[i] = poses[i].rotation.yaw;
         }
         return new Pose3d(xSum / poses.length, ySum / poses.length, zSum / poses.length, Rotation2d.averageRotations(pitch), Rotation2d.averageRotations(roll), Rotation2d.averageRotations(yaw));
+    }
+
+    public Pose3d negate() {
+        return new Pose3d(-x, -y, -z, rotation.pitch.negate(), rotation.roll.negate(), rotation.yaw.negate());
+    }
+
+    public static Pose3d toPose3d(AprilTagPoseFtc pose) {
+        return new Pose3d(pose.x, pose.y, pose.z, new Rotation2d(pose.pitch), new Rotation2d(pose.roll), new Rotation2d(pose.yaw));
+    }
+
+    public Pose3d translateX(double x) {
+        return translate(x, 0, 0);
+    }
+
+    public Pose3d translateY(double y) {
+        return translate(0, y, 0);
+    }
+
+    public Pose3d translateZ(double z) {
+        return translate(0, 0, z);
+    }
+
+    public Pose3d translate(double x, double y, double z) {
+        return new Pose3d(super.translate(x, y, z), rotation);
+    }
+
+    public Pose3d relativeTo(Pose3d pose2) {
+        Vector3d newVector = this.pitch(pose2.rotation.pitch.getAngleRadians()).roll(pose2.rotation.roll.getAngleRadians()).yaw(pose2.rotation.yaw.getAngleRadians());
+        Vector3d angleVector = new Vector3d();
+        return new Pose3d(
+                this
+                        .pitch(pose2.rotation.pitch.getAngleRadians())
+                        .roll(pose2.rotation.roll.getAngleRadians())
+                        .yaw(pose2.rotation.yaw.getAngleRadians()),
+                new Rotation3d(
+                        new Rotation2d(rotation.pitch.getAngleRadians() + pose2.rotation.pitch.getAngleRadians()),
+                        new Rotation2d(rotation.roll.getAngleRadians() + pose2.rotation.roll.getAngleRadians()),
+                        new Rotation2d(rotation.yaw.getAngleRadians() + pose2.rotation.yaw.getAngleRadians()))
+        );
     }
 
     public Pose2d toPose2d() {

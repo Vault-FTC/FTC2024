@@ -15,6 +15,10 @@ public abstract class RobotBase extends OpMode {
     protected SuperGamepad driveController;
     protected SuperGamepad payloadController;
 
+    static {
+        Rustboard.getInstance().start();
+    }
+
     @Override
     public final void init() {
         CommandScheduler.getInstance().clearRegistry();

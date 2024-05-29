@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.org.rustlib.rustboard;
 import com.google.gson.JsonParseException;
 
 import org.firstinspires.ftc.teamcode.constants.SubsystemConstants;
-import org.firstinspires.ftc.teamcode.org.rustlib.core.Loader;
+import org.firstinspires.ftc.teamcode.org.rustlib.config.Loader;
 import org.java_websocket.WebSocket;
 
 import java.io.File;

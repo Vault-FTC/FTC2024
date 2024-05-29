@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Disabled
-@TeleOp(name = "motor test", group = "debug")
+@TeleOp(name = "Motor Test", group = "debug")
 public class MotorTest extends OpMode {
     DcMotor motor;
 
@@ -17,6 +17,6 @@ public class MotorTest extends OpMode {
 
     @Override
     public void loop() {
-        motor.setPower(gamepad1.right_stick_y);
+        motor.setPower(-gamepad1.right_stick_y);
     }
 }
